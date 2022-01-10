@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.*;
 import com.google.gson.*;
 
-public class FlightFeed {
+public class FlightFeed extends FlightFeedAbstract {
 	
 	private static final String OPEN_SKY_BASE_URL = "https://opensky-network.org/api/states/all";
 	
@@ -14,6 +14,7 @@ public class FlightFeed {
 	}
 	private void setFlight(Flight value) {
 		_flight = value;
+		notifyObservers(value);
 	}
 	
 	public void start() {
@@ -24,8 +25,7 @@ public class FlightFeed {
 			
 			// Monitor the first flight returned by Open Sky
 			setFlight(allFlights.states.get(0));		
-			System.out.println(_flight.toString());
-		
+
 			while (true) {
 				
 				try {
@@ -45,7 +45,6 @@ public class FlightFeed {
 						
 						// Flight info changed
 						setFlight(newFlight);					
-						System.out.println(_flight.toString());
 					}
 				}
 				else {
