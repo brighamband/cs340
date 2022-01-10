@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectModuleManager">
@@ -5,4 +6,13 @@
       <module fileurl="file://$PROJECT_DIR$/ObserverExercise.iml" filepath="$PROJECT_DIR$/ObserverExercise.iml" />
     </modules>
   </component>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ObserverExercise.iml" filepath="$PROJECT_DIR$/ObserverExercise.iml" />
+    </modules>
+  </component>
+>>>>>>> f5e639c13cb5a9d39b5fe8fdccd04b8c1321c166
 </project>
