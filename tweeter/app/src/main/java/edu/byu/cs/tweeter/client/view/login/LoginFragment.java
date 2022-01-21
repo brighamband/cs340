@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import edu.byu.cs.client.R;
-import edu.byu.cs.tweeter.client.backgroundTask.LoginTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -43,8 +43,7 @@ public class LoginFragment extends Fragment {
      * @return the fragment.
      */
     public static LoginFragment newInstance() {
-        LoginFragment fragment = new LoginFragment();
-        return fragment;
+        return new LoginFragment();
     }
 
     @Override
@@ -56,29 +55,48 @@ public class LoginFragment extends Fragment {
         password = view.findViewById(R.id.loginPassword);
         errorView = view.findViewById(R.id.loginError);
         Button loginButton = view.findViewById(R.id.loginButton);
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        loginButton.setOnClickListener((View v) -> {
+            // Login and move to MainActivity.
+            try {
+                validateLogin();
+                errorView.setText(null);
 
-            @Override
-            public void onClick(View view) {
-                // Login and move to MainActivity.
-                try {
-                    validateLogin();
-                    errorView.setText(null);
+                loginInToast = Toast.makeText(getContext(), "Logging In...", Toast.LENGTH_LONG);
+                loginInToast.show();
 
-                    loginInToast = Toast.makeText(getContext(), "Logging In...", Toast.LENGTH_LONG);
-                    loginInToast.show();
-
-                    // Send the login request.
-                    LoginTask loginTask = new LoginTask(alias.getText().toString(),
-                            password.getText().toString(),
-                            new LoginHandler());
-                    ExecutorService executor = Executors.newSingleThreadExecutor();
-                    executor.execute(loginTask);
-                } catch (Exception e) {
-                    errorView.setText(e.getMessage());
-                }
+                // Send the login request.
+                LoginTask loginTask = new LoginTask(alias.getText().toString(),
+                        password.getText().toString(),
+                        new LoginHandler());
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(loginTask);
+            } catch (Exception e) {
+                errorView.setText(e.getMessage());
             }
         });
+//        loginButton.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View view) {
+//                // Login and move to MainActivity.
+//                try {
+//                    validateLogin();
+//                    errorView.setText(null);
+//
+//                    loginInToast = Toast.makeText(getContext(), "Logging In...", Toast.LENGTH_LONG);
+//                    loginInToast.show();
+//
+//                    // Send the login request.
+//                    LoginTask loginTask = new LoginTask(alias.getText().toString(),
+//                            password.getText().toString(),
+//                            new LoginHandler());
+//                    ExecutorService executor = Executors.newSingleThreadExecutor();
+//                    executor.execute(loginTask);
+//                } catch (Exception e) {
+//                    errorView.setText(e.getMessage());
+//                }
+//            }
+//        });
 
         return view;
     }
