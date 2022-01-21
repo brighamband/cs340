@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowingPresenter {
@@ -13,14 +14,17 @@ public class FollowingPresenter {
         void displayErrorMessage(String message);
         void displayLoading(boolean displayOn);
         void addFollowees(List<User> followees);
+        void seeUserFollowing(User user);
     }
 
     private View view;
     private FollowService followService;
+    private UserService userService;
 
     public FollowingPresenter(View view) {
         this.view = view;
         followService = new FollowService();
+        userService = new UserService();
     }
 
     private User lastFollowee;
@@ -52,6 +56,10 @@ public class FollowingPresenter {
         }
     }
 
+    public void getUser(String alias) {
+        userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
+    }
+
     public class GetFollowingObserver implements FollowService.GetFollowingObserver {
         @Override
         public void handleSuccess(List<User> followees, boolean hasMorePages) {
@@ -75,6 +83,26 @@ public class FollowingPresenter {
             setLoading(false);
             view.displayLoading(false);
             view.displayErrorMessage("Failed to get following because of exception: " + exception.getMessage());
+        }
+    }
+
+    public class GetUserObserver implements UserService.GetUserObserver {
+        @Override
+        public void handleSuccess(User user) {
+            // FIXME - Anything here with loading?
+            view.seeUserFollowing(user);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            // FIXME - Anything here with loading?
+            view.displayErrorMessage("Failed to get user's profile: " + message);
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            // FIXME - Anything here with loading?
+            view.displayErrorMessage("Failed to get user's profile because of exception: " + exception.getMessage());
         }
     }
 }
