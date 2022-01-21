@@ -7,27 +7,27 @@ import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowingPresenter {
+public class FollowersPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
         void displayErrorMessage(String message);
         void displayLoading(boolean displayOn);
-        void addFollowing(List<User> following);
-        void displayUserFollowing(User user);
+        void addFollowers(List<User> followers);
+        void displayUserFollower(User user);
     }
 
     private View view;
     private FollowService followService;
     private UserService userService;
 
-    public FollowingPresenter(View view) {
+    public FollowersPresenter(View view) {
         this.view = view;
         followService = new FollowService();
         userService = new UserService();
     }
 
-    private User lastFollowing;
+    private User lastFollower;
     private boolean hasMorePages;
     private boolean isLoading = false;
 
@@ -47,38 +47,38 @@ public class FollowingPresenter {
         isLoading = loading;
     }
 
-    public void loadMoreFollowing(User user) {
+    public void loadMoreFollowers(User user) {
         if (!getIsLoading()) {   // This guard is important for avoiding a race condition in the scrolling code.
             setLoading(true);
             view.displayLoading(true);
 
-            followService.getFollowing(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastFollowing, new GetFollowingObserver());
+            followService.getFollowers(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastFollower, new FollowersPresenter.GetFollowersObserver());
         }
     }
 
-    public class GetFollowingObserver implements FollowService.GetFollowingObserver {
+    public class GetFollowersObserver implements FollowService.GetFollowersObserver {
         @Override
-        public void handleSuccess(List<User> following, boolean hasMorePages) {
+        public void handleSuccess(List<User> followers, boolean hasMorePages) {
             setLoading(false);
             view.displayLoading(false);
 
-            lastFollowing = (following.size() > 0) ? following.get(following.size() - 1) : null;
+            lastFollower = (followers.size() > 0) ? followers.get(followers.size() - 1) : null;
             setHasMorePages(hasMorePages);
-            view.addFollowing(following);
+            view.addFollowers(followers);
         }
 
         @Override
         public void handleFailure(String message) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get following: " + message);
+            view.displayErrorMessage("Failed to get followers: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get following because of exception: " + exception.getMessage());
+            view.displayErrorMessage("Failed to get followers because of exception: " + exception.getMessage());
         }
     }
 
@@ -88,13 +88,14 @@ public class FollowingPresenter {
 
     public void getUser(String alias) {
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
+
     }
 
     public class GetUserObserver implements UserService.GetUserObserver {
         @Override
         public void handleSuccess(User user) {
             // FIXME - Anything here with loading?
-            view.displayUserFollowing(user);
+            view.displayUserFollower(user);
         }
 
         @Override

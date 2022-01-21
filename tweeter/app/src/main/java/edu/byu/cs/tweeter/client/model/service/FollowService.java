@@ -9,13 +9,18 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowService {
+    /**
+     * FOLLOWING
+     */
+
     public interface GetFollowingObserver {
-        void handleSuccess(List<User> followees, boolean hasMorePages);
+        void handleSuccess(List<User> following, boolean hasMorePages);
         void handleFailure(String message);
         void handleException(Exception exception);
     }
@@ -42,14 +47,59 @@ public class FollowService {
         public void handleMessage(@NonNull Message msg) {
             boolean success = msg.getData().getBoolean(GetFollowingTask.SUCCESS_KEY);
             if (success) {
-                List<User> followees = (List<User>) msg.getData().getSerializable(GetFollowingTask.FOLLOWEES_KEY);
+                List<User> following = (List<User>) msg.getData().getSerializable(GetFollowingTask.FOLLOWEES_KEY);
                 boolean hasMorePages = msg.getData().getBoolean(GetFollowingTask.MORE_PAGES_KEY);
-                observer.handleSuccess(followees, hasMorePages);
+                observer.handleSuccess(following, hasMorePages);
             } else if (msg.getData().containsKey(GetFollowingTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(GetFollowingTask.MESSAGE_KEY);
                 observer.handleFailure(message);
             } else if (msg.getData().containsKey(GetFollowingTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(GetFollowingTask.EXCEPTION_KEY);
+                observer.handleException(ex);
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * FOLLOWERS
+     */
+
+    public interface GetFollowersObserver {
+        void handleSuccess(List<User> followers, boolean hasMorePages);
+        void handleFailure(String message);
+        void handleException(Exception exception);
+    }
+
+    public void getFollowers(AuthToken currUserAuthToken, User user, int pageSize, User lastFollower,
+                             GetFollowersObserver getFollowersObserver) {
+        GetFollowersTask getFollowersTask = new GetFollowersTask(currUserAuthToken,
+                user, pageSize, lastFollower, new GetFollowersHandler(getFollowersObserver));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(getFollowersTask);
+    }
+
+    /**
+     * Message handler (i.e., observer) for GetFollowersTask.
+     */
+    private class GetFollowersHandler extends Handler {
+        private GetFollowersObserver observer;
+
+        public GetFollowersHandler(GetFollowersObserver observer) {
+            this.observer = observer;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(GetFollowersTask.SUCCESS_KEY);
+            if (success) {
+                List<User> followers = (List<User>) msg.getData().getSerializable(GetFollowersTask.FOLLOWERS_KEY);
+                boolean hasMorePages = msg.getData().getBoolean(GetFollowersTask.MORE_PAGES_KEY);
+                observer.handleSuccess(followers, hasMorePages);
+            } else if (msg.getData().containsKey(GetFollowersTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(GetFollowersTask.MESSAGE_KEY);
+                observer.handleFailure(message);
+            } else if (msg.getData().containsKey(GetFollowersTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(GetFollowersTask.EXCEPTION_KEY);
                 observer.handleException(ex);
             }
         }

@@ -80,7 +80,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
         followingRecyclerView.addOnScrollListener(new FollowRecyclerViewPaginationScrollListener(layoutManager));
 
         followingPresenter = new FollowingPresenter(this);
-        followingPresenter.loadMoreItems(user);
+        followingPresenter.loadMoreFollowing(user);
 
         return view;
     }
@@ -100,12 +100,12 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
     }
 
     @Override
-    public void addFollowees(List<User> followees) {
-        followingRecyclerViewAdapter.addItems(followees);
+    public void addFollowing(List<User> following) {
+        followingRecyclerViewAdapter.addItems(following);
     }
 
     @Override
-    public void seeUserFollowing(User user) {
+    public void displayUserFollowing(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
         startActivity(intent);
@@ -258,7 +258,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
          * data.
          */
         void loadMoreItems() {
-            followingPresenter.loadMoreItems(user);
+            followingPresenter.loadMoreFollowing(user);
         }
 
         /**
