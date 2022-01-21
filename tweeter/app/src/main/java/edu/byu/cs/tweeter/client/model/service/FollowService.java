@@ -40,8 +40,6 @@ public class FollowService {
 
         @Override
         public void handleMessage(@NonNull Message msg) {
-
-
             boolean success = msg.getData().getBoolean(GetFollowingTask.SUCCESS_KEY);
             if (success) {
                 List<User> followees = (List<User>) msg.getData().getSerializable(GetFollowingTask.FOLLOWEES_KEY);
