@@ -55,7 +55,7 @@ public class LoginFragment extends Fragment {
         password = view.findViewById(R.id.loginPassword);
         errorView = view.findViewById(R.id.loginError);
         Button loginButton = view.findViewById(R.id.loginButton);
-        loginButton.setOnClickListener((View v) -> {
+        loginButton.setOnClickListener(v -> {
             // Login and move to MainActivity.
             try {
                 validateLogin();
@@ -74,30 +74,6 @@ public class LoginFragment extends Fragment {
                 errorView.setText(e.getMessage());
             }
         });
-//        loginButton.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View view) {
-//                // Login and move to MainActivity.
-//                try {
-//                    validateLogin();
-//                    errorView.setText(null);
-//
-//                    loginInToast = Toast.makeText(getContext(), "Logging In...", Toast.LENGTH_LONG);
-//                    loginInToast.show();
-//
-//                    // Send the login request.
-//                    LoginTask loginTask = new LoginTask(alias.getText().toString(),
-//                            password.getText().toString(),
-//                            new LoginHandler());
-//                    ExecutorService executor = Executors.newSingleThreadExecutor();
-//                    executor.execute(loginTask);
-//                } catch (Exception e) {
-//                    errorView.setText(e.getMessage());
-//                }
-//            }
-//        });
-
         return view;
     }
 

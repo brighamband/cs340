@@ -81,12 +81,9 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
 
         FloatingActionButton fab = findViewById(R.id.fab);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                StatusDialogFragment statusDialogFragment = new StatusDialogFragment();
-                statusDialogFragment.show(getSupportFragmentManager(), "post-status-dialog");
-            }
+        fab.setOnClickListener(v -> {
+            StatusDialogFragment statusDialogFragment = new StatusDialogFragment();
+            statusDialogFragment.show(getSupportFragmentManager(), "post-status-dialog");
         });
 
         updateSelectedUserFollowingAndFollowers();
@@ -118,26 +115,23 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
             executor.execute(isFollowerTask);
         }
 
-        followButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                followButton.setEnabled(false);
+        followButton.setOnClickListener(v -> {
+            followButton.setEnabled(false);
 
-                if (followButton.getText().toString().equals(v.getContext().getString(R.string.following))) {
-                    UnfollowTask unfollowTask = new UnfollowTask(Cache.getInstance().getCurrUserAuthToken(),
-                            selectedUser, new UnfollowHandler());
-                    ExecutorService executor = Executors.newSingleThreadExecutor();
-                    executor.execute(unfollowTask);
+            if (followButton.getText().toString().equals(v.getContext().getString(R.string.following))) {
+                UnfollowTask unfollowTask = new UnfollowTask(Cache.getInstance().getCurrUserAuthToken(),
+                        selectedUser, new UnfollowHandler());
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(unfollowTask);
 
-                    Toast.makeText(MainActivity.this, "Removing " + selectedUser.getName() + "...", Toast.LENGTH_LONG).show();
-                } else {
-                    FollowTask followTask = new FollowTask(Cache.getInstance().getCurrUserAuthToken(),
-                            selectedUser, new FollowHandler());
-                    ExecutorService executor = Executors.newSingleThreadExecutor();
-                    executor.execute(followTask);
+                Toast.makeText(MainActivity.this, "Removing " + selectedUser.getName() + "...", Toast.LENGTH_LONG).show();
+            } else {
+                FollowTask followTask = new FollowTask(Cache.getInstance().getCurrUserAuthToken(),
+                        selectedUser, new FollowHandler());
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(followTask);
 
-                    Toast.makeText(MainActivity.this, "Adding " + selectedUser.getName() + "...", Toast.LENGTH_LONG).show();
-                }
+                Toast.makeText(MainActivity.this, "Adding " + selectedUser.getName() + "...", Toast.LENGTH_LONG).show();
             }
         });
     }

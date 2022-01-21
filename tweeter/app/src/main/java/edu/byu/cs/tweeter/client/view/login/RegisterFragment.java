@@ -57,8 +57,7 @@ public class RegisterFragment extends Fragment {
      * @return the fragment.
      */
     public static RegisterFragment newInstance() {
-        RegisterFragment fragment = new RegisterFragment();
-        return fragment;
+        return new RegisterFragment();
     }
 
     @Override
@@ -75,42 +74,36 @@ public class RegisterFragment extends Fragment {
         registerButton = view.findViewById(R.id.registerButton);
         errorView = view.findViewById(R.id.registerError);
 
-        imageUploaderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(gallery, RESULT_IMAGE);
-            }
+        imageUploaderButton.setOnClickListener(v -> {
+            Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(gallery, RESULT_IMAGE);
         });
 
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Register and move to MainActivity.
-                try {
-                    validateRegistration();
-                    errorView.setText(null);
-                    registeringToast = Toast.makeText(getContext(), "Registering...", Toast.LENGTH_LONG);
-                    registeringToast.show();
+        registerButton.setOnClickListener(v -> {
+            // Register and move to MainActivity.
+            try {
+                validateRegistration();
+                errorView.setText(null);
+                registeringToast = Toast.makeText(getContext(), "Registering...", Toast.LENGTH_LONG);
+                registeringToast.show();
 
-                    // Convert image to byte array.
-                    Bitmap image = ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap();
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    image.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-                    byte[] imageBytes = bos.toByteArray();
+                // Convert image to byte array.
+                Bitmap image = ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                image.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                byte[] imageBytes = bos.toByteArray();
 
-                    // Intentionally, Use the java Base64 encoder so it is compatible with M4.
-                    String imageBytesBase64 = Base64.getEncoder().encodeToString(imageBytes);
+                // Intentionally, Use the java Base64 encoder so it is compatible with M4.
+                String imageBytesBase64 = Base64.getEncoder().encodeToString(imageBytes);
 
-                    // Send register request.
-                    RegisterTask registerTask = new RegisterTask(firstName.getText().toString(), lastName.getText().toString(),
-                            alias.getText().toString(), password.getText().toString(), imageBytesBase64, new RegisterHandler());
+                // Send register request.
+                RegisterTask registerTask = new RegisterTask(firstName.getText().toString(), lastName.getText().toString(),
+                        alias.getText().toString(), password.getText().toString(), imageBytesBase64, new RegisterHandler());
 
-                    ExecutorService executor = Executors.newSingleThreadExecutor();
-                    executor.execute(registerTask);
-                } catch (Exception e) {
-                    errorView.setText(e.getMessage());
-                }
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(registerTask);
+            } catch (Exception e) {
+                errorView.setText(e.getMessage());
             }
         });
 
