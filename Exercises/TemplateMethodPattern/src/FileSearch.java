@@ -2,27 +2,20 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class FileSearch {
+public class FileSearch extends Parent {
 
-	private String _dirName;
-	private String _filePattern;
-	private boolean _recurse;
-	private Matcher _fileMatcher;
-	private Matcher _searchMatcher;
-	private int _totalMatches;
-	
-	public FileSearch(String dirName, String filePattern, String searchPattern, boolean recurse) {
-		_dirName = dirName;
-		_filePattern = filePattern;
-		_recurse = recurse;
-		_fileMatcher = Pattern.compile(_filePattern).matcher("");
-		_searchMatcher = Pattern.compile(searchPattern).matcher("");
-		_totalMatches = 0;
+	private Matcher searchMatcher;
+	private int totalMatches;
+
+	public FileSearch(String directory, String pattern, String searchPattern, boolean recurse) {
+		super(directory, pattern, recurse);
+		searchMatcher = Pattern.compile(searchPattern).matcher("");
+		totalMatches = 0;
 		
-		searchDirectory(new File(_dirName));
+		searchDirectory(new File(directory));
 		
 		System.out.println("");
-		System.out.println("TOTAL MATCHES: " + _totalMatches);
+		System.out.println("TOTAL MATCHES: " + totalMatches);
 	}
 	
 	private void searchDirectory(File dir) {
@@ -47,7 +40,7 @@ public class FileSearch {
 			}
 		}
 		
-		if (_recurse) {
+		if (recurse) {
 			for (File file : dir.listFiles()) {
 				if (file.isDirectory()) {
 					searchDirectory(file);
@@ -65,8 +58,8 @@ public class FileSearch {
 		catch (IOException e) {
 		}
 		
-		_fileMatcher.reset(fileName);
-		if (_fileMatcher.find()) {
+		fileMatcher.reset(fileName);
+		if (fileMatcher.find()) {
 			try {
 				int curMatches = 0;
 
@@ -76,15 +69,15 @@ public class FileSearch {
 					while (input.hasNextLine()) {
 						String line = input.nextLine();
 						
-						_searchMatcher.reset(line);
-						if (_searchMatcher.find()) {
+						searchMatcher.reset(line);
+						if (searchMatcher.find()) {
 							if (++curMatches == 1) {
 								System.out.println("");
 								System.out.println("FILE: " + file);
 							}
 							
 							System.out.println(line);
-							++_totalMatches;
+							++totalMatches;
 						}
 					}
 				}
@@ -142,7 +135,7 @@ public class FileSearch {
 	}
 	
 	private static void usage() {
-		System.out.println("USAGE: java FileSearch {-r} <dir> <file-pattern> <search-pattern>");
+		usage("java FileSearch {-r} <dir> <file-pattern> <search-pattern>");
 	}
 
 }

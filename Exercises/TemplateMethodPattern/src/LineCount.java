@@ -2,24 +2,17 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class LineCount {
-	private String _directory;
-	private String _pattern;
-	private boolean _recurse;
-	private int _totalLineCount;
-	private Matcher _matcher;
-	
+public class LineCount extends Parent {
+	private int totalLineCount;
+
 	public LineCount(String directory, String pattern, boolean recurse) {
-		_directory = directory;
-		_pattern = pattern;
-		_recurse = recurse;
-		_totalLineCount = 0;
-		_matcher = Pattern.compile(_pattern).matcher("");		
+		super(directory, pattern, recurse);
+		totalLineCount = 0;
 	}
 	
 	private void run() {
-		countLinesInDir(new File(_directory));
-		System.out.println("TOTAL: " + _totalLineCount);
+		countLinesInDir(new File(directory));
+		System.out.println("TOTAL: " + totalLineCount);
 	}
 	
 	private void countLinesInDir(File dir) {
@@ -38,7 +31,7 @@ public class LineCount {
 					}
 				}
 					
-				if (_recurse) {
+				if (recurse) {
 					for (File file : dir.listFiles()) {
 						if (file.isDirectory()) {
 							countLinesInDir(file);
@@ -57,8 +50,8 @@ public class LineCount {
 	
 	private void countLinesInFile(File file) {
 		String fileName = getFileName(file);
-		_matcher.reset(fileName);
-		if (_matcher.find()) {
+		fileMatcher.reset(fileName);
+		if (fileMatcher.find()) {
 			try {
 				Reader reader = new BufferedReader(new FileReader(file));
 				int curLineCount = 0;
@@ -68,7 +61,7 @@ public class LineCount {
 					while (input.hasNextLine()) {
 						String line = input.nextLine();											
 						++curLineCount;
-						++_totalLineCount;
+						++totalLineCount;
 					}
 				}
 				finally {
@@ -116,7 +109,7 @@ public class LineCount {
 	}
 	
 	private static void usage() {
-		System.out.println("USAGE: java LineCount {-r} <dir> <file-pattern>");
+		usage("java LineCount {-r} <dir> <file-pattern>");
 	}
 
 }
