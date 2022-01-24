@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class LineCount extends Parent {
+public class LineCount extends FileScanner {
 	private int totalLineCount;
 
 	public LineCount(String directory, String pattern, boolean recurse) {

@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class FileSearch extends Parent {
+public class FileSearch extends FileScanner {
 
 	private Matcher searchMatcher;
 	private int totalMatches;

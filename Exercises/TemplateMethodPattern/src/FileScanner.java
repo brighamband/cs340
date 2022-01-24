@@ -5,13 +5,13 @@ import java.util.regex.Pattern;
 Example input: 'java FileSearch -r . ".*\.java" void'
  */
 
-public class Parent {
+public abstract class FileScanner {
     protected String directory;  // Name of directory
     protected String pattern;    // File pattern
     protected boolean recurse;
     protected Matcher fileMatcher;   // File matcher
 
-    public Parent(String directory, String pattern, boolean recurse) {
+    public FileScanner(String directory, String pattern, boolean recurse) {
         this.directory = directory;
         this.pattern = pattern;
         this.recurse = recurse;
