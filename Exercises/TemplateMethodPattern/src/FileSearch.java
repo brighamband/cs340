@@ -11,44 +11,23 @@ public class FileSearch extends FileScanner {
 		super(directory, pattern, recurse);
 		searchMatcher = Pattern.compile(searchPattern).matcher("");
 		totalMatches = 0;
-		
-		searchDirectory(new File(directory));
-		
-		System.out.println("");
-		System.out.println("TOTAL MATCHES: " + totalMatches);
 	}
-	
-	private void searchDirectory(File dir) {
-		if (!dir.isDirectory()) {
-			nonDir(dir);
-			return;
-		}
-		
-		if (!dir.canRead()) {
-			unreadableDir(dir);
-			return;
-		}
-		
-		for (File file : dir.listFiles()) {
-			if (file.isFile()) {
-				if (file.canRead()) {
-					searchFile(file);
-				}
-				else {
-					unreadableFile(file);
-				}
-			}
-		}
-		
-		if (recurse) {
-			for (File file : dir.listFiles()) {
-				if (file.isDirectory()) {
-					searchDirectory(file);
-				}
-			}
-		}
+
+	protected void run() {
+		processDirectory(new File(directory));
+		printResults("TOTAL MATCHES: " + totalMatches);
 	}
-	
+
+	protected void performFileOperation(File file) {
+		searchFile(file);
+	}
+
+	private static void usage() {
+		usage("java FileSearch {-r} <dir> <file-pattern> <search-pattern>");
+	}
+
+	// FileSearch specific methods
+
 	private void searchFile(File file) {
 		String fileName = "";
 		
@@ -90,23 +69,11 @@ public class FileSearch extends FileScanner {
 				}
 			}
 			catch (IOException e) {
-				unreadableFile(file);
+				printError(file, UNREADABLE_FILE);
 			}
 		}
 	}
-	
-	private void nonDir(File dir) {
-		System.out.println(dir + " is not a directory");
-	}
-	
-	private void unreadableDir(File dir) {
-		System.out.println("Directory " + dir + " is unreadable");
-	}
-	
-	private void unreadableFile(File file) {
-		System.out.println("File " + file + " is unreadable");
-	}
-	
+
 	public static void main(String[] args) {
 		
 		String dirName = "";
@@ -131,11 +98,7 @@ public class FileSearch extends FileScanner {
 			return;
 		}
 		
-		new FileSearch(dirName, filePattern, searchPattern, recurse);
+		FileSearch fileSearcher = new FileSearch(dirName, filePattern, searchPattern, recurse);
+		fileSearcher.run();
 	}
-	
-	private static void usage() {
-		usage("java FileSearch {-r} <dir> <file-pattern> <search-pattern>");
-	}
-
 }

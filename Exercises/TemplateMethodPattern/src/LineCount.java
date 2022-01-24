@@ -10,44 +10,21 @@ public class LineCount extends FileScanner {
 		totalLineCount = 0;
 	}
 	
-	private void run() {
-		countLinesInDir(new File(directory));
-		System.out.println("TOTAL: " + totalLineCount);
+	protected void run() {
+		processDirectory(new File(directory));
+		printResults("TOTAL: " + totalLineCount);
 	}
-	
-	private void countLinesInDir(File dir) {
-		if (dir.isDirectory())
-		{
-			if (dir.canRead())
-			{
-				for (File file : dir.listFiles()) {
-					if (file.isFile()) {
-						if (file.canRead()) {
-							countLinesInFile(file);
-						}
-						else {
-							System.out.println("File " + file + " is unreadable");
-						}
-					}
-				}
-					
-				if (recurse) {
-					for (File file : dir.listFiles()) {
-						if (file.isDirectory()) {
-							countLinesInDir(file);
-						}
-					}
-				}
-			}
-			else {
-				System.out.println("Directory " + dir + " is unreadable");
-			}
-		}
-		else {
-			System.out.println(dir + " is not a directory");
-		}
+
+	protected void performFileOperation(File file) {
+		countLinesInFile(file);
 	}
-	
+
+	private static void usage() {
+		usage("java LineCount {-r} <dir> <file-pattern>");
+	}
+
+	// LineCount specific methods
+
 	private void countLinesInFile(File file) {
 		String fileName = getFileName(file);
 		fileMatcher.reset(fileName);
@@ -107,9 +84,4 @@ public class LineCount extends FileScanner {
 		LineCount lineCounter = new LineCount(directory, pattern, recurse);
 		lineCounter.run();
 	}
-	
-	private static void usage() {
-		usage("java LineCount {-r} <dir> <file-pattern>");
-	}
-
 }
