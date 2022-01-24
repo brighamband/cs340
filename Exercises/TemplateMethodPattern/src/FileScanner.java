@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,15 @@ public abstract class FileScanner {
 
     protected abstract void setSearchVariables(String searchPat);
 
+    protected String getFileName(File file) {
+        try {
+            return file.getCanonicalPath();
+        }
+        catch (IOException e) {
+            return "";
+        }
+    }
+
     protected void processDirectory(File dir) {
         if (!dir.isDirectory()) {
             printError(dir, NON_DIR);
@@ -44,7 +54,7 @@ public abstract class FileScanner {
         for (File file : dir.listFiles()) {
             if (file.isFile()) {
                 if (file.canRead()) {
-                    performFileOperation(file);
+                    performGeneralFileOperation(file);
                 }
                 else {
                     printError(file, UNREADABLE_FILE);
@@ -61,7 +71,17 @@ public abstract class FileScanner {
         }
     }
 
-    protected abstract void performFileOperation(File file);
+    protected void performGeneralFileOperation(File file) {
+        String fileName = getFileName(file);
+        fileMatcher.reset(fileName);
+        if (!fileMatcher.find()) {
+            return;
+        }
+
+        performSpecificFileOperation(file);
+    }
+
+    protected abstract void performSpecificFileOperation(File file);
 
     protected void printError(File fileOrDir, int errorType) {
         if (errorType == NON_DIR) {
