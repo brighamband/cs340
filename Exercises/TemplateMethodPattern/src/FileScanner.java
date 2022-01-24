@@ -13,22 +13,22 @@ public abstract class FileScanner {
     protected final static int UNREADABLE_FILE = 2;
 
     protected String directory;  // Name of directory
-    protected String pattern;    // File pattern
+    protected String filePattern;
     protected boolean recurse;
-    protected Matcher fileMatcher;   // File matcher
+    protected Matcher fileMatcher;
 
-    public FileScanner(String directory, String pattern, boolean recurse) {
+    public FileScanner() {}
+
+    public FileScanner(String directory, String filePattern, boolean recurse) {
         this.directory = directory;
-        this.pattern = pattern;
+        this.filePattern = filePattern;
         this.recurse = recurse;
-        this.fileMatcher = Pattern.compile(pattern).matcher("");
+        this.fileMatcher = Pattern.compile(filePattern).matcher("");
     }
 
     protected abstract void run();
 
-    protected void openFile() {
-
-    }
+    protected abstract void setSearchVariables(String searchPat);
 
     protected void processDirectory(File dir) {
         if (!dir.isDirectory()) {
@@ -79,5 +79,36 @@ public abstract class FileScanner {
 
     protected static void usage(String usageStr) {
         System.out.println("USAGE: " + usageStr);
+    }
+
+    protected boolean parseArgs(String[] args, boolean countLines) {
+        int minArgsNeeded = 3;
+        if (countLines) {
+            minArgsNeeded = 2;
+        }
+
+        if (args.length == minArgsNeeded) {
+            recurse = false;
+            directory = args[0];
+            filePattern = args[1];
+            fileMatcher = Pattern.compile(filePattern).matcher("");
+
+            if (!countLines) {
+                setSearchVariables(args[2]);
+            }
+        } else if (args.length == (minArgsNeeded + 1) && args[0].equals("-r")) {
+            recurse = true;
+            directory = args[1];
+            filePattern = args[2];
+            fileMatcher = Pattern.compile(filePattern).matcher("");
+
+            if (!countLines) {
+                setSearchVariables(args[3]);
+            }
+        } else {
+            return false;
+        }
+
+        return true;
     }
 }

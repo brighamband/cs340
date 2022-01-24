@@ -3,12 +3,16 @@ import java.util.*;
 import java.util.regex.*;
 
 public class FileSearch extends FileScanner {
-
+	private String searchPattern;
 	private Matcher searchMatcher;
 	private int totalMatches;
 
-	public FileSearch(String directory, String pattern, String searchPattern, boolean recurse) {
-		super(directory, pattern, recurse);
+	public FileSearch() {
+		totalMatches = 0;
+	};
+
+	public FileSearch(String directory, String filePattern, String searchPattern, boolean recurse) {
+		super(directory, filePattern, recurse);
 		searchMatcher = Pattern.compile(searchPattern).matcher("");
 		totalMatches = 0;
 	}
@@ -24,6 +28,11 @@ public class FileSearch extends FileScanner {
 
 	private static void usage() {
 		usage("java FileSearch {-r} <dir> <file-pattern> <search-pattern>");
+	}
+
+	protected void setSearchVariables(String searchPat) {
+		searchPattern = searchPat;
+		searchMatcher = Pattern.compile(searchPat).matcher("");
 	}
 
 	// FileSearch specific methods
@@ -75,30 +84,13 @@ public class FileSearch extends FileScanner {
 	}
 
 	public static void main(String[] args) {
-		
-		String dirName = "";
-		String filePattern = "";
-		String searchPattern = "";
-		boolean recurse = false;
-		
-		if (args.length == 3) {
-			recurse = false;
-			dirName = args[0];
-			filePattern = args[1];
-			searchPattern = args[2];
-		}
-		else if (args.length == 4 && args[0].equals("-r")) {
-			recurse = true;
-			dirName = args[1];
-			filePattern = args[2];
-			searchPattern = args[3];
-		}
-		else {
+		FileSearch fileSearcher = new FileSearch();
+
+		if (!fileSearcher.parseArgs(args, false)) {
 			usage();
 			return;
 		}
-		
-		FileSearch fileSearcher = new FileSearch(dirName, filePattern, searchPattern, recurse);
+
 		fileSearcher.run();
 	}
 }

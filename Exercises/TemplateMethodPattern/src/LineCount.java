@@ -1,12 +1,15 @@
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 
 public class LineCount extends FileScanner {
 	private int totalLineCount;
 
-	public LineCount(String directory, String pattern, boolean recurse) {
-		super(directory, pattern, recurse);
+	public LineCount(){
+		totalLineCount = 0;
+	}
+
+	public LineCount(String directory, String filePattern, boolean recurse) {
+		super(directory, filePattern, recurse);
 		totalLineCount = 0;
 	}
 	
@@ -18,6 +21,9 @@ public class LineCount extends FileScanner {
 	protected void performFileOperation(File file) {
 		countLinesInFile(file);
 	}
+
+	@Override
+	protected void setSearchVariables(String searchPat) {}
 
 	private static void usage() {
 		usage("java LineCount {-r} <dir> <file-pattern>");
@@ -62,26 +68,13 @@ public class LineCount extends FileScanner {
 	}
 	
 	public static void main(String[] args) {
-		String directory = "";
-		String pattern = "";
-		boolean recurse = false;
-		
-		if (args.length == 2) {
-			recurse = false;
-			directory = args[0];
-			pattern = args[1];
-		}
-		else if (args.length == 3 && args[0].equals("-r")) {
-			recurse = true;
-			directory = args[1];
-			pattern = args[2];
-		}
-		else {
+		LineCount lineCounter = new LineCount();
+
+		if (!lineCounter.parseArgs(args, true)) {
 			usage();
 			return;
 		}
-		
-		LineCount lineCounter = new LineCount(directory, pattern, recurse);
+
 		lineCounter.run();
 	}
 }
