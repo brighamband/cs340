@@ -9,15 +9,11 @@ import edu.byu.cs.tweeter.model.domain.User;
 /**
  * Background task that returns the profile for a specified user.
  */
-public class GetUserTask extends BackgroundTask {
+public class GetUserTask extends AuthorizedTask {
 //    private static final String LOG_TAG = "GetUserTask";
 
     public static final String USER_KEY = "user";
 
-    /**
-     * Auth token for logged-in user.
-     */
-    private AuthToken authToken;
     /**
      * Alias (or handle) for user whose profile is being retrieved.
      */
@@ -25,8 +21,7 @@ public class GetUserTask extends BackgroundTask {
 
 
     public GetUserTask(AuthToken authToken, String alias, Handler messageHandler) {
-        super(messageHandler);
-        this.authToken = authToken;
+        super(messageHandler, authToken);
         this.alias = alias;
     }
 
