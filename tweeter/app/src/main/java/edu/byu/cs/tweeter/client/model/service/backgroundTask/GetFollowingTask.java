@@ -43,10 +43,6 @@ public class GetFollowingTask extends BackgroundTask {
      * This allows the new page to begin where the previous page ended.
      */
     private User lastFollowee;
-    /**
-     * Message handler that will receive task results.
-     */
-    private Handler messageHandler;
 
     public GetFollowingTask(AuthToken authToken, User targetUser, int limit, User lastFollowee,
                             Handler messageHandler) {
@@ -63,17 +59,10 @@ public class GetFollowingTask extends BackgroundTask {
 
     @Override
     protected void runTask() {
-//        try {
         Pair<List<User>, Boolean> pageOfUsers = getFollowees();
 
         followees = pageOfUsers.getFirst();
         hasMorePages = pageOfUsers.getSecond();
-
-        // TODO -- Add custom error message
-//        } catch (Exception ex) {
-//            Log.e(LOG_TAG, "Failed to get followees", ex);
-//            sendExceptionMessage(ex);
-//        }
     }
 
     @Override
