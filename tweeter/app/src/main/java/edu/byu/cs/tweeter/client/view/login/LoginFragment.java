@@ -67,7 +67,7 @@ public class LoginFragment extends Fragment implements LoginPresenter.View {
                 loginInToast = Toast.makeText(getContext(), "Logging In...", Toast.LENGTH_LONG);
                 loginInToast.show();
 
-                loginPresenter.login(alias.getText().toString(), password.getText().toString());
+                loginPresenter.logIn(alias.getText().toString(), password.getText().toString());
             } catch (Exception e) {
                 errorView.setText(e.getMessage());
             }

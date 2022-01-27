@@ -30,8 +30,8 @@ public class LoginPresenter {
         }
     }
 
-    public void login(String alias, String password) {
-        userService.login(alias, password, new LoginObserver());
+    public void logIn(String alias, String password) {
+        userService.logIn(alias, password, new LoginObserver());
     }
 
     public class LoginObserver implements UserService.LoginObserver {

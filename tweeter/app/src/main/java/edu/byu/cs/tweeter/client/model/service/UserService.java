@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.client.model.service;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -14,7 +15,9 @@ import java.util.concurrent.Executors;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.RegisterTask;
+import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -71,7 +74,7 @@ public class UserService {
         void handleException(Exception exception);
     }
 
-    public void login(String alias, String password, LoginObserver loginObserver) {
+    public void logIn(String alias, String password, LoginObserver loginObserver) {
         LoginTask loginTask = new LoginTask(alias, password, new LoginHandler(loginObserver));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(loginTask);
@@ -163,6 +166,49 @@ public class UserService {
             } else if (msg.getData().containsKey(RegisterTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(RegisterTask.EXCEPTION_KEY);
                 registerObserver.handleException(ex);
+            }
+        }
+    }
+
+    /**
+     * Logout
+     */
+
+    public interface LogoutObserver {
+        void handleSuccess();
+        void handleFailure(String message);
+        void handleException(Exception exception);
+    }
+
+    public void logOut(AuthToken currUserAuthToken, LogoutObserver logoutObserver) {
+        LogoutTask logoutTask = new LogoutTask(currUserAuthToken, new LogoutHandler(logoutObserver));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(logoutTask);
+    }
+
+    // LogoutHandler
+
+    private class LogoutHandler extends Handler {
+        private LogoutObserver logoutObserver;
+
+        public LogoutHandler(LogoutObserver logoutObserver) {
+            this.logoutObserver = logoutObserver;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(LogoutTask.SUCCESS_KEY);
+            if (success) {
+                // Clear user data (cached data)
+                Cache.getInstance().clearCache();
+
+                logoutObserver.handleSuccess();
+            } else if (msg.getData().containsKey(LogoutTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(LogoutTask.MESSAGE_KEY);
+                logoutObserver.handleFailure(message);
+            } else if (msg.getData().containsKey(LogoutTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(LogoutTask.EXCEPTION_KEY);
+                logoutObserver.handleException(ex);
             }
         }
     }
