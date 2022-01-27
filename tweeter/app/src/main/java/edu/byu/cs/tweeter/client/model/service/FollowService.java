@@ -37,10 +37,10 @@ public class FollowService {
      * Message handler (i.e., observer) for GetFollowingTask.
      */
     private class GetFollowingHandler extends Handler {
-        private GetFollowingObserver observer;
+        private GetFollowingObserver getFollowingObserver;
 
-        public GetFollowingHandler(GetFollowingObserver observer) {
-            this.observer = observer;
+        public GetFollowingHandler(GetFollowingObserver getFollowingObserver) {
+            this.getFollowingObserver = getFollowingObserver;
         }
 
         @Override
@@ -49,13 +49,13 @@ public class FollowService {
             if (success) {
                 List<User> following = (List<User>) msg.getData().getSerializable(GetFollowingTask.FOLLOWEES_KEY);
                 boolean hasMorePages = msg.getData().getBoolean(GetFollowingTask.MORE_PAGES_KEY);
-                observer.handleSuccess(following, hasMorePages);
+                getFollowingObserver.handleSuccess(following, hasMorePages);
             } else if (msg.getData().containsKey(GetFollowingTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(GetFollowingTask.MESSAGE_KEY);
-                observer.handleFailure(message);
+                getFollowingObserver.handleFailure(message);
             } else if (msg.getData().containsKey(GetFollowingTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(GetFollowingTask.EXCEPTION_KEY);
-                observer.handleException(ex);
+                getFollowingObserver.handleException(ex);
             }
         }
     }
