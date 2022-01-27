@@ -159,19 +159,11 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
         mainPresenter.postStatus(post);
     }
 
+    /**
+     * Get count of most recently selected user's followers and followees (who they are following).
+     */
     public void updateSelectedUserFollowingAndFollowers() {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-
-        // Get count of most recently selected user's followers.
-        mainPresenter.getFollowersCount(selectedUser);
-//        GetFollowersCountTask countTask = new GetFollowersCountTask(Cache.getInstance().getCurrUserAuthToken(),
-//                selectedUser, new GetFollowersCountHandler());
-//        executor.execute(countTask);
-
-        // Get count of most recently selected user's followees (who they are following)
-        GetFollowingCountTask followingCountTask = new GetFollowingCountTask(Cache.getInstance().getCurrUserAuthToken(),
-                selectedUser, new GetFollowingCountHandler());
-        executor.execute(followingCountTask);
+        mainPresenter.getFollowingAndFollowersCounts(selectedUser);
     }
 
     public void updateFollowButton(boolean removed) {
@@ -204,29 +196,17 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     }
 
     @Override
+    public void displayFolloweeCount(int count) {
+        followeeCount.setText(getString(R.string.followeeCount, String.valueOf(count)));
+    }
+
+    @Override
     public void displayFollowersCount(int count) {
         followerCount.setText(getString(R.string.followerCount, String.valueOf(count)));
     }
 
 
-    // GetFollowingCountHandler
 
-    private class GetFollowingCountHandler extends Handler {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            boolean success = msg.getData().getBoolean(GetFollowingCountTask.SUCCESS_KEY);
-            if (success) {
-                int count = msg.getData().getInt(GetFollowingCountTask.COUNT_KEY);
-                followeeCount.setText(getString(R.string.followeeCount, String.valueOf(count)));
-            } else if (msg.getData().containsKey(GetFollowingCountTask.MESSAGE_KEY)) {
-                String message = msg.getData().getString(GetFollowingCountTask.MESSAGE_KEY);
-                Toast.makeText(MainActivity.this, "Failed to get following count: " + message, Toast.LENGTH_LONG).show();
-            } else if (msg.getData().containsKey(GetFollowingCountTask.EXCEPTION_KEY)) {
-                Exception ex = (Exception) msg.getData().getSerializable(GetFollowingCountTask.EXCEPTION_KEY);
-                Toast.makeText(MainActivity.this, "Failed to get following count because of exception: " + ex.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
-    }
 
     // IsFollowerHandler
 

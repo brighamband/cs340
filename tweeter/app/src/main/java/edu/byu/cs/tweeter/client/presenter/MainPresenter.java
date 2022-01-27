@@ -19,6 +19,7 @@ public class MainPresenter {
     public interface View {
         void returnToLoginScreen();
         void displayToastMessage(String message);
+        void displayFolloweeCount(int count);
         void displayFollowersCount(int count);
     }
 
@@ -154,17 +155,36 @@ public class MainPresenter {
     }
 
     /**
-     * GetFollowersCount
+     * Combined GetFollowingCount and GetFollowersCount
      */
 
-    public void getFollowersCount(User selectedUser) {
-        followService.getFollowersCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new GetFollowersCountObserver());
+    public void getFollowingAndFollowersCounts(User selectedUser) {
+        followService.getFollowingAndFollowersCounts(
+                Cache.getInstance().getCurrUserAuthToken(), selectedUser,
+                new GetFollowingCountObserver(), new GetFollowersCountObserver());
+    }
+
+    public class GetFollowingCountObserver implements FollowService.GetFollowingCountObserver {
+        @Override
+        public void handleSuccess(int count) {
+            view.displayFolloweeCount(count);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            view.displayToastMessage("Failed to get following count: " + message);
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            view.displayToastMessage("Failed to get following count because of exception: " + exception.getMessage());
+        }
     }
 
     public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver {
         @Override
-        public void handleSuccess(int followersCount) {
-            view.displayFollowersCount(followersCount);
+        public void handleSuccess(int count) {
+            view.displayFollowersCount(count);
         }
 
         @Override
@@ -177,5 +197,4 @@ public class MainPresenter {
             view.displayToastMessage("Failed to get followers count because of exception: " + exception.getMessage());
         }
     }
-
 }

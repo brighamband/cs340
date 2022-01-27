@@ -14,6 +14,7 @@ import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -66,42 +67,42 @@ public class FollowService {
     }
 
     /**
-     * GetFollowersCount
+     * GetFollowingCount
      */
 
-    public interface GetFollowersCountObserver {
-        void handleSuccess(int followersCount);
+    public interface GetFollowingCountObserver {
+        void handleSuccess(int count);
         void handleFailure(String message);
         void handleException(Exception exception);
     }
 
-    public void getFollowersCount(AuthToken currUserAuthToken, User selectedUser,
-                                  GetFollowersCountObserver getFollowersCountObserver) {
-        GetFollowersCountTask followersCountTask = new GetFollowersCountTask(currUserAuthToken,
-                selectedUser, new GetFollowersCountHandler(getFollowersCountObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(followersCountTask);
+    public void getFollowingCount(ExecutorService executor, AuthToken currUserAuthToken, User selectedUser,
+                                  GetFollowingCountObserver getFollowingCountObserver) {
+        GetFollowingCountTask followingCountTask = new GetFollowingCountTask(currUserAuthToken,
+                selectedUser, new GetFollowingCountHandler(getFollowingCountObserver));
+        executor.execute(followingCountTask);
     }
 
-    // GetFollowersCountHandler
+    // GetFollowingCountHandler
 
-    private class GetFollowersCountHandler extends Handler {
-        private GetFollowersCountObserver observer;
+    private class GetFollowingCountHandler extends Handler {
+        private GetFollowingCountObserver observer;
 
-        public GetFollowersCountHandler(GetFollowersCountObserver observer) {
+        public GetFollowingCountHandler(GetFollowingCountObserver observer) {
             this.observer = observer;
         }
+
         @Override
         public void handleMessage(@NonNull Message msg) {
-            boolean success = msg.getData().getBoolean(GetFollowersCountTask.SUCCESS_KEY);
+            boolean success = msg.getData().getBoolean(GetFollowingCountTask.SUCCESS_KEY);
             if (success) {
-                int count = msg.getData().getInt(GetFollowersCountTask.COUNT_KEY);
+                int count = msg.getData().getInt(GetFollowingCountTask.COUNT_KEY);
                 observer.handleSuccess(count);
-            } else if (msg.getData().containsKey(GetFollowersCountTask.MESSAGE_KEY)) {
-                String message = msg.getData().getString(GetFollowersCountTask.MESSAGE_KEY);
+            } else if (msg.getData().containsKey(GetFollowingCountTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(GetFollowingCountTask.MESSAGE_KEY);
                 observer.handleFailure(message);
-            } else if (msg.getData().containsKey(GetFollowersCountTask.EXCEPTION_KEY)) {
-                Exception ex = (Exception) msg.getData().getSerializable(GetFollowersCountTask.EXCEPTION_KEY);
+            } else if (msg.getData().containsKey(GetFollowingCountTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(GetFollowingCountTask.EXCEPTION_KEY);
                 observer.handleException(ex);
             }
         }
@@ -150,5 +151,59 @@ public class FollowService {
                 observer.handleException(ex);
             }
         }
+    }
+
+    /**
+     * GetFollowersCount
+     */
+
+    public interface GetFollowersCountObserver {
+        void handleSuccess(int count);
+        void handleFailure(String message);
+        void handleException(Exception exception);
+    }
+
+    public void getFollowersCount(ExecutorService executor, AuthToken currUserAuthToken, User selectedUser,
+                                  GetFollowersCountObserver getFollowersCountObserver) {
+        GetFollowersCountTask followersCountTask = new GetFollowersCountTask(currUserAuthToken,
+                selectedUser, new GetFollowersCountHandler(getFollowersCountObserver));
+        executor.execute(followersCountTask);
+    }
+
+    // GetFollowersCountHandler
+
+    private class GetFollowersCountHandler extends Handler {
+        private GetFollowersCountObserver observer;
+
+        public GetFollowersCountHandler(GetFollowersCountObserver observer) {
+            this.observer = observer;
+        }
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(GetFollowersCountTask.SUCCESS_KEY);
+            if (success) {
+                int count = msg.getData().getInt(GetFollowersCountTask.COUNT_KEY);
+                observer.handleSuccess(count);
+            } else if (msg.getData().containsKey(GetFollowersCountTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(GetFollowersCountTask.MESSAGE_KEY);
+                observer.handleFailure(message);
+            } else if (msg.getData().containsKey(GetFollowersCountTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(GetFollowersCountTask.EXCEPTION_KEY);
+                observer.handleException(ex);
+            }
+        }
+    }
+
+    /**
+     * Combined GetFollowingCount and GetFollowersCount
+     */
+    public void getFollowingAndFollowersCounts(
+            AuthToken currUserAuthToken, User selectedUser,
+            GetFollowingCountObserver getFollowingCountObserver,
+            GetFollowersCountObserver getFollowersCountObserver
+    ) {
+          ExecutorService executor = Executors.newFixedThreadPool(2);
+          getFollowingCount(executor, currUserAuthToken, selectedUser, getFollowingCountObserver);
+          getFollowersCount(executor, currUserAuthToken, selectedUser, getFollowersCountObserver);
     }
 }
