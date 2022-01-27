@@ -9,24 +9,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
+import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter {
     public interface View {
         void returnToLoginScreen();
         void displayToastMessage(String message);
+        void displayFollowersCount(int count);
     }
 
     private View view;
     private UserService userService;
     private StatusService statusService;
+    private FollowService followService;
 
     public MainPresenter(View view) {
         this.view = view;
         userService = new UserService();
         statusService = new StatusService();
+        followService = new FollowService();
     }
 
     /**
@@ -55,7 +60,7 @@ public class MainPresenter {
     }
 
     /**
-     * Post status
+     * PostStatus
      */
 
     public void postStatus(String post) {
@@ -147,4 +152,30 @@ public class MainPresenter {
             view.displayToastMessage("Failed to post status because of exception: " + exception.getMessage());
         }
     }
+
+    /**
+     * GetFollowersCount
+     */
+
+    public void getFollowersCount(User selectedUser) {
+        followService.getFollowersCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new GetFollowersCountObserver());
+    }
+
+    public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver {
+        @Override
+        public void handleSuccess(int followersCount) {
+            view.displayFollowersCount(followersCount);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            view.displayToastMessage("Failed to get followers count: " + message);
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            view.displayToastMessage("Failed to get followers count because of exception: " + exception.getMessage());
+        }
+    }
+
 }

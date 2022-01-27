@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     private User selectedUser;
     private TextView followeeCount;
     private TextView followerCount;
+    private TextView count;
     private Button followButton;
 
     private MainPresenter mainPresenter;
@@ -58,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mainPresenter = new MainPresenter(this);
 
         selectedUser = (User) getIntent().getSerializableExtra(CURRENT_USER_KEY);
         if (selectedUser == null) {
@@ -126,8 +129,6 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
                 Toast.makeText(MainActivity.this, "Adding " + selectedUser.getName() + "...", Toast.LENGTH_LONG).show();
             }
         });
-
-        mainPresenter = new MainPresenter(this);
     }
 
     @Override
@@ -162,9 +163,10 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
         // Get count of most recently selected user's followers.
-        GetFollowersCountTask followersCountTask = new GetFollowersCountTask(Cache.getInstance().getCurrUserAuthToken(),
-                selectedUser, new GetFollowersCountHandler());
-        executor.execute(followersCountTask);
+        mainPresenter.getFollowersCount(selectedUser);
+//        GetFollowersCountTask countTask = new GetFollowersCountTask(Cache.getInstance().getCurrUserAuthToken(),
+//                selectedUser, new GetFollowersCountHandler());
+//        executor.execute(countTask);
 
         // Get count of most recently selected user's followees (who they are following)
         GetFollowingCountTask followingCountTask = new GetFollowingCountTask(Cache.getInstance().getCurrUserAuthToken(),
@@ -201,24 +203,11 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
-    // GetFollowersCountHandler
-
-    private class GetFollowersCountHandler extends Handler {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            boolean success = msg.getData().getBoolean(GetFollowersCountTask.SUCCESS_KEY);
-            if (success) {
-                int count = msg.getData().getInt(GetFollowersCountTask.COUNT_KEY);
-                followerCount.setText(getString(R.string.followerCount, String.valueOf(count)));
-            } else if (msg.getData().containsKey(GetFollowersCountTask.MESSAGE_KEY)) {
-                String message = msg.getData().getString(GetFollowersCountTask.MESSAGE_KEY);
-                Toast.makeText(MainActivity.this, "Failed to get followers count: " + message, Toast.LENGTH_LONG).show();
-            } else if (msg.getData().containsKey(GetFollowersCountTask.EXCEPTION_KEY)) {
-                Exception ex = (Exception) msg.getData().getSerializable(GetFollowersCountTask.EXCEPTION_KEY);
-                Toast.makeText(MainActivity.this, "Failed to get followers count because of exception: " + ex.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
+    @Override
+    public void displayFollowersCount(int count) {
+        followerCount.setText(getString(R.string.followerCount, String.valueOf(count)));
     }
+
 
     // GetFollowingCountHandler
 

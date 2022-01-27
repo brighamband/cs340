@@ -27,7 +27,7 @@ public class FollowingPresenter {
         userService = new UserService();
     }
 
-    private User lastFollowing;
+    private User lastFollowee;
     private boolean hasMorePages;
     private boolean isLoading = false;
 
@@ -47,24 +47,24 @@ public class FollowingPresenter {
         isLoading = loading;
     }
 
-    public void loadMoreFollowing(User user) {
+    public void loadMoreFollowees(User user) {
         if (!getIsLoading()) {   // This guard is important for avoiding a race condition in the scrolling code.
             setLoading(true);
             view.displayLoading(true);
 
-            followService.getFollowing(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastFollowing, new GetFollowingObserver());
+            followService.getFollowing(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastFollowee, new GetFollowingObserver());
         }
     }
 
     public class GetFollowingObserver implements FollowService.GetFollowingObserver {
         @Override
-        public void handleSuccess(List<User> following, boolean hasMorePages) {
+        public void handleSuccess(List<User> followees, boolean hasMorePages) {
             setLoading(false);
             view.displayLoading(false);
 
-            lastFollowing = (following.size() > 0) ? following.get(following.size() - 1) : null;
+            lastFollowee = (followees.size() > 0) ? followees.get(followees.size() - 1) : null;
             setHasMorePages(hasMorePages);
-            view.addFollowing(following);
+            view.addFollowing(followees);
         }
 
         @Override

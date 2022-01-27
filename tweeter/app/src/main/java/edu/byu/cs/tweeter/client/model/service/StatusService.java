@@ -108,7 +108,7 @@ public class StatusService {
     }
 
     /**
-     * Post a Status
+     * PostStatus
      */
 
     public interface PostStatusObserver {
