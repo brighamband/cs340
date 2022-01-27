@@ -83,7 +83,7 @@ public class FollowingPresenter {
     }
 
     /**
-     * USER -- FIXME -- DUPLICATED
+     * USER    // FIXME - DUPLICATED
      */
 
     public void getUser(String alias) {

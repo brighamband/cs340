@@ -16,7 +16,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowService {
     /**
-     * FOLLOWING
+     * Following
      */
 
     public interface GetFollowingObserver {
@@ -61,7 +61,7 @@ public class FollowService {
     }
 
     /**********************************************************************************************
-     * FOLLOWERS
+     * Followers      // FIXME - DUPLICATED (following/followers implementation from above)
      */
 
     public interface GetFollowersObserver {

@@ -3,31 +3,32 @@ package edu.byu.cs.tweeter.client.presenter;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowersPresenter {
+public class FeedPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
-        void displayErrorMessage(String message);
+        void displayErrorMessage(String s);
         void displayLoading(boolean displayOn);
-        void addFollowers(List<User> followers);
-        void displayUserFollower(User user);
+        void addStatuses(List<Status> statuses);
+        void displayUserMentioned(User user);
     }
 
     private View view;
-    private FollowService followService;
+    private StatusService statusService;
     private UserService userService;
 
-    public FollowersPresenter(View view) {
+    public FeedPresenter(View view) {
         this.view = view;
-        followService = new FollowService();
+        statusService = new StatusService();
         userService = new UserService();
     }
 
-    private User lastFollower;
+    private Status lastStatus;
     private boolean hasMorePages;
     private boolean isLoading = false;
 
@@ -47,55 +48,54 @@ public class FollowersPresenter {
         isLoading = loading;
     }
 
-    public void loadMoreFollowers(User user) {
+    public void loadMoreFeed(User user) {
         if (!getIsLoading()) {   // This guard is important for avoiding a race condition in the scrolling code.
             setLoading(true);
             view.displayLoading(true);
 
-            followService.getFollowers(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastFollower, new FollowersPresenter.GetFollowersObserver());
+            statusService.getFeed(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastStatus, new GetFeedObserver());
         }
     }
 
-    public class GetFollowersObserver implements FollowService.GetFollowersObserver {
+    public class GetFeedObserver implements StatusService.GetFeedObserver {
         @Override
-        public void handleSuccess(List<User> followers, boolean hasMorePages) {
+        public void handleSuccess(List<Status> statuses, boolean hasMorePages) {
             setLoading(false);
             view.displayLoading(false);
 
-            lastFollower = (followers.size() > 0) ? followers.get(followers.size() - 1) : null;
+            lastStatus = (statuses.size() > 0) ? statuses.get(statuses.size() - 1) : null;
             setHasMorePages(hasMorePages);
-            view.addFollowers(followers);
+            view.addStatuses(statuses);
         }
 
         @Override
         public void handleFailure(String message) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get followers: " + message);
+            view.displayErrorMessage("Failed to get feed: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get followers because of exception: " + exception.getMessage());
+            view.displayErrorMessage("Failed to get feed because of exception: " + exception.getMessage());
         }
     }
 
     /**
-     * USER -- TODO in M3 -- DUPLICATED
+     * User     // FIXME - DUPLICATED
      */
 
     public void getUser(String alias) {
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
-
     }
 
     public class GetUserObserver implements UserService.GetUserObserver {
         @Override
         public void handleSuccess(User user) {
             // FIXME - Anything here with loading?
-            view.displayUserFollower(user);
+            view.displayUserMentioned(user);
         }
 
         @Override
