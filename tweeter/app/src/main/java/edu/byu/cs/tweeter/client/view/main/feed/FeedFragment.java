@@ -182,7 +182,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
                             startActivity(intent);
                         } else {
                             Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                            feedPresenter.getUser(userAlias.getText().toString());
+                            feedPresenter.getUser(clickable);
                         }
                     }
 

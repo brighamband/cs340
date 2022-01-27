@@ -74,6 +74,10 @@ public class LoginFragment extends Fragment {
                 errorView.setText(e.getMessage());
             }
         });
+        // FIXME -- PRE-FILLED LOGIN INFO FOR SIMPLE TESTING -- REMOVE LATER
+        alias.setText("@user");
+        password.setText("password");
+        // FIXME -- PRE-FILLED LOGIN INFO FOR SIMPLE TESTING -- REMOVE LATER
         return view;
     }
 

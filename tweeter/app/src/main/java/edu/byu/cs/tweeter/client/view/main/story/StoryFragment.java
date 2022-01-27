@@ -183,7 +183,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
                             startActivity(intent);
                         } else {
                             Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                            storyPresenter.getUser(userAlias.getText().toString());
+                            storyPresenter.getUser(clickable);
                         }
                     }
 
