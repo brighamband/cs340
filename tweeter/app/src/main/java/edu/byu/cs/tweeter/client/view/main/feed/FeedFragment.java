@@ -120,6 +120,12 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
         startActivity(intent);
     }
 
+    @Override
+    public void openLinkInBrowser(String urlLink) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlLink));
+        startActivity(intent);
+    }
+
     /**
      * The ViewHolder for the RecyclerView that displays the feed data.
      */
@@ -146,8 +152,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
             datetime = itemView.findViewById(R.id.statusDatetime);
 
             itemView.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                feedPresenter.getUser(userAlias.getText().toString());
+                feedPresenter.onUserProfileClick(userAlias.getText().toString());
             });
         }
 
@@ -175,15 +180,8 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
                         int start = s.getSpanStart(this);
                         int end = s.getSpanEnd(this);
 
-                        String clickable = s.subSequence(start, end).toString();
-
-                        if (clickable.contains("http")) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickable));
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                            feedPresenter.getUser(clickable);
-                        }
+                        String urlOrAliasLink = s.subSequence(start, end).toString();
+                        feedPresenter.onUserMentionClick(urlOrAliasLink);
                     }
 
                     @Override

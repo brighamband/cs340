@@ -1,10 +1,17 @@
 package edu.byu.cs.tweeter.client.presenter;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.text.Spanned;
+import android.view.View;
+import android.widget.TextView;
+
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.view.main.feed.FeedFragment;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -16,6 +23,7 @@ public class FeedPresenter {
         void displayLoading(boolean displayOn);
         void addStatuses(List<Status> statuses);
         void displayUserMentioned(User user);
+        void openLinkInBrowser(String urlLink);
     }
 
     private View view;
@@ -84,29 +92,39 @@ public class FeedPresenter {
     }
 
     /**
-     * User     // FIXME - DUPLICATED
+     * User
      */
 
-    public void getUser(String alias) {
+    public void onUserMentionClick(String urlOrAliasLink) {
+        if (urlOrAliasLink.contains("http")) {
+            view.openLinkInBrowser(urlOrAliasLink);
+        } else {
+            onUserProfileClick(urlOrAliasLink);
+        }
+    }
+
+    /**
+     * When a User's status or a mention of a User is clicked (open their profile)
+     * @param alias
+     */
+    public void onUserProfileClick(String alias) {
+        view.displayToastMessage("Getting user's profile...");
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
     }
 
     public class GetUserObserver implements UserService.GetUserObserver {
         @Override
         public void handleSuccess(User user) {
-            // FIXME - Anything here with loading?
             view.displayUserMentioned(user);
         }
 
         @Override
         public void handleFailure(String message) {
-            // FIXME - Anything here with loading?
             view.displayToastMessage("Failed to get user's profile: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            // FIXME - Anything here with loading?
             view.displayToastMessage("Failed to get user's profile because of exception: " + exception.getMessage());
         }
     }
