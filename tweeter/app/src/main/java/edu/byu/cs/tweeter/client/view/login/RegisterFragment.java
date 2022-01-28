@@ -108,7 +108,7 @@ public class RegisterFragment extends Fragment implements RegisterPresenter.View
 
     // FIXME - DUPLICATED
     @Override
-    public void displayErrorMessage(String message) {
+    public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 

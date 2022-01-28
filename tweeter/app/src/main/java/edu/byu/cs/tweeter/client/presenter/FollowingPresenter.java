@@ -11,7 +11,7 @@ public class FollowingPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
-        void displayErrorMessage(String message);
+        void displayToastMessage(String message);
         void displayLoading(boolean displayOn);
         void addFollowing(List<User> following);
         void displayUserFollowing(User user);
@@ -71,14 +71,14 @@ public class FollowingPresenter {
         public void handleFailure(String message) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get following: " + message);
+            view.displayToastMessage("Failed to get following: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get following because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to get following because of exception: " + exception.getMessage());
         }
     }
 
@@ -100,13 +100,13 @@ public class FollowingPresenter {
         @Override
         public void handleFailure(String message) {
             // FIXME - Anything here with loading?
-            view.displayErrorMessage("Failed to get user's profile: " + message);
+            view.displayToastMessage("Failed to get user's profile: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             // FIXME - Anything here with loading?
-            view.displayErrorMessage("Failed to get user's profile because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to get user's profile because of exception: " + exception.getMessage());
         }
     }
 }

@@ -6,7 +6,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class LoginPresenter {
     public interface View {
-        void displayErrorMessage(String message);
+        void displayToastMessage(String message);
         void bypassLoginScreen(User loggedInUser, String loggedInAlias);
     }
 
@@ -43,12 +43,12 @@ public class LoginPresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayErrorMessage("Failed to login: " + message);
+            view.displayToastMessage("Failed to login: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayErrorMessage("Failed to login because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to login because of exception: " + exception.getMessage());
         }
     }
 }

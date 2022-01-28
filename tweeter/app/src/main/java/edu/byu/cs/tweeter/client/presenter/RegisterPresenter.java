@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class RegisterPresenter {
     public interface View {
-        void displayErrorMessage(String message);
+        void displayToastMessage(String message);
         void bypassRegisterScreen(User registeredUser, String registeredAlias);
     }
 
@@ -60,12 +60,12 @@ public class RegisterPresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayErrorMessage("Failed to register: " + message);
+            view.displayToastMessage("Failed to register: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayErrorMessage("Failed to register because of exception: " + exception);
+            view.displayToastMessage("Failed to register because of exception: " + exception);
         }
     }
 }

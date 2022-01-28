@@ -12,7 +12,7 @@ public class FeedPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
-        void displayErrorMessage(String s);
+        void displayToastMessage(String message);
         void displayLoading(boolean displayOn);
         void addStatuses(List<Status> statuses);
         void displayUserMentioned(User user);
@@ -72,14 +72,14 @@ public class FeedPresenter {
         public void handleFailure(String message) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get feed: " + message);
+            view.displayToastMessage("Failed to get feed: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get feed because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to get feed because of exception: " + exception.getMessage());
         }
     }
 
@@ -101,13 +101,13 @@ public class FeedPresenter {
         @Override
         public void handleFailure(String message) {
             // FIXME - Anything here with loading?
-            view.displayErrorMessage("Failed to get user's profile: " + message);
+            view.displayToastMessage("Failed to get user's profile: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             // FIXME - Anything here with loading?
-            view.displayErrorMessage("Failed to get user's profile because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to get user's profile because of exception: " + exception.getMessage());
         }
     }
 }

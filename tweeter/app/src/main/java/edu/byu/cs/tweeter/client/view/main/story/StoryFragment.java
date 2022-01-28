@@ -95,7 +95,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
 
     // FIXME - DUPLICATED
     @Override
-    public void displayErrorMessage(String message) {
+    public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
