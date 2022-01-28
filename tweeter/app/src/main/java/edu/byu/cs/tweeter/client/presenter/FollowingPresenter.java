@@ -86,7 +86,12 @@ public class FollowingPresenter {
      * USER    // FIXME - DUPLICATED
      */
 
-    public void getUser(String alias) {
+    /**
+     * When a User's status or a mention of a User is clicked (open their profile)
+     * @param alias
+     */
+    public void onUserProfileClick(String alias) {
+        view.displayToastMessage("Getting user's profile...");
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
     }
 

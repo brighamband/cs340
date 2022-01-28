@@ -133,8 +133,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
             userName = itemView.findViewById(R.id.userName);
 
             itemView.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                followingPresenter.getUser(userAlias.getText().toString());
+                followingPresenter.onUserProfileClick(userAlias.getText().toString());
             });
         }
 
