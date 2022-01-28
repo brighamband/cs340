@@ -73,25 +73,18 @@ public class RegisterFragment extends Fragment implements RegisterPresenter.View
 
         registerButton.setOnClickListener(v -> {
             // Register and move to MainActivity.
-            try {
-                registerPresenter.validateRegistration(firstName.getText().toString(), lastName.getText().toString(),
-                    alias.getText().toString(), password.getText().toString(), imageToUpload
-                );
-                errorView.setText(null);
-                registeringToast = Toast.makeText(getContext(), "Registering...", Toast.LENGTH_LONG);
-                registeringToast.show();
-
-                Bitmap image = ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap();
-                registerPresenter.register(firstName.getText().toString(), lastName.getText().toString(),
-                        alias.getText().toString(), password.getText().toString(), image);
-            } catch (Exception e) {
-                errorView.setText(e.getMessage());
-            }
+            registerPresenter.onRegisterButtonClick(firstName.getText().toString(), lastName.getText().toString(),
+                    alias.getText().toString(), password.getText().toString(), imageToUpload);
         });
 
         registerPresenter = new RegisterPresenter(this);
 
         return view;
+    }
+
+    @Override
+    public void setErrorViewText(String text) {
+        errorView.setText(text);
     }
 
     // Get image if uploaded from gallery.
@@ -116,8 +109,6 @@ public class RegisterFragment extends Fragment implements RegisterPresenter.View
     public void bypassRegisterScreen(User registeredUser, String registeredAlias) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, registeredUser);
-
-        registeringToast.cancel();
 
         Toast.makeText(getContext(), "Hello " + registeredAlias, Toast.LENGTH_LONG).show();
         startActivity(intent);

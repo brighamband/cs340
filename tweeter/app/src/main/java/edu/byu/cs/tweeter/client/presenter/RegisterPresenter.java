@@ -1,7 +1,9 @@
 package edu.byu.cs.tweeter.client.presenter;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.UserService;
@@ -11,6 +13,7 @@ public class RegisterPresenter {
     public interface View {
         void displayToastMessage(String message);
         void bypassRegisterScreen(User registeredUser, String registeredAlias);
+        void setErrorViewText(String text);
     }
 
     private View view;
@@ -47,8 +50,18 @@ public class RegisterPresenter {
         }
     }
 
-    public void register(String firstName, String lastName, String alias, String password, Bitmap image) {
-        userService.register(firstName, lastName, alias, password, image, new RegisterObserver());
+    public void onRegisterButtonClick(String firstName, String lastName, String alias,
+                                      String password, ImageView imageToUpload) {
+        try {
+            validateRegistration(firstName, lastName, alias, password, imageToUpload);
+            view.setErrorViewText(null);
+            view.displayToastMessage("Registering...");
+
+            Bitmap image = ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap();
+            userService.register(firstName, lastName, alias, password, image, new RegisterObserver());
+        } catch (Exception e) {
+            view.setErrorViewText(e.getMessage());
+        }
     }
 
     public class RegisterObserver implements  UserService.RegisterObserver {
