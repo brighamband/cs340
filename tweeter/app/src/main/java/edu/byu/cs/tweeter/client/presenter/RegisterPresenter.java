@@ -24,6 +24,20 @@ public class RegisterPresenter {
         userService = new UserService();
     }
 
+    public void onRegisterButtonClick(String firstName, String lastName, String alias,
+                                      String password, ImageView imageToUpload) {
+        try {
+            validateRegistration(firstName, lastName, alias, password, imageToUpload);
+            view.setErrorViewText(null);
+            view.displayToastMessage("Registering...");
+
+            Bitmap image = ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap();
+            userService.register(firstName, lastName, alias, password, image, new RegisterObserver());
+        } catch (Exception e) {
+            view.setErrorViewText(e.getMessage());
+        }
+    }
+
     public void validateRegistration(String firstName, String lastName, String alias,
                                      String password, ImageView imageToUpload) {
         if (firstName.length() == 0) {
@@ -47,20 +61,6 @@ public class RegisterPresenter {
 
         if (imageToUpload.getDrawable() == null) {
             throw new IllegalArgumentException("Profile image must be uploaded.");
-        }
-    }
-
-    public void onRegisterButtonClick(String firstName, String lastName, String alias,
-                                      String password, ImageView imageToUpload) {
-        try {
-            validateRegistration(firstName, lastName, alias, password, imageToUpload);
-            view.setErrorViewText(null);
-            view.displayToastMessage("Registering...");
-
-            Bitmap image = ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap();
-            userService.register(firstName, lastName, alias, password, image, new RegisterObserver());
-        } catch (Exception e) {
-            view.setErrorViewText(e.getMessage());
         }
     }
 

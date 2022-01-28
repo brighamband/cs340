@@ -51,27 +51,22 @@ public class LoginFragment extends Fragment implements LoginPresenter.View {
         Button loginButton = view.findViewById(R.id.loginButton);
         loginButton.setOnClickListener(v -> {
             // Login and move to MainActivity.
-            try {
-                loginPresenter.validateLogin(alias.getText().toString(), password.getText().toString());
-                errorView.setText(null);
-
-                loginInToast = Toast.makeText(getContext(), "Logging In...", Toast.LENGTH_LONG);
-                loginInToast.show();
-
-                loginPresenter.logIn(alias.getText().toString(), password.getText().toString());
-            } catch (Exception e) {
-                errorView.setText(e.getMessage());
-            }
+            loginPresenter.onLoginButtonClick(alias.getText().toString(), password.getText().toString());
         });
 
         loginPresenter = new LoginPresenter(this);
 
         // FIXME -- PRE-FILLED LOGIN INFO FOR SIMPLE TESTING -- REMOVE LATER
-        alias.setText("@user");
-        password.setText("password");
+//        alias.setText("@user");
+//        password.setText("password");
         // FIXME -- PRE-FILLED LOGIN INFO FOR SIMPLE TESTING -- REMOVE LATER
 
         return view;
+    }
+
+    @Override
+    public void setErrorViewText(String text) {
+        errorView.setText(text);
     }
 
     // FIXME - DUPLICATED
@@ -84,8 +79,6 @@ public class LoginFragment extends Fragment implements LoginPresenter.View {
     public void bypassLoginScreen(User loggedInUser, String loggedInAlias) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, loggedInUser);
-
-        loginInToast.cancel();
 
         Toast.makeText(getContext(), "Hello " + loggedInAlias, Toast.LENGTH_LONG).show();
         startActivity(intent);
