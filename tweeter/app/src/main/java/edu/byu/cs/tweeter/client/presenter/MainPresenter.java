@@ -21,6 +21,9 @@ public class MainPresenter {
         void displayToastMessage(String message);
         void displayFolloweeCount(int count);
         void displayFollowersCount(int count);
+        void fetchFollowingAndFollowersCounts();
+        void updateFollowButton(boolean noLongerFollowing);
+        void reEnableFollowButton();
     }
 
     private View view;
@@ -195,6 +198,66 @@ public class MainPresenter {
         @Override
         public void handleException(Exception exception) {
             view.displayToastMessage("Failed to get followers count because of exception: " + exception.getMessage());
+        }
+    }
+
+    /**
+     * Follow
+     */
+
+    public void follow(User selectedUser) {
+        followService.follow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowObserver());
+    }
+
+    public class FollowObserver implements FollowService.FollowObserver {
+        @Override
+        public void handleSuccess() {
+            // Now that you've followed someone new, re-fetch the counts
+            view.fetchFollowingAndFollowersCounts();
+            view.updateFollowButton(false);
+            view.reEnableFollowButton();
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            view.displayToastMessage("Failed to follow: " + message);
+            view.reEnableFollowButton();
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            view.displayToastMessage("Failed to follow because of exception: " + exception.getMessage());
+            view.reEnableFollowButton();
+        }
+    }
+
+    /**
+     * Unfollow
+     */
+
+    public void unfollow(User selectedUser) {
+        followService.unfollow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new UnfollowObserver());
+    }
+
+    public class UnfollowObserver implements FollowService.UnfollowObserver {
+        @Override
+        public void handleSuccess() {
+            // Now that you've unfollowed someone, re-fetch the counts
+            view.fetchFollowingAndFollowersCounts();
+            view.updateFollowButton(true);
+            view.reEnableFollowButton();
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            view.displayToastMessage("Failed to unfollow: " + message);
+            view.reEnableFollowButton();
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            view.displayToastMessage("Failed to unfollow because of exception: " + exception.getMessage());
+            view.reEnableFollowButton();
         }
     }
 }

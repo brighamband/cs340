@@ -12,10 +12,12 @@ import java.util.concurrent.Executors;
 
 import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -205,5 +207,86 @@ public class FollowService {
           ExecutorService executor = Executors.newFixedThreadPool(2);
           getFollowingCount(executor, currUserAuthToken, selectedUser, getFollowingCountObserver);
           getFollowersCount(executor, currUserAuthToken, selectedUser, getFollowersCountObserver);
+    }
+
+    /**
+     * Follow
+     */
+
+    public interface FollowObserver {
+        void handleSuccess();
+        void handleFailure(String message);
+        void handleException(Exception exception);
+    }
+
+    public void follow(AuthToken currUserAuthToken, User selectedUser, FollowObserver followObserver) {
+        FollowTask followTask = new FollowTask(currUserAuthToken,
+                selectedUser, new FollowHandler(followObserver));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(followTask);
+    }
+
+    // FollowHandler
+
+    private class FollowHandler extends Handler {
+        private FollowObserver followObserver;
+
+        public FollowHandler(FollowObserver followObserver) {
+            this.followObserver = followObserver;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(FollowTask.SUCCESS_KEY);
+            if (success) {
+                followObserver.handleSuccess();
+            } else if (msg.getData().containsKey(FollowTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(FollowTask.MESSAGE_KEY);
+                followObserver.handleFailure(message);
+            } else if (msg.getData().containsKey(FollowTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(FollowTask.EXCEPTION_KEY);
+                followObserver.handleException(ex);
+            }
+        }
+    }
+
+    /**
+     * Unfollow
+     */
+
+    public interface UnfollowObserver {
+        void handleSuccess();
+        void handleFailure(String message);
+        void handleException(Exception exception);
+    }
+
+    public void unfollow(AuthToken currUserAuthToken, User selectedUser, UnfollowObserver unfollowObserver) {
+        UnfollowTask unfollowTask = new UnfollowTask(currUserAuthToken,
+                selectedUser, new UnfollowHandler(unfollowObserver));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(unfollowTask);
+    }
+
+    // FollowHandler
+
+    private class UnfollowHandler extends Handler {
+        private UnfollowObserver unfollowObserver;
+
+        public UnfollowHandler(UnfollowObserver unfollowObserver) {
+            this.unfollowObserver = unfollowObserver;
+        }
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(UnfollowTask.SUCCESS_KEY);
+            if (success) {
+                unfollowObserver.handleSuccess();
+            } else if (msg.getData().containsKey(UnfollowTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(UnfollowTask.MESSAGE_KEY);
+                unfollowObserver.handleFailure(message);
+            } else if (msg.getData().containsKey(UnfollowTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(UnfollowTask.EXCEPTION_KEY);
+                unfollowObserver.handleException(ex);
+            }
+        }
     }
 }
