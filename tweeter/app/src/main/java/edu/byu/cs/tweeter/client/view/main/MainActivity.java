@@ -97,15 +97,9 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
         }
 
         followButton.setOnClickListener(v -> {
-            followButton.setEnabled(false);
-
-            if (followButton.getText().toString().equals(v.getContext().getString(R.string.following))) {
-                Toast.makeText(MainActivity.this, "Removing " + selectedUser.getName() + "...", Toast.LENGTH_LONG).show();
-                mainPresenter.unfollow(selectedUser);
-            } else {
-                Toast.makeText(MainActivity.this, "Adding " + selectedUser.getName() + "...", Toast.LENGTH_LONG).show();
-                mainPresenter.follow(selectedUser);
-            }
+            mainPresenter.onFollowButtonClick(
+                    followButton.getText().toString().equals(v.getContext().getString(R.string.following)),
+                    selectedUser);
         });
     }
 
@@ -187,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     }
 
     @Override
-    public void reEnableFollowButton() {
-        followButton.setEnabled(true);
+    public void setEnabledFollowButton(boolean makeEnabled) {
+        followButton.setEnabled(makeEnabled);
     }
 }

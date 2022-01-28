@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.client.presenter;
 
+import android.widget.Toast;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -7,10 +9,12 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -22,7 +26,7 @@ public class MainPresenter {
         void displayFollowersCount(int count);
         void fetchFollowingAndFollowersCounts();
         void updateFollowButton(boolean currentlyFollowing);
-        void reEnableFollowButton();
+        void setEnabledFollowButton(boolean makeEnabled);
     }
 
     private View view;
@@ -201,6 +205,22 @@ public class MainPresenter {
     }
 
     /**
+     * Follow / Unfollow
+     */
+
+    public void onFollowButtonClick(boolean buttonTextShowsFollowing, User selectedUser) {
+        view.setEnabledFollowButton(false);
+
+        if (buttonTextShowsFollowing) {
+            view.displayToastMessage("Removing " + selectedUser.getName() + "...");
+            unfollow(selectedUser);
+        } else {
+            view.displayToastMessage("Adding " + selectedUser.getName() + "...");
+            follow(selectedUser);
+        }
+    }
+
+    /**
      * Follow
      */
 
@@ -214,19 +234,22 @@ public class MainPresenter {
             // Now that you've followed someone new, re-fetch the counts
             view.fetchFollowingAndFollowersCounts();
             view.updateFollowButton(true);
-            view.reEnableFollowButton();
+            // Re-enable the follow button
+            view.setEnabledFollowButton(true);
         }
 
         @Override
         public void handleFailure(String message) {
             view.displayToastMessage("Failed to follow: " + message);
-            view.reEnableFollowButton();
+            // Re-enable the follow button
+            view.setEnabledFollowButton(true);
         }
 
         @Override
         public void handleException(Exception exception) {
             view.displayToastMessage("Failed to follow because of exception: " + exception.getMessage());
-            view.reEnableFollowButton();
+            // Re-enable the follow button
+            view.setEnabledFollowButton(true);
         }
     }
 
@@ -244,19 +267,22 @@ public class MainPresenter {
             // Now that you've unfollowed someone, re-fetch the counts
             view.fetchFollowingAndFollowersCounts();
             view.updateFollowButton(false);
-            view.reEnableFollowButton();
+            // Re-enable the follow button
+            view.setEnabledFollowButton(true);
         }
 
         @Override
         public void handleFailure(String message) {
             view.displayToastMessage("Failed to unfollow: " + message);
-            view.reEnableFollowButton();
+            // Re-enable the follow button
+            view.setEnabledFollowButton(true);
         }
 
         @Override
         public void handleException(Exception exception) {
             view.displayToastMessage("Failed to unfollow because of exception: " + exception.getMessage());
-            view.reEnableFollowButton();
+            // Re-enable the follow button
+            view.setEnabledFollowButton(true);
         }
     }
 
