@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     private User selectedUser;
     private TextView followeeCount;
     private TextView followerCount;
-    private TextView count;
     private Button followButton;
 
     private MainPresenter mainPresenter;
@@ -105,10 +104,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
             followButton.setVisibility(View.GONE);
         } else {
             followButton.setVisibility(View.VISIBLE);
-            IsFollowerTask isFollowerTask = new IsFollowerTask(Cache.getInstance().getCurrUserAuthToken(),
-                    Cache.getInstance().getCurrUser(), selectedUser, new IsFollowerHandler());
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            executor.execute(isFollowerTask);
+            mainPresenter.isFollower(selectedUser);
         }
 
         followButton.setOnClickListener(v -> {
@@ -188,50 +184,21 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     }
 
     @Override
-    public void updateFollowButton(boolean noLongerFollowing) {
+    public void updateFollowButton(boolean currentlyFollowing) {
         // If follow relationship was removed.
-        if (noLongerFollowing) {
-            followButton.setText(R.string.follow);
-            followButton.setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.colorAccent));
-            followButton.setTextColor(ContextCompat.getColor(getBaseContext(), R.color.white));
-        } else {
+        if (currentlyFollowing) {
             followButton.setText(R.string.following);
             followButton.setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.white));
             followButton.setTextColor(ContextCompat.getColor(getBaseContext(), R.color.lightGray));
+        } else {
+            followButton.setText(R.string.follow);
+            followButton.setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.colorAccent));
+            followButton.setTextColor(ContextCompat.getColor(getBaseContext(), R.color.white));
         }
     }
 
     @Override
     public void reEnableFollowButton() {
         followButton.setEnabled(true);
-    }
-
-
-    // IsFollowerHandler
-
-    private class IsFollowerHandler extends Handler {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            boolean success = msg.getData().getBoolean(IsFollowerTask.SUCCESS_KEY);
-            if (success) {
-                boolean isFollower = msg.getData().getBoolean(IsFollowerTask.IS_FOLLOWER_KEY);
-
-                // If logged in user if a follower of the selected user, display the follow button as "following"
-                if (isFollower) {
-                    followButton.setText(R.string.following);
-                    followButton.setBackgroundColor(getResources().getColor(R.color.white));
-                    followButton.setTextColor(getResources().getColor(R.color.lightGray));
-                } else {
-                    followButton.setText(R.string.follow);
-                    followButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                }
-            } else if (msg.getData().containsKey(IsFollowerTask.MESSAGE_KEY)) {
-                String message = msg.getData().getString(IsFollowerTask.MESSAGE_KEY);
-                Toast.makeText(MainActivity.this, "Failed to determine following relationship: " + message, Toast.LENGTH_LONG).show();
-            } else if (msg.getData().containsKey(IsFollowerTask.EXCEPTION_KEY)) {
-                Exception ex = (Exception) msg.getData().getSerializable(IsFollowerTask.EXCEPTION_KEY);
-                Toast.makeText(MainActivity.this, "Failed to determine following relationship because of exception: " + ex.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
     }
 }

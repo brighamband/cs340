@@ -17,6 +17,7 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountT
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -267,7 +268,7 @@ public class FollowService {
         executor.execute(unfollowTask);
     }
 
-    // FollowHandler
+    // UnfollowHandler
 
     private class UnfollowHandler extends Handler {
         private UnfollowObserver unfollowObserver;
@@ -275,6 +276,7 @@ public class FollowService {
         public UnfollowHandler(UnfollowObserver unfollowObserver) {
             this.unfollowObserver = unfollowObserver;
         }
+
         @Override
         public void handleMessage(@NonNull Message msg) {
             boolean success = msg.getData().getBoolean(UnfollowTask.SUCCESS_KEY);
@@ -286,6 +288,48 @@ public class FollowService {
             } else if (msg.getData().containsKey(UnfollowTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(UnfollowTask.EXCEPTION_KEY);
                 unfollowObserver.handleException(ex);
+            }
+        }
+    }
+
+    /**
+     * IsFollower
+     */
+
+    public interface IsFollowerObserver {
+        void handleSuccess(boolean currentlyFollowing);
+        void handleFailure(String message);
+        void handleException(Exception exception);
+    }
+
+    public void isFollower(AuthToken currUserAuthToken, User currentUser, User selectedUser, IsFollowerObserver isFollowerObserver) {
+        IsFollowerTask isFollowerTask = new IsFollowerTask(currUserAuthToken, currentUser,
+                selectedUser, new IsFollowerHandler(isFollowerObserver));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(isFollowerTask);
+    }
+
+    // IsFollowerHandler
+
+    private class IsFollowerHandler extends Handler {
+        private IsFollowerObserver isFollowerObserver;
+
+        public IsFollowerHandler(IsFollowerObserver isFollowerObserver) {
+            this.isFollowerObserver = isFollowerObserver;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(IsFollowerTask.SUCCESS_KEY);
+            if (success) {
+                boolean isFollower = msg.getData().getBoolean(IsFollowerTask.IS_FOLLOWER_KEY);
+                isFollowerObserver.handleSuccess(isFollower);
+            } else if (msg.getData().containsKey(IsFollowerTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(IsFollowerTask.MESSAGE_KEY);
+                isFollowerObserver.handleFailure(message);
+            } else if (msg.getData().containsKey(IsFollowerTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(IsFollowerTask.EXCEPTION_KEY);
+                isFollowerObserver.handleException(ex);
             }
         }
     }

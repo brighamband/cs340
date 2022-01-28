@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
@@ -22,7 +23,7 @@ public class MainPresenter {
         void displayFolloweeCount(int count);
         void displayFollowersCount(int count);
         void fetchFollowingAndFollowersCounts();
-        void updateFollowButton(boolean noLongerFollowing);
+        void updateFollowButton(boolean currentlyFollowing);
         void reEnableFollowButton();
     }
 
@@ -214,7 +215,7 @@ public class MainPresenter {
         public void handleSuccess() {
             // Now that you've followed someone new, re-fetch the counts
             view.fetchFollowingAndFollowersCounts();
-            view.updateFollowButton(false);
+            view.updateFollowButton(true);
             view.reEnableFollowButton();
         }
 
@@ -244,7 +245,7 @@ public class MainPresenter {
         public void handleSuccess() {
             // Now that you've unfollowed someone, re-fetch the counts
             view.fetchFollowingAndFollowersCounts();
-            view.updateFollowButton(true);
+            view.updateFollowButton(false);
             view.reEnableFollowButton();
         }
 
@@ -258,6 +259,33 @@ public class MainPresenter {
         public void handleException(Exception exception) {
             view.displayToastMessage("Failed to unfollow because of exception: " + exception.getMessage());
             view.reEnableFollowButton();
+        }
+    }
+
+    /**
+     * IsFollower
+     */
+
+    public void isFollower(User selectedUser) {
+        followService.isFollower(Cache.getInstance().getCurrUserAuthToken(), Cache.getInstance().getCurrUser(),
+                selectedUser, new IsFollowerObserver());
+    }
+
+    public class IsFollowerObserver implements FollowService.IsFollowerObserver {
+        @Override
+        public void handleSuccess(boolean currentlyFollowing) {
+            // If logged in user if a follower of the selected user, display the follow button as "following"
+            view.updateFollowButton(currentlyFollowing);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            view.displayToastMessage("Failed to determine following relationship: " + message);
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            view.displayToastMessage("Failed to determine following relationship because of exception: " + exception.getMessage());
         }
     }
 }
