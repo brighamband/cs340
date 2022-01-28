@@ -120,6 +120,12 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         startActivity(intent);
     }
 
+    @Override
+    public void openLinkInBrowser(String urlLink) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlLink));
+        startActivity(intent);
+    }
+
     /**
      * The ViewHolder for the RecyclerView that displays the story data.
      */
@@ -146,8 +152,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             datetime = itemView.findViewById(R.id.statusDatetime);
             
             itemView.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                storyPresenter.getUser(userAlias.getText().toString());
+                storyPresenter.onUserProfileClick(userAlias.getText().toString());
             });
         }
 
@@ -175,16 +180,17 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
                         int start = s.getSpanStart(this);
                         int end = s.getSpanEnd(this);
 
-                        String clickable = s.subSequence(start, end).toString();
+//                        String clickable = s.subSequence(start, end).toString();
+                        String urlOrAliasLink = s.subSequence(start, end).toString();
+                        storyPresenter.onUserMentionClick(urlOrAliasLink);
 
-
-                        if (clickable.contains("http")) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickable));
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                            storyPresenter.getUser(clickable);
-                        }
+//                        if (clickable.contains("http")) {
+//                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickable));
+//                            startActivity(intent);
+//                        } else {
+//                            Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
+//                            storyPresenter.getUser(clickable);
+//                        }
                     }
 
                     @Override

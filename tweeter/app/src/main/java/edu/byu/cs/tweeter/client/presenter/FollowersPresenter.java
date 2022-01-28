@@ -94,19 +94,16 @@ public class FollowersPresenter {
     public class GetUserObserver implements UserService.GetUserObserver {
         @Override
         public void handleSuccess(User user) {
-            // FIXME - Anything here with loading?
             view.displayUserFollower(user);
         }
 
         @Override
         public void handleFailure(String message) {
-            // FIXME - Anything here with loading?
             view.displayToastMessage("Failed to get user's profile: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            // FIXME - Anything here with loading?
             view.displayToastMessage("Failed to get user's profile because of exception: " + exception.getMessage());
         }
     }
