@@ -55,7 +55,7 @@ public class FakeData {
 
     /**
      * List of generated users.
-     * Used to return lists of followers and followees.
+     * Used to return lists of followers and following.
      */
     private static final List<User> allUsers = Arrays.asList(
             user1, user2, user3, user4, user5, user6, user7, user8, user9, user10, user11,
@@ -142,7 +142,7 @@ public class FakeData {
     }
 
     /**
-     * Returns a page of users (followers or followees)
+     * Returns a page of users (followers or following)
      *
      * @param lastUser the last user returned in the previous page of results.
      * @param limit    maximum number of users to return (i.e., page size).

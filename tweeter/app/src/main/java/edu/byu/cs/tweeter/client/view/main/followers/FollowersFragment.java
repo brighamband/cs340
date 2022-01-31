@@ -40,8 +40,6 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
     private static final int LOADING_DATA_VIEW = 0;
     private static final int ITEM_VIEW = 1;
 
-    private static final int PAGE_SIZE = 10;
-
     private User user;
 
     private FollowersRecyclerViewAdapter followersRecyclerViewAdapter;
@@ -90,7 +88,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
     }
 
     @Override
-    public void displayErrorMessage(String message) {
+    public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
@@ -137,8 +135,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
             userName = itemView.findViewById(R.id.userName);
 
             itemView.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                followersPresenter.getUser(userAlias.getText().toString());
+                followersPresenter.onUserProfileClick(userAlias.getText().toString());
             });
         }
 

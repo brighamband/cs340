@@ -11,7 +11,7 @@ public class FollowersPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
-        void displayErrorMessage(String message);
+        void displayToastMessage(String message);
         void displayLoading(boolean displayOn);
         void addFollowers(List<User> followers);
         void displayUserFollower(User user);
@@ -71,43 +71,44 @@ public class FollowersPresenter {
         public void handleFailure(String message) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get followers: " + message);
+            view.displayToastMessage("Failed to get followers: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayErrorMessage("Failed to get followers because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to get followers because of exception: " + exception.getMessage());
         }
     }
 
     /**
-     * USER -- FIXME -- DUPLICATED
+     * USER -- TODO in M3 -- DUPLICATED
      */
 
-    public void getUser(String alias) {
+    /**
+     * When a User's status or a mention of a User is clicked (open their profile)
+     * @param alias
+     */
+    public void onUserProfileClick(String alias) {
+        view.displayToastMessage("Getting user's profile...");
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
-
     }
 
     public class GetUserObserver implements UserService.GetUserObserver {
         @Override
         public void handleSuccess(User user) {
-            // FIXME - Anything here with loading?
             view.displayUserFollower(user);
         }
 
         @Override
         public void handleFailure(String message) {
-            // FIXME - Anything here with loading?
-            view.displayErrorMessage("Failed to get user's profile: " + message);
+            view.displayToastMessage("Failed to get user's profile: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            // FIXME - Anything here with loading?
-            view.displayErrorMessage("Failed to get user's profile because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to get user's profile because of exception: " + exception.getMessage());
         }
     }
 }

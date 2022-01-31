@@ -32,7 +32,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  * Implements the "Following" tab.
  */
 public class FollowingFragment extends Fragment implements FollowingPresenter.View {
-
     private static final String LOG_TAG = "FollowingFragment";
     private static final String USER_KEY = "UserKey";
 
@@ -80,13 +79,14 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
         followingRecyclerView.addOnScrollListener(new FollowRecyclerViewPaginationScrollListener(layoutManager));
 
         followingPresenter = new FollowingPresenter(this);
-        followingPresenter.loadMoreFollowing(user);
+        followingPresenter.loadMoreFollowees(user);
 
         return view;
     }
 
+    // FIXME - DUPLICATED
     @Override
-    public void displayErrorMessage(String message) {
+    public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
@@ -133,8 +133,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
             userName = itemView.findViewById(R.id.userName);
 
             itemView.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
-                followingPresenter.getUser(userAlias.getText().toString());
+                followingPresenter.onUserProfileClick(userAlias.getText().toString());
             });
         }
 
@@ -258,7 +257,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
          * data.
          */
         void loadMoreItems() {
-            followingPresenter.loadMoreFollowing(user);
+            followingPresenter.loadMoreFollowees(user);
         }
 
         /**

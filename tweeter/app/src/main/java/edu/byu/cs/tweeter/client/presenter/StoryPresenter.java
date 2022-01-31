@@ -3,31 +3,33 @@ package edu.byu.cs.tweeter.client.presenter;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowingPresenter {
+public class StoryPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
         void displayToastMessage(String message);
         void displayLoading(boolean displayOn);
-        void addFollowing(List<User> following);
-        void displayUserFollowing(User user);
+        void addStatuses(List<Status> statuses);
+        void displayUserMentioned(User user);
+        void openLinkInBrowser(String urlLink);
     }
 
     private View view;
-    private FollowService followService;
+    private StatusService statusService;
     private UserService userService;
 
-    public FollowingPresenter(View view) {
+    public StoryPresenter(View view) {
         this.view = view;
-        followService = new FollowService();
+        statusService = new StatusService();
         userService = new UserService();
     }
 
-    private User lastFollowee;
+    private Status lastStatus;
     private boolean hasMorePages;
     private boolean isLoading = false;
 
@@ -47,44 +49,52 @@ public class FollowingPresenter {
         isLoading = loading;
     }
 
-    public void loadMoreFollowees(User user) {
+    public void loadMoreStories(User user) {
         if (!getIsLoading()) {   // This guard is important for avoiding a race condition in the scrolling code.
             setLoading(true);
             view.displayLoading(true);
 
-            followService.getFollowing(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastFollowee, new GetFollowingObserver());
+            statusService.getStory(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastStatus, new GetStoryObserver());
         }
     }
 
-    public class GetFollowingObserver implements FollowService.GetFollowingObserver {
+    public class GetStoryObserver implements StatusService.GetStoryObserver {
         @Override
-        public void handleSuccess(List<User> followees, boolean hasMorePages) {
+        public void handleSuccess(List<Status> statuses, boolean hasMorePages) {
             setLoading(false);
             view.displayLoading(false);
 
-            lastFollowee = (followees.size() > 0) ? followees.get(followees.size() - 1) : null;
+            lastStatus = (statuses.size() > 0) ? statuses.get(statuses.size() - 1) : null;
             setHasMorePages(hasMorePages);
-            view.addFollowing(followees);
+            view.addStatuses(statuses);
         }
 
         @Override
         public void handleFailure(String message) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayToastMessage("Failed to get following: " + message);
+            view.displayToastMessage("Failed to get story: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayToastMessage("Failed to get following because of exception: " + exception.getMessage());
+            view.displayToastMessage("Failed to get story because of exception: " + exception.getMessage());
         }
     }
 
     /**
-     * USER    // FIXME - DUPLICATED
+     * User
      */
+
+    public void onUserMentionClick(String urlOrAliasLink) {
+        if (urlOrAliasLink.contains("http")) {
+            view.openLinkInBrowser(urlOrAliasLink);
+        } else {
+            onUserProfileClick(urlOrAliasLink);
+        }
+    }
 
     /**
      * When a User's status or a mention of a User is clicked (open their profile)
@@ -98,7 +108,7 @@ public class FollowingPresenter {
     public class GetUserObserver implements UserService.GetUserObserver {
         @Override
         public void handleSuccess(User user) {
-            view.displayUserFollowing(user);
+            view.displayUserMentioned(user);
         }
 
         @Override
