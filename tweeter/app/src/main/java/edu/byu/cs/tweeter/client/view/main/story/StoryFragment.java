@@ -170,7 +170,6 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             // @mentions and urls clickable
             SpannableString spannableString = new SpannableString(status.getPost());
 
-
             for (String mention : status.getMentions()) {
                 ClickableSpan span = new ClickableSpan() {
                     @Override
