@@ -1,4 +1,6 @@
 1. What design principles does this code violate?
+      - Algorithm and data structure selection
+         - Seems a bit overly complex trying to use a string.  Simpler to use an array (value access is simpler).  Also the complexity is a bit excessive -- it shouldn't take n^2 to make a move.
 2. Refactor the code to improve its design.
 
 Game.java
