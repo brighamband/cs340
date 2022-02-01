@@ -3,6 +3,8 @@
          - Seems a bit overly complex trying to use a string.  Simpler to use an array (value access is simpler).  Also the complexity is a bit excessive -- it shouldn't take n^2 to make a move.
 2. Refactor the code to improve its design.
 
+Instead of refactoring here's words explaining.  Use an array that holds the different cells.  Have combinations of winning cells.  To check the winner, check to see if the same value is in each of the cells for each combination.  This simplifies logic significantly.
+
 Game.java
 
 public class Game {
