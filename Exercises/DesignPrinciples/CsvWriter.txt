@@ -8,7 +8,7 @@
 CsvWriter.java
 
 public class CsvWriter {
-	public CsvWriter() {
+	public CsvWriter() { 
 	}
 
 	public void write(String[][] lines) {
