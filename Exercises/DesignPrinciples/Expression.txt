@@ -1,11 +1,27 @@
 1. What design principles does this code violate?
+      - Simplicity
+         - It's unnecessarily complex
+      - High-quality abstraction
+         - You could have score and income be objects that have methods like scoreTooLow() or inIncomeRange() that should be stored with the variable since they're connected to it.  Since they're moved away from this block of the code, the resulting code here will be much more readable.  It's more intuitive having one function for each of the 3 possible use cases for rejection.
 2. Refactor the code to improve its design.
 
 
-if (!((score > 700) ||
-   ((income >= 40000) && (income <= 100000)
-  && authorized && (score > 500)) ||
-   (income > 100000)))
+if (scoreNotHighEnough || midRangeAuthorized() || incomeTooHigh())
    reject();
 else
    accept();
+
+...
+
+boolean scoreNotHighEnough() {
+   return !(score > 700);
+}
+
+boolean midRangeAuthorized() {
+   return ((income >= 40000) && (income <= 100000)
+      && authorized && (score > 500));
+}
+
+boolean incomeTooHigh() {
+   return income > 100000;
+}
