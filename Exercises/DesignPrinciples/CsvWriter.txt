@@ -1,4 +1,8 @@
 1. What design principles does this program violate?
+		- Decomposition
+		    - The code has been hyper-decomposed.  Writing to a file isn't that hard of a task as is, and should only be broken into 2 methods at most.
+	  - Simplicity
+				- Definitely not the simplest way possible to write the code.  Almost feels like the code is being unnecessarily future-proofed.
 2. Refactor the program to improve its design.
 
 CsvWriter.java
