@@ -1,7 +1,7 @@
 1. What design principles does this code violate?
         - Error Handling
             - Should recover from error and continue execution, but it closes the connection on errors.  Should return the error to the caller, but main errors just throw the exception themselves.  Should log errors that are thrown, but no logging is used.
-        - Single Responsibility Principle / Duplication
+        - Single Responsibility Principle / Duplication (Also deals with Isolated Change Principle)
             - There are multiple methods in the program that run a SQL statement to delete data from the table.  This would be better in a separate delete method that could be called on all functions that need deletion.  The update() method specifically is violating the Single Responsibility principle because it's deleting then inserting.  Instead it should just run an UPDATE SQL query. 
         - High-quality Abstraction
             - Abstract all the way should be used more in this program.  Everything uses primitive types, but fields like course names, ids, course days/times, and schedule could all have their own Classes to handle logic validation and other related functions.

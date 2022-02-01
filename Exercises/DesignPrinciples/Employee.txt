@@ -1,4 +1,10 @@
 1. What design principles does this code violate?
+        - Information Hiding
+            - Getter functions should be public for access by outer modules.
+        - Decomposition / Isolated change principle
+            - The calculateRetirement(), getTotalYearsOfService(), and getMonthsInLastPosition() all do the same thing (calculating amounts of times).  There is certainly logic which could be shared across these methods.  Maybe if there's some decomposition here that has a date difference calculator, that can help reduce duplication.
+        - Side note
+            - I won't make this change, but you could also argue that getTotalYearsOfService() and getMonthsInLastPosition() aren't methods specific to calculating a retirement.  Perhaps normal employees would also need to have those methods too.  Putting these in the employee class may make sense.
 2. Refactor the code to improve its design.
 
 
@@ -16,10 +22,26 @@ class RetirementCalculator {
         this.employee = emp;
     }
 
-    public float calculateRetirement(Date payPeriodStart, Date payPeriodEnd) { … }
+    public float calculateRetirement(Date payPeriodStart, Date payPeriodEnd) {
+        Utils.calculateDifferenceInDays();
+        …
+    }
     
-    private int getTotalYearsOfService(Date startDate, Date endDate) { … }
+    public int getTotalYearsOfService(Date startDate, Date endDate) { 
+        Utils.calculateDifferenceInDays();
+        …
+    }
 
-    private int getMonthsInLastPosition(Date startDate, Date endDate) { … }
+    public int getMonthsInLastPosition(Date startDate, Date endDate) {
+        Utils.calculateDifferenceInDays();
+         …
+    }
+
     ...  
+}
+
+class Utils {
+    public static int calculateDifferenceInDays(Date startDate, Date endDate) {...}
+
+    ...
 }
