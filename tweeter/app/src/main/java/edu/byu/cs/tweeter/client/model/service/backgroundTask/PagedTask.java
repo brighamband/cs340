@@ -9,7 +9,7 @@ import java.util.List;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.util.Pair;
 
-public abstract class PagedTask<T> extends AuthorizedTask {
+public abstract class PagedTask<T> extends AuthenticatedTask {
 
     public static final String ITEMS_KEY = "items";
     public static final String MORE_PAGES_KEY = "more-pages";
