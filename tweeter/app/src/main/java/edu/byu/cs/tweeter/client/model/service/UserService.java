@@ -8,10 +8,9 @@ import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.BackgroundTaskUtils;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
@@ -32,8 +31,7 @@ public class UserService {
 
     public void getUser(AuthToken currUserAuthToken, String alias, GetUserObserver getUserObserver) {
         GetUserTask getUserTask = new GetUserTask(currUserAuthToken, alias, new GetUserHandler(getUserObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getUserTask);
+        BackgroundTaskUtils.runTask(getUserTask);
     }
 
     /**
@@ -74,8 +72,7 @@ public class UserService {
 
     public void logIn(String alias, String password, LoginObserver loginObserver) {
         LoginTask loginTask = new LoginTask(alias, password, new LoginHandler(loginObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(loginTask);
+        BackgroundTaskUtils.runTask(loginTask);
     }
 
     /**
@@ -133,8 +130,7 @@ public class UserService {
         // Execute task
         RegisterTask registerTask = new RegisterTask(firstName, lastName, alias, password,
                 imageBytesBase64, new RegisterHandler(registerObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(registerTask);
+        BackgroundTaskUtils.runTask(registerTask);
     }
 
     // RegisterHandler
@@ -180,8 +176,7 @@ public class UserService {
 
     public void logOut(AuthToken currUserAuthToken, LogoutObserver logoutObserver) {
         LogoutTask logoutTask = new LogoutTask(currUserAuthToken, new LogoutHandler(logoutObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(logoutTask);
+        BackgroundTaskUtils.runTask(logoutTask);
     }
 
     // LogoutHandler
