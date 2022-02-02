@@ -6,9 +6,8 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.BackgroundTaskUtils;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFeedTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetStoryTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.PostStatusTask;
@@ -31,8 +30,7 @@ public class StatusService {
                           GetStoryObserver getStoryObserver) {
         GetStoryTask getStoryTask = new GetStoryTask(currUserAuthToken,
                 user, pageSize, lastStatus, new GetStoryHandler(getStoryObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getStoryTask);
+        BackgroundTaskUtils.runTask(getStoryTask);
     }
 
     /**
@@ -76,8 +74,7 @@ public class StatusService {
                         GetFeedObserver getFeedObserver) {
         GetFeedTask getFeedTask = new GetFeedTask(currUserAuthToken,
                 user, pageSize, lastStatus, new GetFeedHandler(getFeedObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getFeedTask);
+        BackgroundTaskUtils.runTask(getFeedTask);
     }
 
     /**
@@ -120,8 +117,7 @@ public class StatusService {
     public void postStatus(AuthToken currUserAuthToken, Status newStatus, PostStatusObserver postStatusObserver) {
         PostStatusTask statusTask = new PostStatusTask(currUserAuthToken,
                 newStatus, new PostStatusHandler(postStatusObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(statusTask);
+        BackgroundTaskUtils.runTask(statusTask);
     }
 
     // PostStatusHandler
