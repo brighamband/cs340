@@ -24,6 +24,6 @@ public class LogoutTask extends AuthenticatedTask {
 
     @Override
     protected void loadMessageBundle(Bundle msgBundle) {
-        // Empty
+        //  TODO Milestone 3
     }
 }

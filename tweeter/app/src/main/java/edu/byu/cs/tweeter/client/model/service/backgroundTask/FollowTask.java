@@ -31,6 +31,6 @@ public class FollowTask extends AuthenticatedTask {
 
     @Override
     protected void loadMessageBundle(Bundle msgBundle) {
-
+        //  TODO Milestone 3
     }
 }
