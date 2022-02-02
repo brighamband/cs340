@@ -16,9 +16,6 @@ import edu.byu.cs.tweeter.util.Pair;
 public class LoginTask extends AuthenticateTask {
 //    private static final String LOG_TAG = "LoginTask";
 
-    public static final String USER_KEY = "user";
-    public static final String AUTH_TOKEN_KEY = "auth-token";
-
     public LoginTask(String username, String password, Handler messageHandler) {
         super(username, password, messageHandler);
     }
@@ -32,13 +29,13 @@ public class LoginTask extends AuthenticateTask {
         return getFakeData().getFirstUser();
     }
 
-    private AuthToken getAuthToken() {
+    private AuthToken getLoggedInUserAuthToken() {
         return getFakeData().getAuthToken();
     }
 
     @Override
     protected void loadMessageBundle(Bundle msgBundle) {
         msgBundle.putSerializable(USER_KEY, getLoggedInUser());
-        msgBundle.putSerializable(AUTH_TOKEN_KEY, getAuthToken());
+        msgBundle.putSerializable(AUTH_TOKEN_KEY, getLoggedInUserAuthToken());
     }
 }
