@@ -14,20 +14,13 @@ import edu.byu.cs.tweeter.util.Pair;
 public class GetFollowingTask extends PagedTask<User> {
 //    private static final String LOG_TAG = "GetFollowingTask";
 
-    /**
-     * The user whose following is being retrieved.
-     * (This can be any user, not just the currently logged-in user.)
-     */
-    private User targetUser;
-
     public GetFollowingTask(AuthToken authToken, User targetUser, int limit, User lastFollowing,
                             Handler messageHandler) {
-        super(messageHandler, authToken, limit, lastFollowing);
-        this.targetUser = targetUser;
+        super(messageHandler, authToken, targetUser, limit, lastFollowing);
     }
 
     @Override
     protected Pair<List<User>, Boolean> getItems() {
-        return getFakeData().getPageOfUsers((User) getLastItem(), getLimit(), targetUser);
+        return getFakeData().getPageOfUsers((User) getLastItem(), getLimit(), getTargetUser());
     }
 }
