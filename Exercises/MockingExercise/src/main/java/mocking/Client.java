@@ -21,7 +21,7 @@ public class Client {
     public String convertValue(int value) {
 
         // TODO: This dependency is hard-coded. This should be replaced by a factory method
-        Service service = new Service();
+        Service service = getService();
         int num_digits = service.getDecimalDigitCount(value);
         int product = value * num_digits;
         return Integer.toString(product);
@@ -39,9 +39,12 @@ public class Client {
         }
 
         // TODO: This dependency is hard-coded. This should be replaced by a factory method
-        Service service = new Service();
+        Service service = getService();
         service.processList(capStrings);
     }
 
-    // TODO: write a factory method that returns a new Service
+//     TODO: write a factory method that returns a new Service
+    public Service getService() {
+        return new Service();
+    }
 }
