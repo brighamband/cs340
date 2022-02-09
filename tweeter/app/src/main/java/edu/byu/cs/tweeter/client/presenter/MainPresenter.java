@@ -11,6 +11,9 @@ import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.BooleanObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.GetCountObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.SimpleObserver;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -45,7 +48,7 @@ public class MainPresenter {
         userService.logOut(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
     }
 
-    public class LogoutObserver implements UserService.LogoutObserver {
+    public class LogoutObserver implements SimpleObserver {
         @Override
         public void handleSuccess() {
             view.returnToLoginScreen();
@@ -139,7 +142,7 @@ public class MainPresenter {
         return containedMentions;
     }
 
-    public class PostStatusObserver implements StatusService.PostStatusObserver {
+    public class PostStatusObserver implements SimpleObserver {
         @Override
         public void handleSuccess() {
             view.displayToastMessage("Successfully Posted!");
@@ -166,7 +169,7 @@ public class MainPresenter {
                 new GetFollowingCountObserver(), new GetFollowersCountObserver());
     }
 
-    public class GetFollowingCountObserver implements FollowService.GetFollowingCountObserver {
+    public class GetFollowingCountObserver implements GetCountObserver {
         @Override
         public void handleSuccess(int count) {
             view.displayFolloweeCount(count);
@@ -183,7 +186,7 @@ public class MainPresenter {
         }
     }
 
-    public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver {
+    public class GetFollowersCountObserver implements GetCountObserver {
         @Override
         public void handleSuccess(int count) {
             view.displayFollowersCount(count);
@@ -224,7 +227,7 @@ public class MainPresenter {
         followService.follow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowObserver());
     }
 
-    public class FollowObserver implements FollowService.FollowObserver {
+    public class FollowObserver implements SimpleObserver {
         @Override
         public void handleSuccess() {
             // Now that you've followed someone new, re-fetch the counts
@@ -257,7 +260,7 @@ public class MainPresenter {
         followService.unfollow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new UnfollowObserver());
     }
 
-    public class UnfollowObserver implements FollowService.UnfollowObserver {
+    public class UnfollowObserver implements SimpleObserver {
         @Override
         public void handleSuccess() {
             // Now that you've unfollowed someone, re-fetch the counts
@@ -291,7 +294,7 @@ public class MainPresenter {
                 selectedUser, new IsFollowerObserver());
     }
 
-    public class IsFollowerObserver implements FollowService.IsFollowerObserver {
+    public class IsFollowerObserver implements BooleanObserver {
         @Override
         public void handleSuccess(boolean currentlyFollowing) {
             // If logged in user if a follower of the selected user, display the follow button as "following"

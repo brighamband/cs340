@@ -33,7 +33,6 @@ public class RegisterTask extends AuthenticateTask {
         this.image = image;
     }
 
-
     @Override
     protected void runTask() {
         //  TODO Milestone 3

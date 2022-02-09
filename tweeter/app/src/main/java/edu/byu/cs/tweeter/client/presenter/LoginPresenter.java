@@ -2,6 +2,7 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class LoginPresenter {
@@ -50,7 +51,7 @@ public class LoginPresenter {
         }
     }
 
-    public class LoginObserver implements UserService.LoginObserver {
+    public class LoginObserver implements UserObserver {
         @Override
         public void handleSuccess(User loggedInUser) {
             String loggedInAlias = Cache.getInstance().getCurrUser().getName();

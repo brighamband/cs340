@@ -5,6 +5,8 @@ import java.util.List;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -58,7 +60,7 @@ public class StoryPresenter {
         }
     }
 
-    public class GetStoryObserver implements StatusService.GetStoryObserver {
+    public class GetStoryObserver implements PagedObserver<Status> {
         @Override
         public void handleSuccess(List<Status> statuses, boolean hasMorePages) {
             setLoading(false);
@@ -105,7 +107,7 @@ public class StoryPresenter {
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
     }
 
-    public class GetUserObserver implements UserService.GetUserObserver {
+    public class GetUserObserver implements UserObserver {
         @Override
         public void handleSuccess(User user) {
             view.displayUserMentioned(user);

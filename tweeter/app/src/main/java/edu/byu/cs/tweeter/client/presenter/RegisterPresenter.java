@@ -6,6 +6,7 @@ import android.widget.ImageView;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class RegisterPresenter {
@@ -63,7 +64,7 @@ public class RegisterPresenter {
         }
     }
 
-    public class RegisterObserver implements  UserService.RegisterObserver {
+    public class RegisterObserver implements UserObserver {
         @Override
         public void handleSuccess(User registeredUser) {
             String registeredAlias = Cache.getInstance().getCurrUser().getName();
