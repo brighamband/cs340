@@ -10,8 +10,13 @@ import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class StoryPresenter {
+public class StoryPresenter extends SimplePresenter {
     private static final int PAGE_SIZE = 10;
+
+    @Override
+    public String getMsgPrefix() {
+        return "Failed to get user's profile ";
+    }
 
     public interface View {
         void displayToastMessage(String message);
@@ -115,12 +120,12 @@ public class StoryPresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayToastMessage("Failed to get user's profile: " + message);
+            view.displayToastMessage(getMsgPrefix() + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to get user's profile because of exception: " + exception.getMessage());
+            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
         }
     }
 }

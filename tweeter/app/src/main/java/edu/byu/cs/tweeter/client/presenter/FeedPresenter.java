@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FeedPresenter {
-    private static final int PAGE_SIZE = 10;
+//    private static final int PAGE_SIZE = 10;
 
     public interface View {
         void displayToastMessage(String message);

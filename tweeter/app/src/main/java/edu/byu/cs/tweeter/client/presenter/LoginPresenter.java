@@ -5,9 +5,14 @@ import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class LoginPresenter {
-    public interface View {
-        void displayToastMessage(String message);
+public class LoginPresenter extends SimplePresenter {
+    @Override
+    public String getMsgPrefix() {
+        return "Failed to login: ";
+    }
+
+    public interface View extends SimplePresenter.View {
+//        void displayToastMessage(String message);
         void bypassLoginScreen(User loggedInUser, String loggedInAlias);
         void setErrorViewText(String text);
     }
@@ -30,10 +35,6 @@ public class LoginPresenter {
         } catch (Exception e) {
             view.setErrorViewText(e.getMessage());
         }
-    }
-
-    public void logIn(String alias, String password) {
-        userService.logIn(alias, password, new LoginObserver());
     }
 
     public void validateLogin(String alias, String password) {
@@ -60,12 +61,12 @@ public class LoginPresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayToastMessage("Failed to login: " + message);
+            view.displayToastMessage(getMsgPrefix() + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to login because of exception: " + exception.getMessage());
+            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
         }
     }
 }
