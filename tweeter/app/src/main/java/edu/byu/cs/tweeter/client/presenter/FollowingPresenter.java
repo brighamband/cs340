@@ -1,8 +1,5 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import java.util.List;
-
-import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -16,34 +13,10 @@ public class FollowingPresenter extends FollowPresenter {
     followService.getFollowing(authToken, targetUser, pageSize, lastItem, new GetFollowingObserver());
   }
 
-  public class GetFollowingObserver extends Observer implements PagedObserver<User> {
+  public class GetFollowingObserver extends PagedListObserver {
     @Override
     public String getMsgPrefix() {
       return "Failed to get following: ";
-    }
-
-    @Override
-    public void handleSuccess(List<User> followees, boolean hasMorePages) {
-      setLoading(false);
-      view.displayLoading(false);
-
-      lastItem = (followees.size() > 0) ? followees.get(followees.size() - 1) : null;
-      setHasMorePages(hasMorePages);
-      view.addItems(followees);
-    }
-
-    @Override
-    public void handleFailure(String message) {
-      setLoading(false);
-      view.displayLoading(false);
-      view.displayToastMessage(getMsgPrefix() + message);
-    }
-
-    @Override
-    public void handleException(Exception exception) {
-      setLoading(false);
-      view.displayLoading(false);
-      view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
     }
   }
 }

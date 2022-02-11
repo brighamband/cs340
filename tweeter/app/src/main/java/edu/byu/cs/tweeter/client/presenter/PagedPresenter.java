@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -77,4 +78,30 @@ public abstract class PagedPresenter<T> extends SimplePresenter {
     }
 
     public abstract void getItems(AuthToken authToken, User targetUser, int pageSize, T lastItem);
+
+    public abstract class PagedListObserver extends Observer implements PagedObserver<T> {
+        @Override
+        public void handleSuccess(List<T> items, boolean hasMorePages) {
+            setLoading(false);
+            view.displayLoading(false);
+
+            lastItem = (items.size() > 0) ? items.get(items.size() - 1) : null;
+            setHasMorePages(hasMorePages);
+            view.addItems(items);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            setLoading(false);
+            view.displayLoading(false);
+            view.displayToastMessage(getMsgPrefix() + message);
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            setLoading(false);
+            view.displayLoading(false);
+            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
+        }
+    }
 }

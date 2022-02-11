@@ -153,14 +153,10 @@ public class MainPresenter extends SimplePresenter {
     /**
      * Combined GetFollowingCount and GetFollowersCount
      */
-
     public void getFollowingAndFollowersCounts(User selectedUser) {
         AuthToken currAuthToken = Cache.getInstance().getCurrUserAuthToken();
         followService.getFollowingCount(currAuthToken, selectedUser, new GetFollowingCountObserver());
         followService.getFollowersCount(currAuthToken, selectedUser, new GetFollowersCountObserver());
-//        followService.getFollowingAndFollowersCounts(
-//                Cache.getInstance().getCurrUserAuthToken(), selectedUser,
-//                new GetFollowingCountObserver(), new GetFollowersCountObserver());
     }
 
     public class GetFollowingCountObserver extends Observer implements GetCountObserver {
@@ -263,8 +259,6 @@ public class MainPresenter extends SimplePresenter {
             // Re-enable the follow button
             view.setEnabledFollowButton(true);
         }
-
-
 
         @Override
         public void handleFailure(String message) {
