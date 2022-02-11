@@ -58,15 +58,5 @@ public class LoginPresenter extends SimplePresenter {
             String loggedInAlias = Cache.getInstance().getCurrUser().getName();
             view.bypassLoginScreen(loggedInUser, loggedInAlias);
         }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage(getMsgPrefix() + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
-        }
     }
 }
