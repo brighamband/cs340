@@ -14,6 +14,7 @@ import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.observer.BooleanObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.GetCountObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.SimpleObserver;
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -164,9 +165,12 @@ public class MainPresenter {
      */
 
     public void getFollowingAndFollowersCounts(User selectedUser) {
-        followService.getFollowingAndFollowersCounts(
-                Cache.getInstance().getCurrUserAuthToken(), selectedUser,
-                new GetFollowingCountObserver(), new GetFollowersCountObserver());
+        AuthToken currAuthToken = Cache.getInstance().getCurrUserAuthToken();
+        followService.getFollowingCount(currAuthToken, selectedUser, new GetFollowingCountObserver());
+        followService.getFollowersCount(currAuthToken, selectedUser, new GetFollowersCountObserver());
+//        followService.getFollowingAndFollowersCounts(
+//                Cache.getInstance().getCurrUserAuthToken(), selectedUser,
+//                new GetFollowingCountObserver(), new GetFollowersCountObserver());
     }
 
     public class GetFollowingCountObserver implements GetCountObserver {

@@ -8,5 +8,9 @@ public abstract class SimplePresenter {
 
     private View view;
 
+    public SimplePresenter(View view) {
+        this.view = view;
+    }
+
     public abstract String getMsgPrefix();
 }

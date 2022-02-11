@@ -21,6 +21,7 @@ public class LoginPresenter extends SimplePresenter {
     private UserService userService;
 
     public LoginPresenter(View view) {
+        super(view);
         this.view = view;
         userService = new UserService();
     }

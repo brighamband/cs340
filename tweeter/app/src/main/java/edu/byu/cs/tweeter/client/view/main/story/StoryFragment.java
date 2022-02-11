@@ -88,7 +88,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         storyRecyclerView.addOnScrollListener(new StoryRecyclerViewPaginationScrollListener(layoutManager));
 
         storyPresenter = new StoryPresenter(this);
-        storyPresenter.loadMoreStories(user);
+        storyPresenter.loadMoreItems(user);
 
         return view;
     }
@@ -109,12 +109,13 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
     }
 
     @Override
-    public void addStatuses(List<Status> statuses) {
-        storyRecyclerViewAdapter.addItems(statuses);
+    public void addItems(List items) {
+        storyRecyclerViewAdapter.addItems(items);
+
     }
 
     @Override
-    public void displayUserMentioned(User user) {
+    public void changeScreen(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
         startActivity(intent);
@@ -152,7 +153,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             datetime = itemView.findViewById(R.id.statusDatetime);
             
             itemView.setOnClickListener(v -> {
-                storyPresenter.onUserProfileClick(userAlias.getText().toString());
+                storyPresenter.getUserProfile(userAlias.getText().toString());
             });
         }
 
@@ -314,7 +315,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
          * data.
          */
         void loadMoreItems() {
-            storyPresenter.loadMoreStories(user);
+            storyPresenter.loadMoreItems(user);
         }
 
         /**
