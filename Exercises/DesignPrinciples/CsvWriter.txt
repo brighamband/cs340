@@ -1,10 +1,14 @@
 1. What design principles does this program violate?
+		- Decomposition
+		    - The code has been hyper-decomposed.  Writing to a file isn't that hard of a task as is, and should only be broken into 2 methods at most.
+	  - Simplicity
+				- Definitely not the simplest way possible to write the code.  Almost feels like the code is being unnecessarily future-proofed.
 2. Refactor the program to improve its design.
 
 CsvWriter.java
 
 public class CsvWriter {
-	public CsvWriter() {
+	public CsvWriter() { 
 	}
 
 	public void write(String[][] lines) {
@@ -16,10 +20,10 @@ public class CsvWriter {
 		if (fields.length == 0)
 			System.out.println();
 		else {
-			writeField(fields[0]);
-
-			for (int i = 1; i < fields.length; i++) {
-				System.out.print(",");
+			for (int i = 0; i < fields.length; i++) {
+				if (i > 0) {
+					System.out.print(",");
+				}
 				writeField(fields[i]);
 			}
 			System.out.println();
@@ -28,20 +32,8 @@ public class CsvWriter {
 
 	private void writeField(String field) {
 		if (field.indexOf(',') != -1 || field.indexOf('\"') != -1)
-			writeQuoted(field);
+			System.out.print('\"', field);
 		else
 			System.out.print(field);
-	}
-
-	private void writeQuoted(String field) {
-		System.out.print('\"');
-		for (int i = 0; i < field.length(); i++) {
-			char c = field.charAt(i);
-			if (c == '\"')
-				System.out.print("\"\"");
-			else
-				System.out.print(c);
-		}
-		System.out.print('\"');
 	}
 }

@@ -11,13 +11,16 @@ import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.BooleanObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.GetCountObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.SimpleObserver;
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class MainPresenter {
-    public interface View {
+public class MainPresenter extends SimplePresenter {
+    public interface View extends SimplePresenter.View  {
         void returnToLoginScreen();
-        void displayToastMessage(String message);
         void displayFolloweeCount(int count);
         void displayFollowersCount(int count);
         void fetchFollowingAndFollowersCounts();
@@ -31,6 +34,7 @@ public class MainPresenter {
     private FollowService followService;
 
     public MainPresenter(View view) {
+        super(view);
         this.view = view;
         userService = new UserService();
         statusService = new StatusService();
@@ -45,20 +49,15 @@ public class MainPresenter {
         userService.logOut(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
     }
 
-    public class LogoutObserver implements UserService.LogoutObserver {
+    public class LogoutObserver extends Observer implements SimpleObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to logout: ";
+        }
+
         @Override
         public void handleSuccess() {
             view.returnToLoginScreen();
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage("Failed to logout: " + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to logout because of exception: " + exception.getMessage());
         }
     }
 
@@ -139,64 +138,48 @@ public class MainPresenter {
         return containedMentions;
     }
 
-    public class PostStatusObserver implements StatusService.PostStatusObserver {
+    public class PostStatusObserver extends Observer implements SimpleObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to post status: ";
+        }
+
         @Override
         public void handleSuccess() {
             view.displayToastMessage("Successfully Posted!");
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage("Failed to post status: " + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to post status because of exception: " + exception.getMessage());
         }
     }
 
     /**
      * Combined GetFollowingCount and GetFollowersCount
      */
-
     public void getFollowingAndFollowersCounts(User selectedUser) {
-        followService.getFollowingAndFollowersCounts(
-                Cache.getInstance().getCurrUserAuthToken(), selectedUser,
-                new GetFollowingCountObserver(), new GetFollowersCountObserver());
+        AuthToken currAuthToken = Cache.getInstance().getCurrUserAuthToken();
+        followService.getFollowingCount(currAuthToken, selectedUser, new GetFollowingCountObserver());
+        followService.getFollowersCount(currAuthToken, selectedUser, new GetFollowersCountObserver());
     }
 
-    public class GetFollowingCountObserver implements FollowService.GetFollowingCountObserver {
+    public class GetFollowingCountObserver extends Observer implements GetCountObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to get following count: ";
+        }
+
         @Override
         public void handleSuccess(int count) {
             view.displayFolloweeCount(count);
         }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage("Failed to get following count: " + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to get following count because of exception: " + exception.getMessage());
-        }
     }
 
-    public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver {
+    public class GetFollowersCountObserver extends Observer implements GetCountObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to get followers count: ";
+        }
+
         @Override
         public void handleSuccess(int count) {
             view.displayFollowersCount(count);
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage("Failed to get followers count: " + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to get followers count because of exception: " + exception.getMessage());
         }
     }
 
@@ -224,7 +207,12 @@ public class MainPresenter {
         followService.follow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowObserver());
     }
 
-    public class FollowObserver implements FollowService.FollowObserver {
+    public class FollowObserver extends Observer implements SimpleObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to follow: ";
+        }
+
         @Override
         public void handleSuccess() {
             // Now that you've followed someone new, re-fetch the counts
@@ -236,14 +224,14 @@ public class MainPresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayToastMessage("Failed to follow: " + message);
+            view.displayToastMessage(getMsgPrefix() + message);
             // Re-enable the follow button
             view.setEnabledFollowButton(true);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to follow because of exception: " + exception.getMessage());
+            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
             // Re-enable the follow button
             view.setEnabledFollowButton(true);
         }
@@ -257,7 +245,12 @@ public class MainPresenter {
         followService.unfollow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new UnfollowObserver());
     }
 
-    public class UnfollowObserver implements FollowService.UnfollowObserver {
+    public class UnfollowObserver extends Observer implements SimpleObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to unfollow: ";
+        }
+
         @Override
         public void handleSuccess() {
             // Now that you've unfollowed someone, re-fetch the counts
@@ -269,14 +262,14 @@ public class MainPresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayToastMessage("Failed to unfollow: " + message);
+            view.displayToastMessage(getMsgPrefix() + message);
             // Re-enable the follow button
             view.setEnabledFollowButton(true);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to unfollow because of exception: " + exception.getMessage());
+            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
             // Re-enable the follow button
             view.setEnabledFollowButton(true);
         }
@@ -291,21 +284,16 @@ public class MainPresenter {
                 selectedUser, new IsFollowerObserver());
     }
 
-    public class IsFollowerObserver implements FollowService.IsFollowerObserver {
+    public class IsFollowerObserver extends Observer implements BooleanObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to determine following relationship: ";
+        }
+
         @Override
         public void handleSuccess(boolean currentlyFollowing) {
             // If logged in user if a follower of the selected user, display the follow button as "following"
             view.updateFollowButton(currentlyFollowing);
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage("Failed to determine following relationship: " + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to determine following relationship because of exception: " + exception.getMessage());
         }
     }
 }

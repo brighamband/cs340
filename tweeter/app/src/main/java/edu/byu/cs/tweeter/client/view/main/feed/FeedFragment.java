@@ -88,7 +88,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
         feedRecyclerView.addOnScrollListener(new FeedRecyclerViewPaginationScrollListener(layoutManager));
 
         feedPresenter = new FeedPresenter(this);
-        feedPresenter.loadMoreFeed(user);
+        feedPresenter.loadMoreItems(user);
 
         return view;
     }
@@ -109,12 +109,16 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
     }
 
     @Override
-    public void addStatuses(List<Status> statuses) {
-        feedRecyclerViewAdapter.addItems(statuses);
+    public void addItems(List items) {
+        feedRecyclerViewAdapter.addItems(items);
     }
 
+    /**
+     * Opens up a new screen of the profile the user clicked on.
+     * @param user
+     */
     @Override
-    public void displayUserMentioned(User user) {
+    public void changeScreen(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
         startActivity(intent);
@@ -152,7 +156,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
             datetime = itemView.findViewById(R.id.statusDatetime);
 
             itemView.setOnClickListener(v -> {
-                feedPresenter.onUserProfileClick(userAlias.getText().toString());
+                feedPresenter.getUserProfile(userAlias.getText().toString());
             });
         }
 
@@ -312,7 +316,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
          * data.
          */
         void loadMoreItems() {
-            feedPresenter.loadMoreFeed(user);
+            feedPresenter.loadMoreItems(user);
         }
 
         /**

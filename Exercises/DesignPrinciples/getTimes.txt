@@ -1,47 +1,29 @@
 1. What design principles does this code violate?
+    - Duplication & Abstraction
+      - Every single valueString property has to be grabbed using 'getProperty()' then later validated to make sure not to be a null or negative value.  This could get abstracted all the way as a method within ValueString.
 2. Refactor the code to improve its design.
 
 
 public void getTimes(Properties props) throws Exception {
-  String valueString;
-  int value;
+  ValueChecker = new ValueChecker();
 
-  valueString = props.getProperty("interval");
-  if (valueString == null) {
-    throw new MissingPropertiesException("monitor interval");
-  }
-  value = Integer.parseInt(valueString);
+  checkInterval = valueChecker.extractValidatedProperty("interval", "monitor interval");
+  
+  monitorTime = valueChecker.extractValidatedProperty("duration", "duration")
 
-  if (value <= 0) {
-    throw new MissingPropertiesException("monitor interval > 0");
-  }
-  checkInterval = value;
-
-  valueString = props.getProperty("duration");
-  if (valueString == null) {
-    throw new MissingPropertiesException("duration");
-  }
-
-  value = Integer.parseInt(valueString);
-  if (value <= 0) {
-    throw new MissingPropertiesException("duration > 0");
-  }
-  if ((value % checkInterval) != 0) {
-    throw new MissingPropertiesException("duration % checkInterval");
-  }
-  monitorTime = value;
-
-  valueString = props.getProperty("departure");
-  if (valueString == null) {
-    throw new MissingPropertiesException("departure offset");
-  }
-  value = Integer.parseInt(valueString);
-  if (value <= 0) {
-    throw new MissingPropertiesException("departure > 0");
-  }
-  if ((value % checkInterval) != 0) {
-    throw new MissingPropertiesException("departure % checkInterval");
-  }
-  departureOffset = value;
+  departureOffset = valueChecker.extractValidatedProperty("departure", "departure offset");
 }
 
+public ValueChecker() {
+  public void extractValidatedProperty(String propertyName, String missingMsg) throws Exception {
+    String valueString = props.getProperty(propertyName);
+    if (valueString == null) {  
+      throw new MissingPropertiesException(missingMsg);
+    }
+    int value = Integer.parseInt(valueString);
+    if (value <= 0) {
+      throw new MissingPropertiesException(missingMsg + " > 0");
+    }
+    return value;
+  }
+}

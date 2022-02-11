@@ -25,13 +25,14 @@ import java.util.List;
 
 import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.presenter.FollowingPresenter;
+import edu.byu.cs.tweeter.client.presenter.PagedPresenter;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
 
 /**
  * Implements the "Following" tab.
  */
-public class FollowingFragment extends Fragment implements FollowingPresenter.View {
+public class FollowingFragment extends Fragment implements PagedPresenter.View {
     private static final String LOG_TAG = "FollowingFragment";
     private static final String USER_KEY = "UserKey";
 
@@ -79,7 +80,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
         followingRecyclerView.addOnScrollListener(new FollowRecyclerViewPaginationScrollListener(layoutManager));
 
         followingPresenter = new FollowingPresenter(this);
-        followingPresenter.loadMoreFollowees(user);
+        followingPresenter.loadMoreItems(user);
 
         return view;
     }
@@ -100,12 +101,12 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
     }
 
     @Override
-    public void addFollowing(List<User> following) {
-        followingRecyclerViewAdapter.addItems(following);
+    public void addItems(List items) {
+        followingRecyclerViewAdapter.addItems(items);
     }
 
     @Override
-    public void displayUserFollowing(User user) {
+    public void changeScreen(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
         startActivity(intent);
@@ -133,7 +134,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
             userName = itemView.findViewById(R.id.userName);
 
             itemView.setOnClickListener(v -> {
-                followingPresenter.onUserProfileClick(userAlias.getText().toString());
+                followingPresenter.getUserProfile(userAlias.getText().toString());
             });
         }
 
@@ -257,7 +258,7 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
          * data.
          */
         void loadMoreItems() {
-            followingPresenter.loadMoreFollowees(user);
+            followingPresenter.loadMoreItems(user);
         }
 
         /**

@@ -6,11 +6,11 @@ import android.widget.ImageView;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class RegisterPresenter {
-    public interface View {
-        void displayToastMessage(String message);
+public class RegisterPresenter extends SimplePresenter {
+    public interface View extends SimplePresenter.View {
         void bypassRegisterScreen(User registeredUser, String registeredAlias);
         void setErrorViewText(String text);
     }
@@ -19,6 +19,7 @@ public class RegisterPresenter {
     private UserService userService;
 
     public RegisterPresenter(View view) {
+        super(view);
         this.view = view;
         userService = new UserService();
     }
@@ -63,21 +64,16 @@ public class RegisterPresenter {
         }
     }
 
-    public class RegisterObserver implements  UserService.RegisterObserver {
+    public class RegisterObserver extends Observer implements UserObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to register: ";
+        }
+
         @Override
         public void handleSuccess(User registeredUser) {
             String registeredAlias = Cache.getInstance().getCurrUser().getName();
             view.bypassRegisterScreen(registeredUser, registeredAlias);
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage("Failed to register: " + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to register because of exception: " + exception);
         }
     }
 }

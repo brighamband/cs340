@@ -26,13 +26,14 @@ import java.util.List;
 
 import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.presenter.FollowersPresenter;
+import edu.byu.cs.tweeter.client.presenter.PagedPresenter;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
 
 /**
  * Implements the "Followers" tab.
  */
-public class FollowersFragment extends Fragment implements FollowersPresenter.View {
+public class FollowersFragment extends Fragment implements PagedPresenter.View {
 
     private static final String LOG_TAG = "FollowersFragment";
     private static final String USER_KEY = "UserKey";
@@ -82,7 +83,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
         followersRecyclerView.addOnScrollListener(new FollowRecyclerViewPaginationScrollListener(layoutManager));
 
         followersPresenter = new FollowersPresenter(this);
-        followersPresenter.loadMoreFollowers(user);
+        followersPresenter.loadMoreItems(user);
 
         return view;
     }
@@ -102,12 +103,12 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
     }
 
     @Override
-    public void addFollowers(List<User> followers) {
-        followersRecyclerViewAdapter.addItems(followers);
+    public void addItems(List items) {
+        followersRecyclerViewAdapter.addItems(items);
     }
 
     @Override
-    public void displayUserFollower(User user) {
+    public void changeScreen(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
         startActivity(intent);
@@ -135,7 +136,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
             userName = itemView.findViewById(R.id.userName);
 
             itemView.setOnClickListener(v -> {
-                followersPresenter.onUserProfileClick(userAlias.getText().toString());
+                followersPresenter.getUserProfile(userAlias.getText().toString());
             });
         }
 
@@ -261,7 +262,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
          * data.
          */
         void loadMoreItems() {
-            followersPresenter.loadMoreFollowers(user);
+            followersPresenter.loadMoreItems(user);
         }
 
         /**

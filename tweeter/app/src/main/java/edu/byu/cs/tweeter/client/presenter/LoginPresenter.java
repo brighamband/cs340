@@ -2,11 +2,11 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class LoginPresenter {
-    public interface View {
-        void displayToastMessage(String message);
+public class LoginPresenter extends SimplePresenter {
+    public interface View extends SimplePresenter.View {
         void bypassLoginScreen(User loggedInUser, String loggedInAlias);
         void setErrorViewText(String text);
     }
@@ -15,6 +15,7 @@ public class LoginPresenter {
     private UserService userService;
 
     public LoginPresenter(View view) {
+        super(view);
         this.view = view;
         userService = new UserService();
     }
@@ -29,10 +30,6 @@ public class LoginPresenter {
         } catch (Exception e) {
             view.setErrorViewText(e.getMessage());
         }
-    }
-
-    public void logIn(String alias, String password) {
-        userService.logIn(alias, password, new LoginObserver());
     }
 
     public void validateLogin(String alias, String password) {
@@ -50,21 +47,16 @@ public class LoginPresenter {
         }
     }
 
-    public class LoginObserver implements UserService.LoginObserver {
+    public class LoginObserver extends Observer implements UserObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to login: ";
+        }
+
         @Override
         public void handleSuccess(User loggedInUser) {
             String loggedInAlias = Cache.getInstance().getCurrUser().getName();
             view.bypassLoginScreen(loggedInUser, loggedInAlias);
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage("Failed to login: " + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to login because of exception: " + exception.getMessage());
         }
     }
 }
