@@ -7,66 +7,21 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowingPresenter extends FollowPresenter {
-//    private static final int PAGE_SIZE = 10;
-
-    @Override
-    public String getMsgPrefix() {
-        return "FIXME";
-    }
-
-//    public interface View {
-//        void displayToastMessage(String message);
-//        void displayLoading(boolean displayOn);
-//        void addFollowing(List<User> following);
-//        void displayUserFollowing(User user);
-//    }
-
-//    private View view;
-//    private FollowService followService;
-//    private UserService userService;
-
     public FollowingPresenter(View view) {
         super(view);
-//        this.view = view;
-//        followService = new FollowService();
-//        userService = new UserService();
     }
-
-//    private User lastFollowee;
-//    private boolean hasMorePages;
-//    private boolean isLoading = false;
-//
-//    public boolean getHasMorePages() {
-//        return hasMorePages;
-//    }
-//
-//    public void setHasMorePages(boolean hasMorePages) {
-//        this.hasMorePages = hasMorePages;
-//    }
-//
-//    public boolean getIsLoading() {
-//        return isLoading;
-//    }
-//
-//    public void setLoading(boolean loading) {
-//        isLoading = loading;
-//    }
 
     @Override
     public void getItems(AuthToken authToken, User targetUser, int pageSize, User lastItem) {
         followService.getFollowing(authToken, targetUser, pageSize, lastItem, new GetFollowingObserver());
     }
 
-//    public void loadMoreFollowees(User user) {
-//        if (!getIsLoading()) {   // This guard is important for avoiding a race condition in the scrolling code.
-//            setLoading(true);
-//            view.displayLoading(true);
-//
-//            followService.getFollowing(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastFollowee, new GetFollowingObserver());
-//        }
-//    }
+    public class GetFollowingObserver extends Observer implements PagedObserver<User> {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to get following: ";
+        }
 
-    public class GetFollowingObserver implements PagedObserver<User> {
         @Override
         public void handleSuccess(List<User> followees, boolean hasMorePages) {
             setLoading(false);
@@ -81,44 +36,14 @@ public class FollowingPresenter extends FollowPresenter {
         public void handleFailure(String message) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayToastMessage("Failed to get following: " + message);
+            view.displayToastMessage(getMsgPrefix() + message);
         }
 
         @Override
         public void handleException(Exception exception) {
             setLoading(false);
             view.displayLoading(false);
-            view.displayToastMessage("Failed to get following because of exception: " + exception.getMessage());
+            view.displayToastMessage(getMsgPrefix() + exception.getMessage());
         }
     }
-
-    /**
-     * USER    // FIXME - DUPLICATED
-     */
-
-//    /**
-//     * When a User's status or a mention of a User is clicked (open their profile)
-//     * @param alias
-//     */
-//    public void onUserProfileClick(String alias) {
-//        view.displayToastMessage("Getting user's profile...");
-//        userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
-//    }
-
-//    public class GetUserObserver implements UserObserver {
-//        @Override
-//        public void handleSuccess(User user) {
-//            view.displayUserFollowing(user);
-//        }
-//
-//        @Override
-//        public void handleFailure(String message) {
-//            view.displayToastMessage("Failed to get user's profile " + message);
-//        }
-//
-//        @Override
-//        public void handleException(Exception exception) {
-//            view.displayToastMessage("Failed to get user's profile because of exception: " + exception.getMessage());
-//        }
-//    }
 }

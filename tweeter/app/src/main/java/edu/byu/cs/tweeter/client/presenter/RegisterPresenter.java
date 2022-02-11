@@ -10,11 +10,6 @@ import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class RegisterPresenter extends SimplePresenter {
-    @Override
-    public String getMsgPrefix() {
-        return "Failed to register: ";
-    }
-
     public interface View extends SimplePresenter.View {
         void bypassRegisterScreen(User registeredUser, String registeredAlias);
         void setErrorViewText(String text);
@@ -69,21 +64,16 @@ public class RegisterPresenter extends SimplePresenter {
         }
     }
 
-    public class RegisterObserver implements UserObserver {
+    public class RegisterObserver extends Observer implements UserObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to register: ";
+        }
+
         @Override
         public void handleSuccess(User registeredUser) {
             String registeredAlias = Cache.getInstance().getCurrUser().getName();
             view.bypassRegisterScreen(registeredUser, registeredAlias);
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage(getMsgPrefix() + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception);
         }
     }
 }

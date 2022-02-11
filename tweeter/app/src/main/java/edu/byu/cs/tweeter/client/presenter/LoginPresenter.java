@@ -6,11 +6,6 @@ import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class LoginPresenter extends SimplePresenter {
-    @Override
-    public String getMsgPrefix() {
-        return "Failed to login: ";
-    }
-
     public interface View extends SimplePresenter.View {
         void bypassLoginScreen(User loggedInUser, String loggedInAlias);
         void setErrorViewText(String text);
@@ -52,7 +47,12 @@ public class LoginPresenter extends SimplePresenter {
         }
     }
 
-    public class LoginObserver implements UserObserver {
+    public class LoginObserver extends Observer implements UserObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to login: ";
+        }
+
         @Override
         public void handleSuccess(User loggedInUser) {
             String loggedInAlias = Cache.getInstance().getCurrUser().getName();

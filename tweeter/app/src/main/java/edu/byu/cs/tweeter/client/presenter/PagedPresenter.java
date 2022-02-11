@@ -9,11 +9,6 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public abstract class PagedPresenter<T> extends SimplePresenter {
-    @Override
-    public String getMsgPrefix() {
-        return "Failed to get user's profile: ";
-    }
-
     public interface View<T> extends SimplePresenter.View {
         void displayLoading(boolean displayOn);
         void addItems(List<T> items);
@@ -31,12 +26,9 @@ public abstract class PagedPresenter<T> extends SimplePresenter {
 
     protected static final int PAGE_SIZE = 10;
 
-//    protected User targetUser;
-//    protected AuthToken authToken;
     protected T lastItem;
     protected boolean hasMorePages;
     protected boolean isLoading;
-//    protected boolean isGettingUser;
 
     public boolean getHasMorePages() {
         return hasMorePages;
@@ -60,7 +52,6 @@ public abstract class PagedPresenter<T> extends SimplePresenter {
             view.displayLoading(true);
 
             getItems(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastItem);
-//            statusService.getStory(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastStatus, new StoryPresenter.GetStoryObserver());
         }
     }
 
@@ -73,20 +64,15 @@ public abstract class PagedPresenter<T> extends SimplePresenter {
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), alias, new GetUserObserver());
     }
 
-    public class GetUserObserver implements UserObserver {
+    public class GetUserObserver extends Observer implements UserObserver {
+        @Override
+        public String getMsgPrefix() {
+            return "Failed to get user's profile: ";
+        }
+
         @Override
         public void handleSuccess(User user) {
             view.changeScreen(user);
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayToastMessage(getMsgPrefix() + message);
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
         }
     }
 
