@@ -9,9 +9,13 @@ import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class RegisterPresenter {
-    public interface View {
-        void displayToastMessage(String message);
+public class RegisterPresenter extends SimplePresenter {
+    @Override
+    public String getMsgPrefix() {
+        return "Failed to register: ";
+    }
+
+    public interface View extends SimplePresenter.View {
         void bypassRegisterScreen(User registeredUser, String registeredAlias);
         void setErrorViewText(String text);
     }
@@ -20,6 +24,7 @@ public class RegisterPresenter {
     private UserService userService;
 
     public RegisterPresenter(View view) {
+        super(view);
         this.view = view;
         userService = new UserService();
     }
@@ -73,12 +78,12 @@ public class RegisterPresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayToastMessage("Failed to register: " + message);
+            view.displayToastMessage(getMsgPrefix() + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayToastMessage("Failed to register because of exception: " + exception);
+            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception);
         }
     }
 }

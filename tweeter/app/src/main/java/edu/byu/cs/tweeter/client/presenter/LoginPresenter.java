@@ -12,7 +12,6 @@ public class LoginPresenter extends SimplePresenter {
     }
 
     public interface View extends SimplePresenter.View {
-//        void displayToastMessage(String message);
         void bypassLoginScreen(User loggedInUser, String loggedInAlias);
         void setErrorViewText(String text);
     }
