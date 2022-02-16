@@ -37,8 +37,14 @@ public class MainPresenter extends SimplePresenter {
         super(view);
         this.view = view;
         userService = new UserService();
-        statusService = new StatusService();
         followService = new FollowService();
+    }
+
+    protected StatusService getStatusService() {
+        if (statusService == null) {
+            statusService = new StatusService();
+        }
+        return statusService;
     }
 
     /**
@@ -68,7 +74,7 @@ public class MainPresenter extends SimplePresenter {
     public void postStatus(String post) {
         try {
             Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
-            statusService.postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus, new PostStatusObserver());
+            getStatusService().postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus, new PostStatusObserver());
         } catch (Exception ex) {
             view.displayToastMessage("Failed to post status because of exception: " + ex.getMessage());
         }
