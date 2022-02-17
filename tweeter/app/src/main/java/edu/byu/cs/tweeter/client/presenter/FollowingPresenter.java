@@ -16,7 +16,7 @@ public class FollowingPresenter extends FollowPresenter {
   public class GetFollowingObserver extends PagedListObserver {
     @Override
     public String getMsgPrefix() {
-      return "Failed to get following: ";
+      return "Failed to get following";
     }
   }
 }

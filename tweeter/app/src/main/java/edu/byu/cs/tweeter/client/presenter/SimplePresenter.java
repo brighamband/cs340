@@ -19,12 +19,12 @@ public abstract class SimplePresenter {
 
         @Override
         public void handleFailure(String message) {
-            view.displayToastMessage(getMsgPrefix() + message);
+            view.displayToastMessage(getMsgPrefix() + ": " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception);
+            view.displayToastMessage(getMsgPrefix() + " because of exception: " + exception);
         }
     }
 }

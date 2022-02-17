@@ -15,9 +15,9 @@ import edu.byu.cs.tweeter.client.model.service.UserService;
 
 public class MainPresenterUnitTest {
     private MainPresenter.View mockView;
-    private UserService mockUserService;
+//    private UserService mockUserService;
     private StatusService mockStatusService;
-    private Cache mockCache;
+//    private Cache mockCache;
 
     private MainPresenter spyMainPresenter;
 
@@ -25,46 +25,36 @@ public class MainPresenterUnitTest {
     public void setup() {
         // Create mocks
         mockView = Mockito.mock(MainPresenter.View.class);
-        mockUserService = Mockito.mock(UserService.class);
+//        mockUserService = Mockito.mock(UserService.class);
         mockStatusService = Mockito.mock(StatusService.class);
-        mockCache = Mockito.mock(Cache.class);
+//        mockCache = Mockito.mock(Cache.class);
 
         spyMainPresenter = Mockito.spy(new MainPresenter(mockView));
 
-        Mockito.when(spyMainPresenter.getUserService()).thenReturn(mockUserService);
+//        Mockito.when(spyMainPresenter.getUserService()).thenReturn(mockUserService);
         Mockito.when(spyMainPresenter.getStatusService()).thenReturn(mockStatusService);
 
-        Cache.setInstance(mockCache);
+//        Cache.setInstance(mockCache);
     }
 
-    @Test
-    public void testLogout_logoutSuccessful() {
-        // Create
-        Answer<Void> answer = invocation -> {
-            MainPresenter.LogoutObserver observer = invocation.getArgument(1, MainPresenter.LogoutObserver.class);
-            observer.handleSuccess();
-            return null;
-        };
-        Mockito.doAnswer(answer).when(mockUserService).logOut(Mockito.any(), Mockito.any());
-
-        // Call
-        spyMainPresenter.logOut();
-
-        // Confirm
-        Mockito.verify(mockView).displayToastMessage("Logging Out...");
-        Mockito.verify(mockCache).clearCache();
-        Mockito.verify(mockView).returnToLoginScreen();
-    }
-
-    @Test
-    public void testLogout_logoutFailedWithMessage() {
-
-    }
-
-    @Test
-    public void testLogout_logoutFailedWithException() {
-
-    }
+//    @Test
+//    public void testLogout_logoutSuccessful() {
+//        // Create
+//        Answer<Void> answer = invocation -> {
+//            MainPresenter.LogoutObserver observer = invocation.getArgument(1, MainPresenter.LogoutObserver.class);
+//            observer.handleSuccess();
+//            return null;
+//        };
+//        Mockito.doAnswer(answer).when(mockUserService).logOut(Mockito.any(), Mockito.any());
+//
+//        // Call
+//        spyMainPresenter.logOut();
+//
+//        // Confirm
+//        Mockito.verify(mockView).displayToastMessage("Logging Out...");
+//        Mockito.verify(mockCache).clearCache();
+//        Mockito.verify(mockView).returnToLoginScreen();
+//    }
 
     @Test
     public void testPostStatus_postSuccessful() {
@@ -79,33 +69,45 @@ public class MainPresenterUnitTest {
 
         // Call
         spyMainPresenter.postStatus("Testing status post");
+        // FIXME - Test parameters that get passed to the status service
 
         // Confirm
         Mockito.verify(mockView).displayToastMessage("Successfully Posted!");
     }
-//
-//    @Test
-//    public void testPostStatus_postFailedWithMessage() {
-//
-//    }
-//
-//    @Test
-//    public void testPostStatus_postFailedWithException() {
-//
-//    }
-//        Assert.assertTrue(true);
-//    }
-//    @Test
-//    public void testMockitoSpy() {
-//        TestsWorkingTest.Foo f = Mockito.spy(new TestsWorkingTest.Foo());
-//        f.foo();
-//        Mockito.verify(f).foo();
-//    }
-//    @Test
-//    public void testMockitoMock() {
-//        TestsWorkingTest.Foo f = Mockito.mock(TestsWorkingTest.Foo.class);
-//        f.foo();
-//        Mockito.verify(f).foo();
-//    }
 
+    @Test
+    public void testPostStatus_postFailedWithMessage() {
+        // Create
+        Answer<Void> answer = invocation -> {
+            MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
+            observer.handleFailure("No wifi connection");
+            return null;
+        };
+        Mockito.doAnswer(answer).when(mockStatusService).postStatus(Mockito.any(), Mockito.any(), Mockito.any());
+        // FIXME - Test parameters that get passed to the status service
+
+        // Call
+        spyMainPresenter.postStatus("Testing status post");
+
+        // Confirm
+        Mockito.verify(mockView).displayToastMessage("Failed to post status: No wifi connection");
+    }
+
+    @Test
+    public void testPostStatus_postFailedWithException() {
+        // Create
+        Answer<Void> answer = invocation -> {
+            MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
+            observer.handleException(new RuntimeException("Runtime exception has occurred"));
+            return null;
+        };
+        Mockito.doAnswer(answer).when(mockStatusService).postStatus(Mockito.any(), Mockito.any(), Mockito.any());
+        // FIXME - Test parameters that get passed to the status service
+
+        // Call
+        spyMainPresenter.postStatus("Testing status post");
+
+        // Confirm
+        Mockito.verify(mockView).displayToastMessage("Failed to post status because of exception: java.lang.RuntimeException: Runtime exception has occurred");
+    }
 }
