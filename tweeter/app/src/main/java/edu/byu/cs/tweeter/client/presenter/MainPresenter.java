@@ -28,16 +28,22 @@ public class MainPresenter extends SimplePresenter {
         void setEnabledFollowButton(boolean makeEnabled);
     }
 
-    private View view;
+    private final View view;
     private UserService userService;
     private StatusService statusService;
-    private FollowService followService;
+    private final FollowService followService;
 
     public MainPresenter(View view) {
         super(view);
         this.view = view;
-        userService = new UserService();
         followService = new FollowService();
+    }
+
+    protected UserService getUserService() {
+        if (userService == null) {
+            userService = new UserService();
+        }
+        return userService;
     }
 
     protected StatusService getStatusService() {
@@ -52,7 +58,7 @@ public class MainPresenter extends SimplePresenter {
      */
 
     public void logOut() {
-        userService.logOut(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
+        getUserService().logOut(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
     }
 
     public class LogoutObserver extends Observer implements SimpleObserver {
