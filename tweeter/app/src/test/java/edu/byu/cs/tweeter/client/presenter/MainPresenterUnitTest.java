@@ -3,83 +3,66 @@ package edu.byu.cs.tweeter.client.presenter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import edu.byu.cs.tweeter.client.TestsWorkingTest;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
-import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.Status;
 
 public class MainPresenterUnitTest {
     private MainPresenter.View mockView;
-//    private UserService mockUserService;
     private StatusService mockStatusService;
-//    private Cache mockCache;
 
     private MainPresenter spyMainPresenter;
+
+    AuthToken TEST_AUTH_TOKEN = new AuthToken("test-auth-token");
+    Status TEST_STATUS = new Status("This is my status", null, null, null, null);
 
     @Before
     public void setup() {
         // Create mocks
         mockView = Mockito.mock(MainPresenter.View.class);
-//        mockUserService = Mockito.mock(UserService.class);
         mockStatusService = Mockito.mock(StatusService.class);
-//        mockCache = Mockito.mock(Cache.class);
 
         spyMainPresenter = Mockito.spy(new MainPresenter(mockView));
 
-//        Mockito.when(spyMainPresenter.getUserService()).thenReturn(mockUserService);
         Mockito.when(spyMainPresenter.getStatusService()).thenReturn(mockStatusService);
 
-//        Cache.setInstance(mockCache);
+        Cache.getInstance().setCurrUserAuthToken(TEST_AUTH_TOKEN);
     }
-
-//    @Test
-//    public void testLogout_logoutSuccessful() {
-//        // Create
-//        Answer<Void> answer = invocation -> {
-//            MainPresenter.LogoutObserver observer = invocation.getArgument(1, MainPresenter.LogoutObserver.class);
-//            observer.handleSuccess();
-//            return null;
-//        };
-//        Mockito.doAnswer(answer).when(mockUserService).logOut(Mockito.any(), Mockito.any());
-//
-//        // Call
-//        spyMainPresenter.logOut();
-//
-//        // Confirm
-//        Mockito.verify(mockView).displayToastMessage("Logging Out...");
-//        Mockito.verify(mockCache).clearCache();
-//        Mockito.verify(mockView).returnToLoginScreen();
-//    }
 
     @Test
     public void testPostStatus_postSuccessful() {
+
         // Create
         Answer<Void> answer = invocation -> {
-            MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
+            MainPresenter.PostStatusObserver observer = setupMockObserver(invocation);
+
+            verifyParameters(invocation);   // Confirm
+
             observer.handleSuccess();
             return null;
         };
         Mockito.doAnswer(answer).when(mockStatusService).postStatus(Mockito.any(), Mockito.any(), Mockito.any());
 
-
         // Call
-        spyMainPresenter.postStatus("Testing status post");
-        // FIXME - Test parameters that get passed to the status service
+        callPostStatus();
 
         // Confirm
-        Mockito.verify(mockView).displayToastMessage("Successfully Posted!");
+        confirmResults("Successfully Posted!");
     }
 
     @Test
     public void testPostStatus_postFailedWithMessage() {
         // Create
         Answer<Void> answer = invocation -> {
-            MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
+            MainPresenter.PostStatusObserver observer = setupMockObserver(invocation);
+
+            verifyParameters(invocation);   // Confirm
+
             observer.handleFailure("No wifi connection");
             return null;
         };
@@ -87,27 +70,49 @@ public class MainPresenterUnitTest {
         // FIXME - Test parameters that get passed to the status service
 
         // Call
-        spyMainPresenter.postStatus("Testing status post");
+        callPostStatus();
 
         // Confirm
-        Mockito.verify(mockView).displayToastMessage("Failed to post status: No wifi connection");
+        confirmResults("Failed to post status: No wifi connection");
     }
 
     @Test
     public void testPostStatus_postFailedWithException() {
         // Create
         Answer<Void> answer = invocation -> {
-            MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
+            MainPresenter.PostStatusObserver observer = setupMockObserver(invocation);
+
+            verifyParameters(invocation);   // Confirm
+
             observer.handleException(new RuntimeException("Runtime exception has occurred"));
             return null;
         };
         Mockito.doAnswer(answer).when(mockStatusService).postStatus(Mockito.any(), Mockito.any(), Mockito.any());
-        // FIXME - Test parameters that get passed to the status service
 
         // Call
-        spyMainPresenter.postStatus("Testing status post");
+        callPostStatus();
 
         // Confirm
-        Mockito.verify(mockView).displayToastMessage("Failed to post status because of exception: java.lang.RuntimeException: Runtime exception has occurred");
+        confirmResults("Failed to post status because of exception: java.lang.RuntimeException: Runtime exception has occurred");
+    }
+
+    private MainPresenter.PostStatusObserver setupMockObserver(InvocationOnMock invocation) {
+        return invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
+    }
+
+    private void callPostStatus() {
+        spyMainPresenter.postStatus(TEST_STATUS.getPost());
+    }
+
+    private void verifyParameters(InvocationOnMock invocation) {
+        Assert.assertEquals(invocation.getArgument(0, AuthToken.class).getToken(), TEST_AUTH_TOKEN.getToken());
+        Assert.assertEquals(invocation.getArgument(1, Status.class).getPost(), TEST_STATUS.getPost());
+        Assert.assertEquals(invocation.getArgument(2, MainPresenter.PostStatusObserver.class).getMsgPrefix(), "Failed to post status");
+    }
+
+    private void confirmResults(String msg) {
+        Mockito.verify(mockView).displayToastMessage("Posting Status...");
+        Mockito.verify(mockView).displayToastMessage(msg);
+        Mockito.verify(mockView, Mockito.times(2)).displayToastMessage(Mockito.any());
     }
 }
