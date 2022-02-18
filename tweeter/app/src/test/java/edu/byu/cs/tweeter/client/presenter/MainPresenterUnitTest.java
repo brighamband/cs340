@@ -67,7 +67,6 @@ public class MainPresenterUnitTest {
             return null;
         };
         Mockito.doAnswer(answer).when(mockStatusService).postStatus(Mockito.any(), Mockito.any(), Mockito.any());
-        // FIXME - Test parameters that get passed to the status service
 
         // Call
         callPostStatus();
