@@ -1,0 +1,1 @@
+This file needs to be uploaded to S3 via the AWS Java SDK.

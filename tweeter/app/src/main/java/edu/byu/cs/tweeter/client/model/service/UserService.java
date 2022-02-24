@@ -13,6 +13,7 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.RegisterTask;
 import edu.byu.cs.tweeter.client.model.service.handler.AuthenticateHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.GetUserHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.LogoutHandler;
+import edu.byu.cs.tweeter.client.model.service.handler.SimpleHandler;
 import edu.byu.cs.tweeter.client.model.service.observer.SimpleObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.UserObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
