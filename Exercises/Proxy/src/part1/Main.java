@@ -10,13 +10,13 @@ public class Main {
         try {
             pi = proxy.getPi();
             e = proxy.getE();
+
+            System.out.println("Constant Grabber called from proxy.");
+            System.out.println("Pi is " + pi);
+            System.out.println("E is " + e);
+
         } catch (Exception ex) {
             System.out.println("Invalid date time");
-            return;
         }
-
-        System.out.println("Constant Grabber called from proxy.");
-        System.out.println("Pi is " + pi);
-        System.out.println("E is " + e);
     }
 }
