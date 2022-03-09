@@ -35,7 +35,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  */
 public class FollowersFragment extends Fragment implements PagedPresenter.View {
 
-    private static final String LOG_TAG = "FollowersFragment";
     private static final String USER_KEY = "UserKey";
 
     private static final int LOADING_DATA_VIEW = 0;
@@ -146,8 +145,8 @@ public class FollowersFragment extends Fragment implements PagedPresenter.View {
          * @param user the user.
          */
         void bindUser(User user) {
-            if (user == null)
-                Log.e(LOG_TAG, "user is null!");
+//            if (user == null)
+//                Log.e(LOG_TAG, "user is null!");
             userAlias.setText(user.getAlias());
             userName.setText(user.getName());
             Picasso.get().load(user.getImageUrl()).into(userImage);

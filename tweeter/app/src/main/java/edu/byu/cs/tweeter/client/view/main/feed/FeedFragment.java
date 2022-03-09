@@ -40,7 +40,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  * Implements the "Feed" tab.
  */
 public class FeedFragment extends Fragment implements FeedPresenter.View {
-    private static final String LOG_TAG = "FeedFragment";
     private static final String USER_KEY = "UserKey";
 
     private static final int LOADING_DATA_VIEW = 0;

@@ -32,8 +32,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  */
 public class MainActivity extends AppCompatActivity implements StatusDialogFragment.Observer, MainPresenter.View {
 
-  private static final String LOG_TAG = "MainActivity";
-
   public static final String CURRENT_USER_KEY = "CurrentUser";
 
   private Toast logOutToast;

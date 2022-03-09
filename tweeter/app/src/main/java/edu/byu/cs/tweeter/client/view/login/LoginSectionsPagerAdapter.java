@@ -15,7 +15,6 @@ import edu.byu.cs.client.R;
  * Used by LoginActivity to implement the "login" and "register" tabs.
  */
 public class LoginSectionsPagerAdapter extends FragmentPagerAdapter {
-    private static final String LOG_TAG = "LoginSectionsPagerAdapter";
 
     private static final int LOGIN_FRAGMENT_POSITION = 0;
     private static final int REGISTER_FRAGMENT_POSITION = 1;
@@ -36,7 +35,7 @@ public class LoginSectionsPagerAdapter extends FragmentPagerAdapter {
         } else if (position == REGISTER_FRAGMENT_POSITION) {
             return RegisterFragment.newInstance();
         } else {
-            Log.e(LOG_TAG, "Unknown fragment requested.");
+//            Log.e(LOG_TAG, "Unknown fragment requested.");
             return null;
         }
     }

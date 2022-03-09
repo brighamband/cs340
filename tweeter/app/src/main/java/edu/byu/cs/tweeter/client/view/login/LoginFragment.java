@@ -21,7 +21,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  * Implements the login screen.
  */
 public class LoginFragment extends Fragment implements LoginPresenter.View {
-    private static final String LOG_TAG = "LoginFragment";
 
     private EditText alias;
     private EditText password;
