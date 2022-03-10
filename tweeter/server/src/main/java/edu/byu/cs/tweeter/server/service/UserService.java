@@ -2,8 +2,10 @@ package edu.byu.cs.tweeter.server.service;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
@@ -19,7 +21,7 @@ public class UserService {
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
-        User user = getDummyUser();
+        User user = getDummyAuthenticatedUser();
         AuthToken authToken = getDummyAuthToken();
         return new LoginResponse(user, authToken);
     }
@@ -32,7 +34,7 @@ public class UserService {
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
-        User user = getDummyUser();
+        User user = getDummyAuthenticatedUser();
         AuthToken authToken = getDummyAuthToken();
         return new RegisterResponse(user, authToken);
     }
@@ -42,14 +44,31 @@ public class UserService {
         return new Response(true);
     }
 
+    public GetUserResponse getUser(GetUserRequest request) {
+        if (request.getAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request missing an alias");
+        }
+
+        String alias = request.getAlias();
+        // TODO: Generates dummy data. Replace with a real implementation.
+        return new GetUserResponse(getDummyUserByAlias(alias));
+    }
+
     /**
      * Returns the dummy user to be returned by the login operation.
      * This is written as a separate method to allow mocking of the dummy user.
      *
      * @return a dummy user.
      */
-    User getDummyUser() {
+    User getDummyAuthenticatedUser() {
         return getFakeData().getFirstUser();
+    }
+
+    /**
+     * Returns the dummy user who matches the alias passed in.
+     */
+    User getDummyUserByAlias(String alias) {
+        return getFakeData().findUserByAlias(alias);
     }
 
     /**

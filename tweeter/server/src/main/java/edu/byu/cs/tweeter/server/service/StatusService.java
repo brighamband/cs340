@@ -28,6 +28,7 @@ public class StatusService {
             throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
 
+        // TODO: Generates dummy data. Replace with a real implementation.
         Pair<List<Status>, Boolean> dummyFeedPages = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
         return new GetFeedResponse(dummyFeedPages.getFirst(), dummyFeedPages.getSecond());
     }
@@ -39,6 +40,7 @@ public class StatusService {
             throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
 
+        // TODO: Generates dummy data. Replace with a real implementation.
         Pair<List<Status>, Boolean> dummyFeedPages = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
         return new GetStoryResponse(dummyFeedPages.getFirst(), dummyFeedPages.getSecond());
     }

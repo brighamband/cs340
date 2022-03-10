@@ -25,10 +25,6 @@ public class GetFollowingCountResponse extends Response {
         return count;
     }
 
-    public void setCount(int count) {
-        this.count = count;
-    }
-
     @Override
     public boolean equals(Object param) {
         if (this == param) {

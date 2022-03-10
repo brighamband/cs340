@@ -31,10 +31,6 @@ public class GetFollowersResponse extends PagedResponse {
         return followers;
     }
 
-    public void setFollowers(List<User> followers) {
-        this.followers = followers;
-    }
-
     @Override
     public boolean equals(Object param) {
         if (this == param) {
