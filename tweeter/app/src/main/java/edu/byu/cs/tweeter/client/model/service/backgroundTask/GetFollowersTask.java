@@ -36,18 +36,8 @@ public class GetFollowersTask extends PagedTask<User> {
         GetFollowersResponse response = getServerFacade().getFollowers(request, URL_PATH);
 
         return new Pair<>(response.getFollowers(), response.getHasMorePages());
-//        return getFakeData().getPageOfUsers((User) getLastItem(), getLimit(), getTargetUser());
     }
 
-    /**
-     * Returns an instance of {@link ServerFacade}. Allows mocking of the
-     * ServerFacade class for
-     * testing purposes. All usages of ServerFacade should get their instance from
-     * this method to
-     * allow for proper mocking.
-     *
-     * @return the instance.
-     */
     public ServerFacade getServerFacade() {
         if (serverFacade == null) {
             serverFacade = new ServerFacade();

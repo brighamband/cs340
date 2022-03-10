@@ -36,8 +36,6 @@ public class GetFollowingTask extends PagedTask<User> {
         GetFollowingResponse response = getServerFacade().getFollowees(request, URL_PATH);
 
         return new Pair<>(response.getFollowees(), response.getHasMorePages());
-//        return new getPageOfUsers((User) getLastItem(), getLimit(), getTargetUser())
-//        return getFakeData().getPageOfUsers((User) getLastItem(), getLimit(), getTargetUser());
     }
 
     /**

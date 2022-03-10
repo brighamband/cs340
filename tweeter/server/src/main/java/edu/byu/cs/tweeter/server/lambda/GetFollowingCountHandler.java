@@ -8,6 +8,8 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.server.service.FollowService;
 
 public class GetFollowingCountHandler implements RequestHandler<GetFollowingCountRequest, GetFollowingCountResponse> {
+
+    @Override
     public GetFollowingCountResponse handleRequest(GetFollowingCountRequest request, Context context) {
         FollowService service = new FollowService();
         return service.getFollowingCount(request);

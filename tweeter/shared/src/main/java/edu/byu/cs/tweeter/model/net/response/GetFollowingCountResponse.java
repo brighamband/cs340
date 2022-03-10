@@ -13,6 +13,9 @@ public class GetFollowingCountResponse extends Response {
         super(false, message);
     }
 
+    /**
+     * Successful response
+     */
     public GetFollowingCountResponse(int count) {
         super(true);
         this.count = count;

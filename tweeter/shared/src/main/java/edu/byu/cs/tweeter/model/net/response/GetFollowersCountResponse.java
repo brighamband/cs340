@@ -12,6 +12,9 @@ public class GetFollowersCountResponse extends Response {
         super(false, message);
     }
 
+    /**
+     * Successful response
+     */
     public GetFollowersCountResponse(int count) {
         super(true);
         this.count = count;
