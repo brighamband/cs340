@@ -4,10 +4,12 @@ import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 
 /**
@@ -25,9 +27,9 @@ public class FollowService {
      * @return the followees.
      */
     public GetFollowingResponse getFollowees(GetFollowingRequest request) {
-        if(request.getFollowerAlias() == null) {
+        if (request.getFollowerAlias() == null) {
             throw new RuntimeException("[BadRequest] Request missing a follower alias");
-        } else if(request.getLimit() <= 0) {
+        } else if (request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
         return getFollowingDAO().getFollowees(request);
@@ -45,9 +47,9 @@ public class FollowService {
     }
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
-        if(request.getFolloweeAlias() == null) {
+        if (request.getFolloweeAlias() == null) {
             throw new RuntimeException("[BadRequest] Request missing a followee alias");
-        } else if(request.getLimit() <= 0) {
+        } else if (request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
         return getFollowersDAO().getFollowers(request);
@@ -58,7 +60,7 @@ public class FollowService {
     }
 
     public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
-        if(request.getUser() == null) {
+        if (request.getUser() == null) {
             throw new RuntimeException("[BadRequest] Request missing a user");
         }
         return getFollowingCountDAO().getFolloweeCount(request);
@@ -69,13 +71,27 @@ public class FollowService {
     }
 
     public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
-        if(request.getUser() == null) {
+        if (request.getUser() == null) {
             throw new RuntimeException("[BadRequest] Request missing a user");
         }
         return getFollowersCountDAO().getFollowersCount(request);
     }
 
     FollowDAO getFollowersCountDAO() {
+        return new FollowDAO();
+    }
+
+    public IsFollowerResponse isFollower(IsFollowerRequest request) {
+        if (request.getFollower() == null) {
+            throw new RuntimeException("[BadRequest] Request missing a follower");
+        } else if (request.getFollowee() == null) {
+            throw new RuntimeException("[BadRequest] Request missing a followee");
+        }
+
+        return isFollowerDAO().isFollower(request);
+    }
+
+    FollowDAO isFollowerDAO() {
         return new FollowDAO();
     }
 }
