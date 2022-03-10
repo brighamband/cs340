@@ -1,7 +1,6 @@
 package edu.byu.cs.tweeter.client.view.login;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;

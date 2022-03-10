@@ -44,17 +44,18 @@ public class ServerFacade {
     public LoginResponse login(LoginRequest request, String urlPath) throws IOException, TweeterRemoteException {
         LoginResponse response = clientCommunicator.doPost(urlPath, request, null, LoginResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
         }
     }
 
+
     public RegisterResponse register(RegisterRequest request, String urlPath) throws IOException, TweeterRemoteException {
         RegisterResponse response = clientCommunicator.doPost(urlPath, request, null, RegisterResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -64,7 +65,7 @@ public class ServerFacade {
     public Response logout(LogoutRequest request, String urlPath) throws IOException, TweeterRemoteException {
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -85,7 +86,7 @@ public class ServerFacade {
 
         GetFollowingResponse response = clientCommunicator.doPost(urlPath, request, null, GetFollowingResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -97,7 +98,7 @@ public class ServerFacade {
 
         GetFollowersResponse response = clientCommunicator.doPost(urlPath, request, null, GetFollowersResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -109,7 +110,7 @@ public class ServerFacade {
 
         GetFollowingCountResponse response = clientCommunicator.doPost(urlPath, request, null, GetFollowingCountResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -119,7 +120,7 @@ public class ServerFacade {
     public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request, String urlPath) throws IOException, TweeterRemoteException {
         GetFollowersCountResponse response = clientCommunicator.doPost(urlPath, request, null, GetFollowersCountResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -129,7 +130,7 @@ public class ServerFacade {
     public Response postStatus(PostStatusRequest request, String urlPath) throws IOException, TweeterRemoteException {
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -139,7 +140,7 @@ public class ServerFacade {
     public GetFeedResponse getFeed(GetFeedRequest request, String urlPath) throws IOException, TweeterRemoteException {
         GetFeedResponse response = clientCommunicator.doPost(urlPath, request, null, GetFeedResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -149,7 +150,7 @@ public class ServerFacade {
     public GetStoryResponse getStory(GetStoryRequest request, String urlPath) throws IOException, TweeterRemoteException {
         GetStoryResponse response = clientCommunicator.doPost(urlPath, request, null, GetStoryResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
@@ -159,7 +160,7 @@ public class ServerFacade {
     public GetUserResponse getUser(GetUserRequest request, String urlPath) throws IOException, TweeterRemoteException {
         GetUserResponse response = clientCommunicator.doPost(urlPath, request, null, GetUserResponse.class);
 
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             return response;
         } else {
             throw new RuntimeException(response.getMessage());
