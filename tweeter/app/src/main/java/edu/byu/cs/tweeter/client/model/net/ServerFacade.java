@@ -8,6 +8,7 @@ import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
@@ -15,6 +16,7 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
  * Acts as a Facade to the Tweeter server. All network requests to the server should go through
@@ -46,6 +48,16 @@ public class ServerFacade {
 
     public RegisterResponse register(RegisterRequest request, String urlPath) throws IOException, TweeterRemoteException {
         RegisterResponse response = clientCommunicator.doPost(urlPath, request, null, RegisterResponse.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    public Response logout(LogoutRequest request, String urlPath) throws IOException, TweeterRemoteException {
+        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
         if(response.isSuccess()) {
             return response;

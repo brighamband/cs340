@@ -56,8 +56,8 @@ public class MainPresenter extends SimplePresenter {
    * Logout
    */
 
-  public void logOut() {
-    userService.logOut(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
+  public void logout() {
+    userService.logout(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
   }
 
   public class LogoutObserver extends Observer implements SimpleObserver {

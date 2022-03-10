@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     if (item.getItemId() == R.id.logoutMenu) {
       logOutToast = Toast.makeText(this, "Logging Out...", Toast.LENGTH_LONG);
       logOutToast.show();
-      mainPresenter.logOut();
+      mainPresenter.logout();
       return true;
     } else {
       return super.onOptionsItemSelected(item);
