@@ -2,10 +2,8 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
-import java.util.Iterator;
 import java.util.Map;
 
 public class DbQuerier {
@@ -18,94 +16,166 @@ public class DbQuerier {
 
         Table table = dynamoDB.getTable("follows");
 
-
         // Query the “follows” table without pagination
-        queryUsersFollowedByUser(table, "@follower");
+        queryAllUsersFollowedByUser(table, "@follower");
 
         // Query the “follows_index” index without pagination
-        queryUsersFollowingUser(table, "@followee");
+        queryAllUsersFollowingUser(table, "@followee");
 
         // Query the “follows” table with pagination
-        Map<String, AttributeValue> lastKeyReturned = null;
-
-//        do {
-//
-//            String followerHandle = "@follower";
-//            QuerySpec querySpec = new QuerySpec()
-//                    .withKeyConditionExpression("follower_handle = :name")
-//                    .withValueMap(new ValueMap().withString(":name", followerHandle))
-//                    .withScanIndexForward(true)    // Sort ascending
-//                    .withMaxResultSize(PAGE_SIZE)   // Limit to 10 results
-//                    .withExclusiveStartKey(lastKeyReturned.get(FIXME));
-//
-//            ItemCollection<QueryOutcome> items = null;
-//
-//            String queryDescription = "users followed by user";
-//
-//            try {
-//                System.out.println("Results for query of " + queryDescription + ":");
-//                items = table.query(querySpec);
-//                lastKeyReturned = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
-//
-//                Iterator<Item> iterator = items.iterator();
-//                while (iterator.hasNext()) {
-//                    Item item = iterator.next();
-//                    System.out.println(item);
-//                }
-//            } catch (Exception e) {
-//                System.err.println("Unable to query " + queryDescription);
-//                System.err.println(e.getMessage());
-//            }
-//
-//        } while (lastKeyReturned != null);
+        queryUsersFollowedByUserPaginated(table, "@follower", PAGE_SIZE);
 
         // Query the “follows_index” index with pagination
+        queryUsersFollowingUserPaginated(table, "@followee", PAGE_SIZE);
     }
 
     /**
      * Queries the “follows” table to return all the users being followed by a user, sorted by “followee_handle”.
      * Results are not paginated.
      */
-    private static void queryUsersFollowedByUser(Table table, String followerHandle) {
+    private static void queryAllUsersFollowedByUser(Table table, String followerHandle) {
+        int numResults = 0;
+
         QuerySpec querySpec = new QuerySpec()
-                .withKeyConditionExpression("follower_handle = :name")
-                .withValueMap(new ValueMap().withString(":name", followerHandle))
+                .withHashKey("follower_handle", followerHandle)
                 .withScanIndexForward(true);    // Sort ascending
 
-        runQuery(table, null, querySpec, "users being followed by " + followerHandle);
+        ItemCollection<QueryOutcome> items;
+
+        try {
+            System.out.println("Results for query of users being followed by " + followerHandle + ":");
+            items = table.query(querySpec);
+
+            for (Item item : items) {
+                System.out.println(item);
+                numResults++;
+            }
+
+            System.out.println("End of results (" + numResults + ")");
+        }
+        catch (Exception e) {
+            System.err.println("Unable to query users being followed by " + followerHandle + ":");
+            System.err.println(e.getMessage());
+        }
     }
 
     /**
      * Queries the “follows_index” index to return all the users following a user, reverse sorted by “follower_handle”.
      * Results are not paginated.
      */
-    private static void queryUsersFollowingUser(Table table, String followeeHandle) {
+    private static void queryAllUsersFollowingUser(Table table, String followeeHandle) {
+        int numResults = 0;
+
         QuerySpec querySpec = new QuerySpec()
-                .withKeyConditionExpression("followee_handle = :name")
-                .withValueMap(new ValueMap().withString(":name", followeeHandle))
+                .withHashKey("followee_handle", followeeHandle)
                 .withScanIndexForward(false);   // Sort descending
 
-        runQuery(table, "follows_index", querySpec, "users being followed by " + followeeHandle);
-    }
-
-    private static void runQuery(Table table, String indexName, QuerySpec querySpec, String queryDescription) {
         ItemCollection<QueryOutcome> items;
 
         try {
-            System.out.println("Results for query of " + queryDescription + ":");
-            if (indexName != null) {
-                items = table.getIndex(indexName).query(querySpec);
-            } else {
-                items = table.query(querySpec);
-            }
+            System.out.println("Results for query of users following " + followeeHandle + ":");
+            items = table.getIndex("follows_index").query(querySpec);
 
             for (Item item : items) {
                 System.out.println(item);
+                numResults++;
             }
+
+            System.out.println("End of results (" + numResults + ")");
         }
         catch (Exception e) {
-            System.err.println("Unable to query " + queryDescription);
+            System.err.println("Unable to query users following " + followeeHandle);
             System.err.println(e.getMessage());
         }
+    }
+
+    private static void queryUsersFollowedByUserPaginated(Table table, String followerHandle, int pageSize) {
+        int pageNumber = 1;
+        int numResults = 0;
+
+        System.out.println("Results for query of users being followed by " + followerHandle + " (paginated):");
+
+        QuerySpec querySpec = new QuerySpec()
+                .withHashKey("follower_handle", followerHandle)
+                .withScanIndexForward(true) // Sort ascending
+                .withMaxResultSize(pageSize);
+
+        Map<String, AttributeValue> lastKeyMap = null;
+
+        do {
+            ItemCollection<QueryOutcome> items = null;
+
+            if (lastKeyMap != null) {
+                querySpec.withExclusiveStartKey("follower_handle", followerHandle, "followee_handle", lastKeyMap.get("followee_handle").getS());
+            }
+
+            try {
+                items = table.query(querySpec);
+
+                System.out.println("Page #" + pageNumber);
+                for (Item item : items) {
+                    System.out.println(item);
+                    numResults++;
+                }
+
+                lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+                if (lastKeyMap == null) {
+                    System.out.println("End of results (" + numResults + ")");
+                }
+
+            } catch (Exception e) {
+                System.err.println("Unable to query users being followed by " + followerHandle + ":");
+                System.err.println(e.getMessage());
+                return;
+            }
+
+            pageNumber++;
+
+        } while (lastKeyMap != null);
+    }
+
+    private static void queryUsersFollowingUserPaginated(Table table, String followeeHandle, int pageSize) {
+        int pageNumber = 1;
+        int numResults = 0;
+
+        System.out.println("Results for query of users being followed by " + followeeHandle + " (paginated):");
+
+        QuerySpec querySpec = new QuerySpec()
+                .withHashKey("followee_handle", followeeHandle)
+                .withScanIndexForward(false)   // Sort descending
+                .withMaxResultSize(pageSize);
+
+        Map<String, AttributeValue> lastKeyMap = null;
+
+        do {
+            ItemCollection<QueryOutcome> items = null;
+
+            if (lastKeyMap != null) {
+                querySpec.withExclusiveStartKey("follower_handle", lastKeyMap.get("follower_handle").getS(), "followee_handle", followeeHandle);
+            }
+
+            try {
+                items = table.getIndex("follows_index").query(querySpec);
+
+                System.out.println("Page #" + pageNumber);
+                for (Item item : items) {
+                    System.out.println(item);
+                    numResults++;
+                }
+
+                lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+                if (lastKeyMap == null) {
+                    System.out.println("End of results (" + numResults + ")");
+                }
+
+            } catch (Exception e) {
+                System.err.println("Unable to query users being followed by " + followeeHandle + ":");
+                System.err.println(e.getMessage());
+                return;
+            }
+
+            pageNumber++;
+
+        } while (lastKeyMap != null);
     }
 }
