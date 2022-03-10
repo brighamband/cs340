@@ -13,9 +13,9 @@ public class UserService {
 
     public LoginResponse login(LoginRequest request) {
         if(request.getUsername() == null){
-            throw new RuntimeException("[BadRequest] Missing a username");
+            throw new RuntimeException("[BadRequest] Request missing a username");
         } else if(request.getPassword() == null) {
-            throw new RuntimeException("[BadRequest] Missing a password");
+            throw new RuntimeException("[BadRequest] Request missing a password");
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
@@ -26,9 +26,9 @@ public class UserService {
 
     public RegisterResponse register(RegisterRequest request) {
         if(request.getUsername() == null){
-            throw new RuntimeException("[BadRequest] Missing a username");
+            throw new RuntimeException("[BadRequest] Request missing a username");
         } else if(request.getPassword() == null) {
-            throw new RuntimeException("[BadRequest] Missing a password");
+            throw new RuntimeException("[BadRequest] Request missing a password");
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.

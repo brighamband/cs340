@@ -29,8 +29,7 @@ public class Status implements Serializable {
      */
     public List<String> mentions;
 
-    public Status() {
-    }
+    public Status() {}
 
     public Status(String post, User user, String datetime, List<String> urls, List<String> mentions) {
         this.post = post;

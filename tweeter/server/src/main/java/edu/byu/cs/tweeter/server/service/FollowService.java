@@ -26,9 +26,9 @@ public class FollowService {
      */
     public GetFollowingResponse getFollowees(GetFollowingRequest request) {
         if(request.getFollowerAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a follower alias");
+            throw new RuntimeException("[BadRequest] Request missing a follower alias");
         } else if(request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
+            throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
         return getFollowingDAO().getFollowees(request);
     }
@@ -46,9 +46,9 @@ public class FollowService {
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
         if(request.getFolloweeAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a followee alias");
+            throw new RuntimeException("[BadRequest] Request missing a followee alias");
         } else if(request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
+            throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
         return getFollowersDAO().getFollowers(request);
     }
@@ -59,7 +59,7 @@ public class FollowService {
 
     public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
         if(request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a user");
+            throw new RuntimeException("[BadRequest] Request missing a user");
         }
         return getFollowingCountDAO().getFolloweeCount(request);
     }
@@ -70,7 +70,7 @@ public class FollowService {
 
     public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
         if(request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a user");
+            throw new RuntimeException("[BadRequest] Request missing a user");
         }
         return getFollowersCountDAO().getFollowersCount(request);
     }
