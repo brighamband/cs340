@@ -7,7 +7,7 @@ public class GetFollowersCountRequest {
     private AuthToken authToken;
     private User user;
 
-    public GetFollowersCountRequest() {}
+    private GetFollowersCountRequest() {}
 
     public GetFollowersCountRequest(AuthToken authToken, User user) {
         this.authToken = authToken;

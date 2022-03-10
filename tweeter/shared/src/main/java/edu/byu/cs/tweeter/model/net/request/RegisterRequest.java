@@ -7,7 +7,7 @@ public class RegisterRequest {
     private String password;
     private String image;
 
-    public RegisterRequest() {}
+    private RegisterRequest() {}
 
     public RegisterRequest(String firstName, String lastName, String username, String password, String image) {
         this.firstName = firstName;

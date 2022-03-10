@@ -3,18 +3,22 @@ package edu.byu.cs.tweeter.client.model.net;
 import java.io.IOException;
 
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
@@ -25,8 +29,6 @@ import edu.byu.cs.tweeter.model.net.response.Response;
  */
 public class ServerFacade {
 
-    // TODO: Set this to the invoke URL of your API. Find it by going to your API in AWS, clicking
-    //  on stages in the right-side menu, and clicking on the stage you deployed your API to.
     private static final String SERVER_URL = "https://opacbggfng.execute-api.us-east-2.amazonaws.com/dev";
 
     private final ClientCommunicator clientCommunicator = new ClientCommunicator(SERVER_URL);
@@ -124,6 +126,26 @@ public class ServerFacade {
 
     public Response postStatus(PostStatusRequest request, String urlPath) throws IOException, TweeterRemoteException {
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    public GetFeedResponse getFeed(GetFeedRequest request, String urlPath) throws IOException, TweeterRemoteException {
+        GetFeedResponse response = clientCommunicator.doPost(urlPath, request, null, GetFeedResponse.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    public GetStoryResponse getStory(GetStoryRequest request, String urlPath) throws IOException, TweeterRemoteException {
+        GetStoryResponse response = clientCommunicator.doPost(urlPath, request, null, GetStoryResponse.class);
 
         if(response.isSuccess()) {
             return response;
