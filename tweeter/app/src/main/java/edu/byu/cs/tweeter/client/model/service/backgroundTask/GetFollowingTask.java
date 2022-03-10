@@ -3,15 +3,14 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 import android.os.Handler;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
-import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
+import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
 /**
@@ -28,22 +27,13 @@ public class GetFollowingTask extends PagedTask<User> {
         super(messageHandler, authToken, targetUser, limit, lastFollowee);
     }
 
-//    @Override
-//    protected void runTask() throws IOException, TweeterRemoteException {
-//        String targetUserAlias = getTargetUser() == null ? null : getTargetUser().getAlias();
-//        String lastFolloweeAlias = getLastItem() == null ? null : getLastItem().getAlias();
-//
-//        FollowingRequest request = new FollowingRequest(getAuthToken(), targetUserAlias, getLimit(), lastFolloweeAlias);
-//        FollowingResponse response = getServerFacade().getFollowees(request, URL_PATH);
-//    }
-
     @Override
     protected Pair<List<User>, Boolean> getItems() throws IOException, TweeterRemoteException {
         String targetUserAlias = getTargetUser() == null ? null : getTargetUser().getAlias();
         String lastFolloweeAlias = getLastItem() == null ? null : getLastItem().getAlias();
 
-        FollowingRequest request = new FollowingRequest(getAuthToken(), targetUserAlias, getLimit(), lastFolloweeAlias);
-        FollowingResponse response = getServerFacade().getFollowees(request, URL_PATH);
+        GetFollowingRequest request = new GetFollowingRequest(getAuthToken(), targetUserAlias, getLimit(), lastFolloweeAlias);
+        GetFollowingResponse response = getServerFacade().getFollowees(request, URL_PATH);
 
         return new Pair<>(response.getFollowees(), response.getHasMorePages());
 //        return new getPageOfUsers((User) getLastItem(), getLimit(), getTargetUser())

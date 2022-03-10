@@ -4,8 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
-import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 /**
@@ -20,10 +26,11 @@ public class FollowDAO {
      * @param follower the User whose count of how many following is desired.
      * @return said count.
      */
-    public Integer getFolloweeCount(User follower) {
+    public GetFollowingCountResponse getFolloweeCount(GetFollowingCountRequest request) {
         // TODO: uses the dummy data.  Replace with a real implementation.
+        User follower = request.getUser();
         assert follower != null;
-        return getDummyFollowees().size();
+        return new GetFollowingCountResponse(getDummyFollowees().size());
     }
 
     /**
@@ -36,7 +43,7 @@ public class FollowDAO {
      *                other information required to satisfy the request.
      * @return the followees.
      */
-    public FollowingResponse getFollowees(FollowingRequest request) {
+    public GetFollowingResponse getFollowees(GetFollowingRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
         assert request.getFollowerAlias() != null;
@@ -58,7 +65,7 @@ public class FollowDAO {
             }
         }
 
-        return new FollowingResponse(responseFollowees, hasMorePages);
+        return new GetFollowingResponse(responseFollowees, hasMorePages);
     }
 
     /**
@@ -109,5 +116,61 @@ public class FollowDAO {
      */
     FakeData getFakeData() {
         return new FakeData();
+    }
+
+    public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
+        // TODO: uses the dummy data.  Replace with a real implementation.
+        User followee = request.getUser();
+        assert followee != null;
+        return new GetFollowersCountResponse(getDummyFollowers().size());
+    }
+
+    List<User> getDummyFollowers() {
+        return getFakeData().getFakeUsers();
+    }
+
+    public GetFollowersResponse getFollowers(GetFollowersRequest request) {
+        // TODO: Generates dummy data. Replace with a real implementation.
+        assert request.getLimit() > 0;
+        assert request.getFolloweeAlias() != null;
+
+        List<User> allFollowers = getDummyFollowers();
+        List<User> responseFollowers = new ArrayList<>(request.getLimit());
+
+        boolean hasMorePages = false;
+
+        if(request.getLimit() > 0) {
+            if (allFollowers != null) {
+                int followersIndex = getFollowersStartingIndex(request.getLastFollowerAlias(), allFollowers);
+
+                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
+                    responseFollowers.add(allFollowers.get(followersIndex));
+                }
+
+                hasMorePages = followersIndex < allFollowers.size();
+            }
+        }
+
+        return new GetFollowersResponse(responseFollowers, hasMorePages);
+    }
+
+    private int getFollowersStartingIndex(String lastFollowerAlias, List<User> allFollowers) {
+
+        int followersIndex = 0;
+
+        if(lastFollowerAlias != null) {
+            // This is a paged request for something after the first page. Find the first item
+            // we should return
+            for (int i = 0; i < allFollowers.size(); i++) {
+                if(lastFollowerAlias.equals(allFollowers.get(i).getAlias())) {
+                    // We found the index of the last item returned last time. Increment to get
+                    // to the first one we should return
+                    followersIndex = i + 1;
+                    break;
+                }
+            }
+        }
+
+        return followersIndex;
     }
 }

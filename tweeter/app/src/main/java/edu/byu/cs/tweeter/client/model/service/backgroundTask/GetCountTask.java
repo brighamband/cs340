@@ -14,6 +14,20 @@ public abstract class GetCountTask extends AuthenticatedTask {
      */
     private User targetUser;
 
+    protected User getTargetUser() {
+        return targetUser;
+    }
+
+    private int count;
+
+    protected int getCount() {
+        return count;
+    }
+
+    protected void setCount(int count) {
+        this.count = count;
+    }
+
     public GetCountTask(Handler messageHandler, AuthToken authToken, User targetUser) {
         super(messageHandler, authToken);
         this.targetUser = targetUser;
