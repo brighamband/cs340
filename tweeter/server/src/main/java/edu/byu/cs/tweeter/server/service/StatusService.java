@@ -42,8 +42,8 @@ public class StatusService {
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
-        Pair<List<Status>, Boolean> dummyFeedPages = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
-        return new GetStoryResponse(dummyFeedPages.getFirst(), dummyFeedPages.getSecond());
+        Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
+        return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
     }
 
     FakeData getFakeData() {
