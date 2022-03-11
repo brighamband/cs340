@@ -1,15 +1,18 @@
 package edu.byu.cs.tweeter.server.service;
 
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 
 /**
@@ -94,4 +97,29 @@ public class FollowService {
     FollowDAO isFollowerDAO() {
         return new FollowDAO();
     }
+
+    public Response follow(FollowRequest request) {
+        if (request.getFollowee() == null) {
+            throw new RuntimeException("[BadRequest] Request missing a followee");
+        }
+
+        return followDAO().follow(request);
+    }
+
+    FollowDAO followDAO() {
+        return new FollowDAO();
+    }
+
+    public Response unfollow(UnfollowRequest request) {
+        if (request.getFollowee() == null) {
+            throw new RuntimeException("[BadRequest] Request missing a followee");
+        }
+
+        return unfollowDAO().unfollow(request);
+    }
+
+    FollowDAO unfollowDAO() {
+        return new FollowDAO();
+    }
+
 }

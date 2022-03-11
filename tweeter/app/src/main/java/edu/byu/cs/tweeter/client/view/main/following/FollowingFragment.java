@@ -84,7 +84,6 @@ public class FollowingFragment extends Fragment implements PagedPresenter.View {
         return view;
     }
 
-    // FIXME - DUPLICATED
     @Override
     public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();

@@ -92,7 +92,6 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         return view;
     }
 
-    // FIXME - DUPLICATED
     @Override
     public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();

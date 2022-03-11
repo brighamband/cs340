@@ -92,7 +92,6 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
         return view;
     }
 
-    // FIXME - DUPLICATED
     @Override
     public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();

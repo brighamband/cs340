@@ -67,7 +67,6 @@ public class LoginFragment extends Fragment implements LoginPresenter.View {
         errorView.setText(text);
     }
 
-    // FIXME - DUPLICATED
     @Override
     public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();

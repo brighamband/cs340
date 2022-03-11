@@ -3,14 +3,24 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 import android.os.Bundle;
 import android.os.Handler;
 
+import java.io.IOException;
+
+import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
+import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
+import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
  * Background task that establishes a following relationship between two users.
  */
 public class FollowTask extends AuthenticatedTask {
-//    private static final String LOG_TAG = "FollowTask";
+
+    static final String URL_PATH = "/follow";
+
+    private ServerFacade serverFacade;
 
     /**
      * The user that is being followed.
@@ -23,12 +33,20 @@ public class FollowTask extends AuthenticatedTask {
     }
 
     @Override
-    protected void runTask() {
-        //  TODO Milestone 3
+    protected void runTask() throws IOException, TweeterRemoteException {
+        FollowRequest request = new FollowRequest(getAuthToken(), followee);
+        Response response = getServerFacade().follow(request, URL_PATH);
     }
 
     @Override
     protected void loadMessageBundle(Bundle msgBundle) {
-        //  TODO Milestone 3
+        //  N/A - Doesn't need to do anything
+    }
+
+    public ServerFacade getServerFacade() {
+        if (serverFacade == null) {
+            serverFacade = new ServerFacade();
+        }
+        return new ServerFacade();
     }
 }

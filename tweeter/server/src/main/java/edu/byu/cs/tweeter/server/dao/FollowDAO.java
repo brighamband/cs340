@@ -5,16 +5,19 @@ import java.util.List;
 import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.util.FakeData;
 
 /**
@@ -30,9 +33,9 @@ public class FollowDAO {
      * @return said count.
      */
     public GetFollowingCountResponse getFolloweeCount(GetFollowingCountRequest request) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
         User follower = request.getUser();
         assert follower != null;
+        // TODO: uses the dummy data.  Replace with a real implementation.
         return new GetFollowingCountResponse(getDummyFollowees().size());
     }
 
@@ -186,5 +189,21 @@ public class FollowDAO {
         // TODO: uses the dummy data.  Replace with a real implementation.
         boolean isFollower = new Random().nextInt() > 0;
         return new IsFollowerResponse(isFollower);
+    }
+
+    public Response follow(FollowRequest request) {
+        User followee = request.getFollowee();
+        assert followee != null;
+
+        // TODO: uses the dummy data.  Replace with a real implementation.
+        return new Response(true);
+    }
+
+    public Response unfollow(UnfollowRequest request) {
+        User followee = request.getFollowee();
+        assert followee != null;
+
+        // TODO: uses the dummy data.  Replace with a real implementation.
+        return new Response(true);
     }
 }

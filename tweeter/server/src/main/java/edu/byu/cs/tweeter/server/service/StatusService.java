@@ -18,6 +18,7 @@ public class StatusService {
             throw new RuntimeException("[BadRequest] Request missing a status");
         }
 
+        // TODO: uses the dummy data.  Replace with a real implementation.
         return new Response(true);
     }
 
