@@ -14,9 +14,9 @@ import edu.byu.cs.tweeter.util.FakeData;
 public class UserService {
 
     public LoginResponse login(LoginRequest request) {
-        if(request.getUsername() == null){
+        if (request.getUsername() == null){
             throw new RuntimeException("[BadRequest] Request missing a username");
-        } else if(request.getPassword() == null) {
+        } else if (request.getPassword() == null) {
             throw new RuntimeException("[BadRequest] Request missing a password");
         }
 
@@ -27,9 +27,9 @@ public class UserService {
     }
 
     public RegisterResponse register(RegisterRequest request) {
-        if(request.getUsername() == null){
+        if (request.getUsername() == null) {
             throw new RuntimeException("[BadRequest] Request missing a username");
-        } else if(request.getPassword() == null) {
+        } else if (request.getPassword() == null) {
             throw new RuntimeException("[BadRequest] Request missing a password");
         }
 

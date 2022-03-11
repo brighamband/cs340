@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import java.io.IOException;
-import java.util.Random;
 
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.domain.AuthToken;

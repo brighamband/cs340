@@ -245,7 +245,7 @@ public class MainPresenter extends SimplePresenter {
 
     @Override
     public void handleException(Exception exception) {
-      view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
+      view.displayToastMessage(getMsgPrefix() + " because of exception: " + exception.getMessage());
       // Re-enable the follow button
       view.setEnabledFollowButton(true);
     }
@@ -283,7 +283,7 @@ public class MainPresenter extends SimplePresenter {
 
     @Override
     public void handleException(Exception exception) {
-      view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
+      view.displayToastMessage(getMsgPrefix() + " because of exception: " + exception.getMessage());
       // Re-enable the follow button
       view.setEnabledFollowButton(true);
     }
