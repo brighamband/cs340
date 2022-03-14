@@ -56,8 +56,8 @@ public class MainPresenter extends SimplePresenter {
    * Logout
    */
 
-  public void logOut() {
-    userService.logOut(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
+  public void logout() {
+    userService.logout(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
   }
 
   public class LogoutObserver extends Observer implements SimpleObserver {
@@ -245,7 +245,7 @@ public class MainPresenter extends SimplePresenter {
 
     @Override
     public void handleException(Exception exception) {
-      view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
+      view.displayToastMessage(getMsgPrefix() + " because of exception: " + exception.getMessage());
       // Re-enable the follow button
       view.setEnabledFollowButton(true);
     }
@@ -283,7 +283,7 @@ public class MainPresenter extends SimplePresenter {
 
     @Override
     public void handleException(Exception exception) {
-      view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
+      view.displayToastMessage(getMsgPrefix() + " because of exception: " + exception.getMessage());
       // Re-enable the follow button
       view.setEnabledFollowButton(true);
     }

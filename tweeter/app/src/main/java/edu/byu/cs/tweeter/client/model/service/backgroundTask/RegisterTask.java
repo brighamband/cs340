@@ -3,15 +3,21 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 import android.os.Bundle;
 import android.os.Handler;
 
-import edu.byu.cs.tweeter.model.domain.AuthToken;
-import edu.byu.cs.tweeter.model.domain.User;
+import java.io.IOException;
+
+import edu.byu.cs.tweeter.client.model.net.ServerFacade;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 
 /**
  * Background task that creates a new user account and logs in the new user (i.e., starts a session).
  */
 public class RegisterTask extends AuthenticateTask {
-//    private static final String LOG_TAG = "RegisterTask";
 
+    static final String URL_PATH = "/register";
+
+    private ServerFacade serverFacade;
     /**
      * The user's first name.
      */
@@ -34,21 +40,24 @@ public class RegisterTask extends AuthenticateTask {
     }
 
     @Override
-    protected void runTask() {
-        //  TODO Milestone 3
-    }
+    protected void runTask() throws IOException, TweeterRemoteException {
+        RegisterRequest request = new RegisterRequest(firstName, lastName, getUsername(), getPassword(), image);
+        RegisterResponse response = getServerFacade().register(request, URL_PATH);
 
-    private User getRegisteredUser() {
-        return getFakeData().getFirstUser();
-    }
-
-    private AuthToken getRegisteredUserAuthToken() {
-        return getFakeData().getAuthToken();
+        setUser(response.getUser());
+        setAuthToken(response.getAuthToken());
     }
 
     @Override
     protected void loadMessageBundle(Bundle msgBundle) {
-        msgBundle.putSerializable(USER_KEY, getRegisteredUser());
-        msgBundle.putSerializable(AUTH_TOKEN_KEY, getRegisteredUserAuthToken());
+        msgBundle.putSerializable(USER_KEY, getUser());
+        msgBundle.putSerializable(AUTH_TOKEN_KEY, getAuthToken());
+    }
+
+    public ServerFacade getServerFacade() {
+        if (serverFacade == null) {
+            serverFacade = new ServerFacade();
+        }
+        return new ServerFacade();
     }
 }

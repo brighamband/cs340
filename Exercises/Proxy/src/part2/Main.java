@@ -19,7 +19,7 @@ public class Main {
 //        realArray2D.save("step3out.txt");
 
         // Step 4 - Proxy
-        ProxyArray2D proxy = new ProxyArray2D("step3out.txt");
+        Array2D proxy = new ProxyArray2D("step3out.txt");
 
 
         // Test 1 -- Passing example

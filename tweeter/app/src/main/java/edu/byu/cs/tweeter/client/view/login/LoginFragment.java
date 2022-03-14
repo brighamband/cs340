@@ -21,7 +21,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  * Implements the login screen.
  */
 public class LoginFragment extends Fragment implements LoginPresenter.View {
-    private static final String LOG_TAG = "LoginFragment";
 
     private EditText alias;
     private EditText password;
@@ -56,8 +55,8 @@ public class LoginFragment extends Fragment implements LoginPresenter.View {
         loginPresenter = new LoginPresenter(this);
 
         // FIXME -- PRE-FILLED LOGIN INFO FOR SIMPLE TESTING -- REMOVE LATER
-//        alias.setText("@user");
-//        password.setText("password");
+        alias.setText("@user");
+        password.setText("password");
         // FIXME -- PRE-FILLED LOGIN INFO FOR SIMPLE TESTING -- REMOVE LATER
 
         return view;
@@ -68,7 +67,6 @@ public class LoginFragment extends Fragment implements LoginPresenter.View {
         errorView.setText(text);
     }
 
-    // FIXME - DUPLICATED
     @Override
     public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();

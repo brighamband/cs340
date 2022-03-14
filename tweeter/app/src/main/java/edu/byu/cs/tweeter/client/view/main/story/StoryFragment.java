@@ -40,7 +40,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  * Implements the "Story" tab.
  */
 public class StoryFragment extends Fragment implements StoryPresenter.View {
-    private static final String LOG_TAG = "StoryFragment";
     private static final String USER_KEY = "UserKey";
 
     private static final int LOADING_DATA_VIEW = 0;
@@ -93,7 +92,6 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         return view;
     }
 
-    // FIXME - DUPLICATED
     @Override
     public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();

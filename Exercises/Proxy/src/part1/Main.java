@@ -3,7 +3,7 @@ package part1;
 public class Main {
     public static void main(String[] args) {
         RealConstGrabber realConstGrabber = new RealConstGrabber();
-        ProxyConstGrabber proxy = new ProxyConstGrabber(realConstGrabber);
+        ConstGrabber proxy = new ProxyConstGrabber(realConstGrabber);
 
         double pi = 0.00;
         double e = 0.00;

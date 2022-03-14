@@ -3,15 +3,14 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import edu.byu.cs.tweeter.util.FakeData;
+import java.io.IOException;
+
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 
 public abstract class BackgroundTask implements Runnable {
-    private static final String LOG_TAG = "BackgroundTask";
-
     public static final String SUCCESS_KEY = "success";
     public static final String MESSAGE_KEY = "message";
     public static final String EXCEPTION_KEY = "exception";
@@ -31,16 +30,11 @@ public abstract class BackgroundTask implements Runnable {
             runTask();
             sendSuccessMessage();
         } catch (Exception ex) {
-            Log.e(LOG_TAG, ex.getMessage(), ex);
             sendExceptionMessage(ex);
         }
     }
 
-    protected abstract void runTask();
-
-    protected FakeData getFakeData() {
-        return new FakeData();
-    }
+    protected abstract void runTask() throws IOException, TweeterRemoteException;
 
     protected abstract void loadMessageBundle(Bundle msgBundle);
 

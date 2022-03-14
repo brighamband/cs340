@@ -10,7 +10,7 @@ public class FollowingPresenter extends FollowPresenter {
 
   @Override
   public void getItems(AuthToken authToken, User targetUser, int pageSize, User lastItem) {
-    followService.getFollowing(authToken, targetUser, pageSize, lastItem, new GetFollowingObserver());
+    followService.getFollowees(authToken, targetUser, pageSize, lastItem, new GetFollowingObserver());
   }
 
   public class GetFollowingObserver extends PagedListObserver {

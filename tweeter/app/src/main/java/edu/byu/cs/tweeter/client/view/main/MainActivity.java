@@ -32,11 +32,9 @@ import edu.byu.cs.tweeter.model.domain.User;
  */
 public class MainActivity extends AppCompatActivity implements StatusDialogFragment.Observer, MainPresenter.View {
 
-  private static final String LOG_TAG = "MainActivity";
-
   public static final String CURRENT_USER_KEY = "CurrentUser";
 
-  private Toast logOutToast;
+  private Toast logoutToast;
   private Toast postingToast;
   private User selectedUser;
   private TextView followeeCount;
@@ -115,9 +113,9 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.logoutMenu) {
-      logOutToast = Toast.makeText(this, "Logging Out...", Toast.LENGTH_LONG);
-      logOutToast.show();
-      mainPresenter.logOut();
+      logoutToast = Toast.makeText(this, "Logging Out...", Toast.LENGTH_LONG);
+      logoutToast.show();
+      mainPresenter.logout();
       return true;
     } else {
       return super.onOptionsItemSelected(item);
@@ -136,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     // Clear everything so that the main activity is recreated with the login page
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-    logOutToast.cancel();
+    logoutToast.cancel();
 
     startActivity(intent);
   }

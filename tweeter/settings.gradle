@@ -1,3 +1,4 @@
 include ':app'
 rootProject.name='Tweeter'
 include ':shared'
+include ':server'

@@ -27,7 +27,7 @@ public class LoginPresenter extends SimplePresenter {
       view.setErrorViewText(null);
       view.displayToastMessage("Logging In...");
 
-      userService.logIn(alias, password, new LoginObserver());
+      userService.login(alias, password, new LoginObserver());
     } catch (Exception e) {
       view.setErrorViewText(e.getMessage());
     }

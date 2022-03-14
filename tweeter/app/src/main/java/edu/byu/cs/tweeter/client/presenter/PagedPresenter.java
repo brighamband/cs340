@@ -104,7 +104,7 @@ public abstract class PagedPresenter<T> extends SimplePresenter {
     public void handleException(Exception exception) {
       setLoading(false);
       view.displayLoading(false);
-      view.displayToastMessage(getMsgPrefix() + "because of exception: " + exception.getMessage());
+      view.displayToastMessage(getMsgPrefix() + " because of exception: " + exception.getMessage());
     }
   }
 }

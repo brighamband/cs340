@@ -33,7 +33,6 @@ import edu.byu.cs.tweeter.model.domain.User;
  * Implements the "Following" tab.
  */
 public class FollowingFragment extends Fragment implements PagedPresenter.View {
-    private static final String LOG_TAG = "FollowingFragment";
     private static final String USER_KEY = "UserKey";
 
     private static final int LOADING_DATA_VIEW = 0;
@@ -85,7 +84,6 @@ public class FollowingFragment extends Fragment implements PagedPresenter.View {
         return view;
     }
 
-    // FIXME - DUPLICATED
     @Override
     public void displayToastMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
