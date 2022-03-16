@@ -1,7 +1,8 @@
 package src;
 
-public class HalloweenYardOrnamentProvider {
+public class HalloweenYardOrnamentProvider implements IYardOrnamentProvider {
 
+    @Override
     public String getOrnament() {
         return "jack-o-lantern";
     }
