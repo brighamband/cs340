@@ -23,7 +23,7 @@ import edu.byu.cs.tweeter.util.FakeData;
 /**
  * A DAO for accessing 'following' data from the database.
  */
-public class FollowDAO {
+public class FollowDao implements IFollowDao {
 
     /**
      * Gets the count of users from the database that the user specified is following. The
