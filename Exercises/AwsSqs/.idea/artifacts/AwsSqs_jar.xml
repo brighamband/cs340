@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="AwsSqs:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AwsSqs_jar</output-path>
+    <root id="archive" name="AwsSqs.jar">
+      <element id="module-output" name="AwsSqs" />
+    </root>
+  </artifact>
+</component>
