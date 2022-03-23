@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
-import edu.byu.cs.tweeter.server.dao.FollowDao;
+import edu.byu.cs.tweeter.server.dao.dynamo.FollowDao;
 
 public class FollowServiceTest {
 

@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
   public static final String CURRENT_USER_KEY = "CurrentUser";
 
   private Toast logoutToast;
-  private Toast postingToast;
   private User selectedUser;
   private TextView followeeCount;
   private TextView followerCount;
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     // Revert to login screen
     Intent intent = new Intent(this, LoginActivity.class);
     // Clear everything so that the main activity is recreated with the login page
-    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
     logoutToast.cancel();
 

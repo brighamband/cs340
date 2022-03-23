@@ -73,8 +73,8 @@ public class RegisterPresenter extends SimplePresenter {
 
     @Override
     public void handleSuccess(User registeredUser) {
-      String registeredAlias = Cache.getInstance().getCurrUser().getName();
-      view.bypassRegisterScreen(registeredUser, registeredAlias);
+      String registeredFullName = Cache.getInstance().getCurrUser().getName();
+      view.bypassRegisterScreen(registeredUser, registeredFullName);
     }
   }
 }

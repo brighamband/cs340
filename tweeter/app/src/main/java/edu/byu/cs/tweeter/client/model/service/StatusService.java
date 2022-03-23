@@ -1,7 +1,5 @@
 package edu.byu.cs.tweeter.client.model.service;
 
-import java.util.List;
-
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.BackgroundTaskUtils;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFeedTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetStoryTask;

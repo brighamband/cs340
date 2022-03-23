@@ -1,11 +1,7 @@
 import com.amazonaws.services.s3.AmazonS3;
-
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 public class S3Copy {
 

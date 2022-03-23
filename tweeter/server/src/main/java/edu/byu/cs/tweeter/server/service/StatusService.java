@@ -9,14 +9,26 @@ import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
+import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class StatusService {
+    IDaoFactory factory;
+
+    public StatusService(IDaoFactory factory) {
+        this.factory = factory;
+    }
+
     public Response postStatus(PostStatusRequest request) {
+        // Validate request
         if(request.getStatus() == null) {
             throw new RuntimeException("[BadRequest] Request missing a status");
         }
+
+        // Have AuthTokenDao check auth token
+        // Have StoryDao to post a new status
+        // return Response
 
         // TODO: uses the dummy data.  Replace with a real implementation.
         return new Response(true);

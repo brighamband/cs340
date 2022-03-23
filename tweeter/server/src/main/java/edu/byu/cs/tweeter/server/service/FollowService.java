@@ -13,12 +13,23 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.FollowDao;
+import edu.byu.cs.tweeter.server.dao.dynamo.FollowDao;
+import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 
 /**
  * Contains the business logic for getting the users a user is following.
  */
 public class FollowService {
+    IDaoFactory factory;
+
+    public FollowService(IDaoFactory factory) {
+        this.factory = factory;
+    }
+
+    /**
+     * Empty constructor just for mock tests.
+     */
+    public FollowService() {}
 
     /**
      * Returns the users that the user specified in the request is following. Uses information in
@@ -121,5 +132,4 @@ public class FollowService {
     FollowDao unfollowDao() {
         return new FollowDao();
     }
-
 }

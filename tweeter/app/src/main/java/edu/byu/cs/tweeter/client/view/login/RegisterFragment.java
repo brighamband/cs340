@@ -102,11 +102,11 @@ public class RegisterFragment extends Fragment implements RegisterPresenter.View
     }
 
     @Override
-    public void bypassRegisterScreen(User registeredUser, String registeredAlias) {
+    public void bypassRegisterScreen(User registeredUser, String registeredFullName) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, registeredUser);
 
-        Toast.makeText(getContext(), "Hello " + registeredAlias, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Hello " + registeredFullName, Toast.LENGTH_LONG).show();
         startActivity(intent);
     }
 }
