@@ -22,10 +22,7 @@ public class UserDao implements IUserDao {
     }
 
     @Override
-    public User create(String firstName, String lastName, String alias, String imageUrl) {
-
-        // MAKE HASHED PASSWORD
-        String hashedPassword = "FIXME";
+    public User create(String firstName, String lastName, String alias, String hashedPassword, String imageUrl) {
 
         try {
             System.out.println("Adding a new user...");
@@ -51,11 +48,6 @@ public class UserDao implements IUserDao {
             System.err.println(e.getMessage());
             return null;
         }
-    }
-
-    @Override
-    public User login(String username, String password) {
-        return null;
     }
 
     @Override

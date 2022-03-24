@@ -1,5 +1,9 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
@@ -47,10 +51,9 @@ public class UserService {
 
         // Check password
         String dbHashedPassword = daoFactory.getUserDao().getHashedPassword(request.getUsername());
-//        String unhashedPassword = unHash(dbHashedPassword);
-        // FIXME - Passwords need hashed
-        String unhashedPassword = dbHashedPassword;
-        if (!request.getPassword().equals(unhashedPassword)) {  // If passwords don't match
+        String reqHashedPassword = hashPassword(request.getPassword());
+
+        if (!reqHashedPassword.equals(dbHashedPassword)) {  // If passwords don't match
             return new LoginResponse("Invalid password for " + request.getUsername());
         }
 
@@ -83,6 +86,9 @@ public class UserService {
 
         System.out.println("Starting image upload");
 
+        // Hash password
+        String hashedPassword = hashPassword(request.getPassword());
+
         // Have S3Dao upload image to S3
 //        String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
         String imageUrl = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
@@ -92,7 +98,7 @@ public class UserService {
         // Have UserDao to create (register) a new user
         User newUser = daoFactory.getUserDao().create(
                 request.getFirstName(), request.getLastName(),
-                request.getUsername(), imageUrl);
+                request.getUsername(), hashedPassword, imageUrl);
         if (newUser == null) {
             return new RegisterResponse("Failed to register new user");
         }
@@ -165,6 +171,21 @@ public class UserService {
 
 
 
+    private String hashPassword(String passwordToHash) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(passwordToHash.getBytes());
+            byte[] bytes = md.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte aByte : bytes) {
+                sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "FAILED TO HASH";
+    }
 
 
 

@@ -1,9 +1,9 @@
-# aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name RegisterHandler
-# aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name LoginHandler
+aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name RegisterHandler
+aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name LoginHandler
 # aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name LogoutHandler
 # aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name GetUserHandler
 # aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name GetFollowingCountHandler
-aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name GetFollowersCountHandler
+# aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name GetFollowersCountHandler
 
 
 # aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name GetStoryHandler
