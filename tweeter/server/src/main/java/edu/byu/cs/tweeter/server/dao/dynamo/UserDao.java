@@ -40,7 +40,6 @@ public class UserDao implements IUserDao {
 
             User newUser = new User(firstName, lastName, alias, imageUrl);
             System.out.println("User: " + newUser);
-            // FIXME -- Hard-coded
             return newUser;
         }
         catch (Exception e) {
@@ -53,7 +52,7 @@ public class UserDao implements IUserDao {
     @Override
     public User getUser(String alias) {
         try {
-            System.out.println("Finding user with alias of " + alias);
+            System.out.println("Getting user with alias of " + alias);
             Item item = userTable.getItem("alias", alias);
 
             System.out.println("Item: " + item);
@@ -64,7 +63,7 @@ public class UserDao implements IUserDao {
                 item.getString("alias"),
                 item.getString("imageUrl")
             );
-            System.out.println("Found user: " + foundUser);
+            System.out.println("User found: " + foundUser);
 
             return foundUser;
         }

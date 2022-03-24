@@ -13,52 +13,89 @@ import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
-public class StatusService {
-    IDaoFactory factory;
+public class StatusService extends Service {
 
-    public StatusService(IDaoFactory factory) {
-        this.factory = factory;
+  public StatusService(IDaoFactory daoFactory) {
+    super(daoFactory);
+  }
+
+  public Response postStatus(PostStatusRequest request) {
+    // Validate request
+    if (request.getStatus() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a status");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    public Response postStatus(PostStatusRequest request) {
-        // Validate request
-        if(request.getStatus() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a status");
-        }
-
-        // Have AuthTokenDao check auth token
-        // Have StoryDao to post a new status
-        // return Response
-
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        return new Response(true);
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      throw new RuntimeException("[BadRequest] Auth token has expired");
     }
 
-    public GetFeedResponse getFeed(GetFeedRequest request) {
-        if(request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a target user alias");
-        } else if(request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request missing a positive limit");
-        }
+    // Have StoryDao to post a new status
+    // FIXME
 
-        // TODO: Generates dummy data. Replace with a real implementation.
-        Pair<List<Status>, Boolean> dummyFeedPages = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
-        return new GetFeedResponse(dummyFeedPages.getFirst(), dummyFeedPages.getSecond());
+    // Handle failure
+    // FIXME
+
+    // Return Response
+    return new Response(true);
+  }
+
+  public GetFeedResponse getFeed(GetFeedRequest request) {
+    // Validate request
+    if (request.getTargetUserAlias() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a target user alias");
+    } else if (request.getLimit() <= 0) {
+      throw new RuntimeException("[BadRequest] Request missing a positive limit");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    public GetStoryResponse getStory(GetStoryRequest request) {
-        if(request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a target user alias");
-        } else if(request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request missing a positive limit");
-        }
-
-        // TODO: Generates dummy data. Replace with a real implementation.
-        Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
-        return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      throw new RuntimeException("[BadRequest] Auth token has expired");
     }
 
-    FakeData getFakeData() {
-        return new FakeData();
+    // Handle failure
+    // FIXME
+
+    // Return response
+    // TODO: Generates dummy data. Replace with a real implementation.
+    Pair<List<Status>, Boolean> dummyFeedPages = getFakeData().getPageOfStatus(request.getLastStatus(),
+        request.getLimit());
+    return new GetFeedResponse(dummyFeedPages.getFirst(), dummyFeedPages.getSecond());
+  }
+
+  public GetStoryResponse getStory(GetStoryRequest request) {
+    // Validate request
+    if (request.getTargetUserAlias() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a target user alias");
+    } else if (request.getLimit() <= 0) {
+      throw new RuntimeException("[BadRequest] Request missing a positive limit");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
+
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      throw new RuntimeException("[BadRequest] Auth token has expired");
+    }
+
+    // Handle failure
+    // FIXME
+
+    // Return response
+    // TODO: Generates dummy data. Replace with a real implementation.
+    Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(),
+        request.getLimit());
+    return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
+  }
+
+  FakeData getFakeData() {
+    return new FakeData();
+  }
 }

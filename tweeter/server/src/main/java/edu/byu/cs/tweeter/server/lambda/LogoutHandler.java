@@ -15,6 +15,6 @@ public class LogoutHandler implements RequestHandler<LogoutRequest, Response> {
     public Response handleRequest(LogoutRequest request, Context context) {
         IDaoFactory factory = new DynamoDaoFactory();
         UserService userService = new UserService(factory);
-        return userService.logout();
+        return userService.logout(request);
     }
 }

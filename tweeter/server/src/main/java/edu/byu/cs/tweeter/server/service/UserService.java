@@ -10,6 +10,7 @@ import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
@@ -22,208 +23,198 @@ import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 import edu.byu.cs.tweeter.server.dao.s3.IS3Factory;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class UserService {
-    IDaoFactory daoFactory;
-    IS3Factory s3Factory;
+public class UserService extends Service {
+  IS3Factory s3Factory;
 
-    public UserService(IDaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
+  public UserService(IDaoFactory daoFactory) {
+    super(daoFactory);
+  }
+
+  public UserService(IDaoFactory daoFactory, IS3Factory s3Factory) {
+    super(daoFactory);
+    this.s3Factory = s3Factory;
+  }
+
+  public LoginResponse login(LoginRequest request) {
+    // Validate request
+    if (request.getUsername() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a username");
+    } else if (request.getPassword() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a password");
     }
 
-    public UserService(IDaoFactory daoFactory, IS3Factory s3Factory) {
-        this.daoFactory = daoFactory;
-        this.s3Factory = s3Factory;
+    // Have UserDao check if User exists with that username
+    User existingUser = daoFactory.getUserDao().getUser(request.getUsername());
+    if (existingUser == null) {   // Handle failure case #1 - missing user
+      return new LoginResponse("No users exist with that username");
     }
 
-    public LoginResponse login(LoginRequest request) {
-        // Validate request
-        if (request.getUsername() == null){
-            throw new RuntimeException("[BadRequest] Request missing a username");
-        } else if (request.getPassword() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a password");
-        }
+    // Check password
+    String dbHashedPassword = daoFactory.getUserDao().getHashedPassword(request.getUsername());
+    String reqHashedPassword = hashPassword(request.getPassword());
 
-        // Have UserDao check if User exists with that username
-        User existingUser = daoFactory.getUserDao().getUser(request.getUsername());
-        if (existingUser == null) {
-            return new LoginResponse("No users exist with that username");
-        }
-
-        // Check password
-        String dbHashedPassword = daoFactory.getUserDao().getHashedPassword(request.getUsername());
-        String reqHashedPassword = hashPassword(request.getPassword());
-
-        if (!reqHashedPassword.equals(dbHashedPassword)) {  // If passwords don't match
-            return new LoginResponse("Invalid password for " + request.getUsername());
-        }
-
-        // Have AuthTokenDao update the AuthToken for the user
-        AuthToken updatedAuthToken = daoFactory.getAuthTokenDao().update(request.getUsername());
-
-        // Return response
-        return new LoginResponse(existingUser, updatedAuthToken);
+    // Handle failure case #2 - bad password
+    if (!reqHashedPassword.equals(dbHashedPassword)) { // If passwords don't match
+      return new LoginResponse("Invalid password for " + request.getUsername());
     }
 
-    public RegisterResponse register(RegisterRequest request) {
-        // Validate request
-        if (request.getUsername() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a username");
-        } else if (request.getPassword() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a password");
-        } else if (request.getFirstName() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a first name");
-        } else if (request.getLastName() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a last name");
-        }else if (request.getImage() == null) {
-            throw new RuntimeException("[BadRequest] Request missing an image");
-        }
+    // Have AuthTokenDao create an auth token for the user
+    AuthToken updatedAuthToken = daoFactory.getAuthTokenDao().create(request.getUsername());
 
-        // Have UserDao check to see if a user already exists with that username
-        User existingUser = daoFactory.getUserDao().getUser(request.getUsername());
-        if (existingUser != null) {
-            return new RegisterResponse("A user already exists with that username");
-        }
+    // Return response
+    return new LoginResponse(existingUser, updatedAuthToken);
+  }
 
-        System.out.println("Starting image upload");
-
-        // Hash password
-        String hashedPassword = hashPassword(request.getPassword());
-
-        // Have S3Dao upload image to S3
-//        String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
-        String imageUrl = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
-
-        System.out.println("About to create in UserDao");
-
-        // Have UserDao to create (register) a new user
-        User newUser = daoFactory.getUserDao().create(
-                request.getFirstName(), request.getLastName(),
-                request.getUsername(), hashedPassword, imageUrl);
-        if (newUser == null) {
-            return new RegisterResponse("Failed to register new user");
-        }
-
-        // Get an auth token from the AuthTokenDao
-        AuthToken newAuthToken = daoFactory.getAuthTokenDao()
-                .create(newUser.getAlias(), request.getPassword());
-
-        // Return RegisterResponse
-        return new RegisterResponse(newUser, newAuthToken);
+  public RegisterResponse register(RegisterRequest request) {
+    // Validate request
+    if (request.getUsername() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a username");
+    } else if (request.getPassword() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a password");
+    } else if (request.getFirstName() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a first name");
+    } else if (request.getLastName() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a last name");
+    } else if (request.getImage() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an image");
     }
 
-    public Response logout() {
-        // TODO: Generates dummy data. Replace with a real implementation.
-        return new Response(true);
-
-        // Have AuthTokenDao remove auth token
+    // Have UserDao check to see if a user already exists with that username
+    User existingUser = daoFactory.getUserDao().getUser(request.getUsername());
+    if (existingUser != null) {
+      return new RegisterResponse("A user already exists with that username");
     }
 
-    public GetUserResponse getUser(GetUserRequest request) {
-        // Validate request
-        if (request.getAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request missing an alias");
-        }
+    System.out.println("Starting image upload");
 
-        // Have UserDao get user by their alias
-        User userFound = daoFactory.getUserDao().getUser(request.getAlias());
-        if (userFound == null) {
-            return new GetUserResponse("No users exist with that alias");
-        }
+    // Hash password
+    String hashedPassword = hashPassword(request.getPassword());
 
-        // Return response
-        return new GetUserResponse(userFound);
+    // Have S3Dao upload image to S3
+     String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
+//    String imageUrl = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
+
+    System.out.println("About to create in UserDao");
+
+    // Have UserDao to create (register) a new user
+    User newUser = daoFactory.getUserDao().create(
+        request.getFirstName(), request.getLastName(),
+        request.getUsername(), hashedPassword, imageUrl);
+    // Handle failure
+    if (newUser == null) {
+      return new RegisterResponse("Failed to register new user");
     }
 
-    public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
-        // Validate request
-        if (request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a user");
-        }
+    // Get an auth token from the AuthTokenDao
+    AuthToken newAuthToken = daoFactory.getAuthTokenDao().create(newUser.getAlias());
 
-        int followingCount = daoFactory.getUserDao().getFollowingCount(request.getUser().getAlias());
+    // Return RegisterResponse
+    return new RegisterResponse(newUser, newAuthToken);
+  }
 
-        // Failure
-        if (followingCount == -1) {
-            throw new RuntimeException("[ServerError] Unable to get following count from database");
-        }
-
-        // Return response
-        return new GetFollowingCountResponse(followingCount);
+  public Response logout(LogoutRequest request) {
+    if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
-        // Validate request
-        if (request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a user");
-        }
+    // Have AuthTokenDao remove auth token
+    String tokenToRemove = request.getAuthToken().getToken();
+    daoFactory.getAuthTokenDao().remove(tokenToRemove);
 
-        int followersCount = daoFactory.getUserDao().getFollowersCount(request.getUser().getAlias());
+    // Return response
+    return new Response(true);
+  }
 
-        // Failure
-        if (followersCount == -1) {
-            throw new RuntimeException("[ServerError] Unable to get following count from database");
-        }
-
-        // Return response
-        return new GetFollowersCountResponse(followersCount);
+  public GetUserResponse getUser(GetUserRequest request) {
+    // Validate request
+    if (request.getAlias() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an alias");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-
-
-
-    private String hashPassword(String passwordToHash) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(passwordToHash.getBytes());
-            byte[] bytes = md.digest();
-            StringBuilder sb = new StringBuilder();
-            for (byte aByte : bytes) {
-                sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return "FAILED TO HASH";
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      throw new RuntimeException("[BadRequest] Auth token has expired");
     }
 
-
-
-
-    /**
-     * Returns the dummy user to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy user.
-     *
-     * @return a dummy user.
-     */
-    User getDummyAuthenticatedUser() {
-        return getFakeData().getFirstUser();
+    // Have UserDao get user by their alias
+    User userFound = daoFactory.getUserDao().getUser(request.getAlias());
+    // Handle failure
+    if (userFound == null) {
+      return new GetUserResponse("No users exist with that alias");
     }
 
-    /**
-     * Returns the dummy user who matches the alias passed in.
-     */
-    User getDummyUserByAlias(String alias) {
-        return getFakeData().findUserByAlias(alias);
+    // Return response
+    return new GetUserResponse(userFound);
+  }
+
+  public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
+    // Validate request
+    if (request.getUser() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a user");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    /**
-     * Returns the dummy auth token to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy auth token.
-     *
-     * @return a dummy auth token.
-     */
-    AuthToken getDummyAuthToken() {
-        return getFakeData().getAuthToken();
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      throw new RuntimeException("[BadRequest] Auth token has expired");
     }
 
-    /**
-     * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return new FakeData();
+    // Get following count
+    int followingCount = daoFactory.getUserDao().getFollowingCount(request.getUser().getAlias());
+
+    // Handle failure
+    if (followingCount == -1) {
+      throw new RuntimeException("[ServerError] Unable to get following count from database");
     }
+
+    // Return response
+    return new GetFollowingCountResponse(followingCount);
+  }
+
+  public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
+    // Validate request
+    if (request.getUser() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a user");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
+    }
+
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      throw new RuntimeException("[BadRequest] Auth token has expired");
+    }
+
+    // Get followers count
+    int followersCount = daoFactory.getUserDao().getFollowersCount(request.getUser().getAlias());
+
+    // Handle failure
+    if (followersCount == -1) {
+      throw new RuntimeException("[ServerError] Unable to get following count from database");
+    }
+
+    // Return response
+    return new GetFollowersCountResponse(followersCount);
+  }
+
+  private static String hashPassword(String passwordToHash) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update(passwordToHash.getBytes());
+      byte[] bytes = md.digest();
+      StringBuilder sb = new StringBuilder();
+      for (byte aByte : bytes) {
+        sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+      }
+      return sb.toString();
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    return "FAILED TO HASH";
+  }
 }
