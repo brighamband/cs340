@@ -13,7 +13,7 @@ public class DbAccessor {
 
         DynamoDB dynamoDB = new DynamoDB(client);
 
-        Table table = dynamoDB.getTable("Follows");
+        Table table = dynamoDB.getTable("Follow");
 
         final int NUM_ITEMS_TO_PUT = 25;
 

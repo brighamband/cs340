@@ -67,10 +67,10 @@ public class UserDao implements IUserDao {
             System.out.println("Item: " + item);
             if (item == null) return null;
             User foundUser = new User(
-                DynamoUtils.getStrAttrVal(item, "firstName"),
-                DynamoUtils.getStrAttrVal(item, "lastName"),
-                DynamoUtils.getStrAttrVal(item, "alias"),
-                DynamoUtils.getStrAttrVal(item, "imageUrl")
+                item.getString("firstName"),
+                item.getString("lastName"),
+                item.getString("alias"),
+                item.getString("imageUrl")
             );
             System.out.println("Found user: " + foundUser);
 
@@ -86,12 +86,12 @@ public class UserDao implements IUserDao {
     @Override
     public String getHashedPassword(String alias) {
         try {
-            System.out.println("Finding user with alias of " + alias);
+            System.out.println("Finding hashed password for " + alias);
             Item item = userTable.getItem("alias", alias);
 
             System.out.println("Item: " + item);
             if (item == null) return null;
-            String hashedPassword = DynamoUtils.getStrAttrVal(item, "hashedPassword");
+            String hashedPassword = item.getString("hashedPassword");
             System.out.println("Hashed password for " + alias  + ": " + hashedPassword);
 
             return hashedPassword;
@@ -100,6 +100,53 @@ public class UserDao implements IUserDao {
             System.err.println("Unable to get hashed password for " + alias);
             System.err.println(e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Gets the count of users from the database that the user specified is following. The
+     * current implementation uses generated data and doesn't actually access a database.
+     *
+     * @param alias the alias of the User whose count of how many following is desired.
+     * @return said count.
+     */
+    @Override
+    public int getFollowingCount(String alias) {
+        try {
+            System.out.println("Finding following count for " + alias);
+            Item item = userTable.getItem("alias", alias);
+
+            System.out.println("Item: " + item);
+            if (item == null) return -1;
+            int followingCount = item.getInt("followingCount");
+            System.out.println("Following count for " + alias  + ": " + followingCount);
+
+            return followingCount;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to get following count for " + alias);
+            System.err.println(e.getMessage());
+            return -1;
+        }
+    }
+
+    @Override
+    public int getFollowersCount(String alias) {
+        try {
+            System.out.println("Finding followers count for " + alias);
+            Item item = userTable.getItem("alias", alias);
+
+            System.out.println("Item: " + item);
+            if (item == null) return -1;
+            int followersCount = item.getInt("followersCount");
+            System.out.println("Followers count for " + alias  + ": " + followersCount);
+
+            return followersCount;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to get followers count for " + alias);
+            System.err.println(e.getMessage());
+            return -1;
         }
     }
 }

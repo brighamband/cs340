@@ -26,20 +26,6 @@ import edu.byu.cs.tweeter.util.FakeData;
 public class FollowDao implements IFollowDao {
 
     /**
-     * Gets the count of users from the database that the user specified is following. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param follower the User whose count of how many following is desired.
-     * @return said count.
-     */
-    public GetFollowingCountResponse getFolloweeCount(GetFollowingCountRequest request) {
-        User follower = request.getUser();
-        assert follower != null;
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        return new GetFollowingCountResponse(getDummyFollowees().size());
-    }
-
-    /**
      * Gets the users from the database that the user specified in the request is following. Uses
      * information in the request object to limit the number of followees returned and to return the
      * next set of followees after any that were returned in a previous request. The current

@@ -7,14 +7,14 @@ import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.server.dao.dynamo.DynamoDaoFactory;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
-import edu.byu.cs.tweeter.server.service.FollowService;
+import edu.byu.cs.tweeter.server.service.UserService;
 
 public class GetFollowingCountHandler implements RequestHandler<GetFollowingCountRequest, GetFollowingCountResponse> {
 
     @Override
     public GetFollowingCountResponse handleRequest(GetFollowingCountRequest request, Context context) {
         IDaoFactory factory = new DynamoDaoFactory();
-        FollowService service = new FollowService(factory);
+        UserService service = new UserService(factory);
         return service.getFollowingCount(request);
     }
 }

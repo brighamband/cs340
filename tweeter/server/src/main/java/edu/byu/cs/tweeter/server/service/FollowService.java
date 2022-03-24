@@ -31,6 +31,9 @@ public class FollowService {
      */
     public FollowService() {}
 
+    FollowDao getFollowDaoTempFixme() {
+        return new FollowDao();
+    }
     /**
      * Returns the users that the user specified in the request is following. Uses information in
      * the request object to limit the number of followees returned and to return the next set of
@@ -46,7 +49,7 @@ public class FollowService {
         } else if (request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
-        return getFollowingDao().getFollowees(request);
+        return getFollowDaoTempFixme().getFollowees(request);
     }
 
     /**
@@ -56,9 +59,7 @@ public class FollowService {
      *
      * @return the instance.
      */
-    FollowDao getFollowingDao() {
-        return new FollowDao();
-    }
+
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
         if (request.getFolloweeAlias() == null) {
@@ -66,33 +67,7 @@ public class FollowService {
         } else if (request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request missing a positive limit");
         }
-        return getFollowersDao().getFollowers(request);
-    }
-
-    FollowDao getFollowersDao() {
-        return new FollowDao();
-    }
-
-    public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
-        if (request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a user");
-        }
-        return getFollowingCountDao().getFolloweeCount(request);
-    }
-
-    FollowDao getFollowingCountDao() {
-        return new FollowDao();
-    }
-
-    public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
-        if (request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a user");
-        }
-        return getFollowersCountDao().getFollowersCount(request);
-    }
-
-    FollowDao getFollowersCountDao() {
-        return new FollowDao();
+        return getFollowDaoTempFixme().getFollowers(request);
     }
 
     public IsFollowerResponse isFollower(IsFollowerRequest request) {
@@ -102,11 +77,7 @@ public class FollowService {
             throw new RuntimeException("[BadRequest] Request missing a followee");
         }
 
-        return isFollowerDao().isFollower(request);
-    }
-
-    FollowDao isFollowerDao() {
-        return new FollowDao();
+        return getFollowDaoTempFixme().isFollower(request);
     }
 
     public Response follow(FollowRequest request) {
@@ -114,11 +85,7 @@ public class FollowService {
             throw new RuntimeException("[BadRequest] Request missing a followee");
         }
 
-        return followDao().follow(request);
-    }
-
-    FollowDao followDao() {
-        return new FollowDao();
+        return getFollowDaoTempFixme().follow(request);
     }
 
     public Response unfollow(UnfollowRequest request) {
@@ -126,10 +93,6 @@ public class FollowService {
             throw new RuntimeException("[BadRequest] Request missing a followee");
         }
 
-        return unfollowDao().unfollow(request);
-    }
-
-    FollowDao unfollowDao() {
-        return new FollowDao();
+        return getFollowDaoTempFixme().unfollow(request);
     }
 }
