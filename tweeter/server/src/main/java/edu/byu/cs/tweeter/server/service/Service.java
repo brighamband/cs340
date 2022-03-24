@@ -2,13 +2,10 @@ package edu.byu.cs.tweeter.server.service;
 
 import java.util.GregorianCalendar;
 
-import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 
 public class Service {
     IDaoFactory daoFactory;
-
-    public final long TOKEN_TIME_TO_LIVE = 3600000;  // 1 hour in ms
 
     public Service(IDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
@@ -23,17 +20,16 @@ public class Service {
         System.out.println("Validating auth token for " + token);
 
         // Get auth token timestamp from database
-        long dbTimestamp = daoFactory.getAuthTokenDao().getTimestamp(token);
-        if (dbTimestamp == -1) {    // Failure case #1 - not found
+        long expiration = daoFactory.getAuthTokenDao().getExpiration(token);
+        if (expiration == -1) {    // Failure case #1 - not found
             return false;
         }
 
         // Check expiration
         long currentTimestamp = new GregorianCalendar().getTimeInMillis();
-        long expiration = dbTimestamp + TOKEN_TIME_TO_LIVE;
-        // If expired, remove
+        // If expired
         if (currentTimestamp >= expiration) {
-            daoFactory.getAuthTokenDao().remove(token);
+//            daoFactory.getAuthTokenDao().remove(token);   // Perhaps you may want to remove old ones eventually
             return false;
         }
 

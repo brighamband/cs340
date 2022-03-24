@@ -21,6 +21,8 @@ public class AuthTokenDao implements IAuthTokenDao {
 
     Table authTokenTable;
 
+    //    public final long TOKEN_TIME_TO_LIVE = 3600000;  // 1 hour in ms
+    public final long TOKEN_TIME_TO_LIVE = 60000;    // 60s
 
     public AuthTokenDao() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().withRegion("us-east-2").build();
@@ -32,10 +34,9 @@ public class AuthTokenDao implements IAuthTokenDao {
 
     @Override
     public AuthToken create(String alias) {
-        // Make new token and timestamp for current time
+        // Make new token and expiration from current time
         String token = UUID.randomUUID().toString();
-        GregorianCalendar calendar = new GregorianCalendar();
-        long timestamp = calendar.getTimeInMillis();
+        long expiration = calcExpirationFromNow();
 
         try {
             // Add item to db
@@ -43,13 +44,13 @@ public class AuthTokenDao implements IAuthTokenDao {
             Item itemToPut = new Item()
                     .withPrimaryKey("token", token)
                     .withString("alias", alias)
-                    .withLong("timestamp", timestamp);
+                    .withLong("expiration", expiration);
             authTokenTable.putItem(itemToPut);
 
             System.out.println("Successfully added token.");
 
-            // Convert timestamp to datetime
-            String datetime = calendar.getTime().toString();
+            // Convert current time to datetime string
+            String datetime = getCurrTimeInString();
 
             // Return new auth token
             AuthToken newAuthToken = new AuthToken(token, datetime);
@@ -64,7 +65,7 @@ public class AuthTokenDao implements IAuthTokenDao {
     }
 
     @Override
-    public long getTimestamp(String token) {
+    public long getExpiration(String token) {
         try {
             // Get item
             System.out.println("Getting auth token for " + token);
@@ -73,14 +74,9 @@ public class AuthTokenDao implements IAuthTokenDao {
             System.out.println("Item: " + item);
             if (item == null) return -1;
 
-            long timestamp = item.getLong("timestamp");
-//            AuthToken foundAuthToken = new AuthToken(
-//                    item.getString("token"),
-//                    longTimestampToString(item.getLong("timestamp"))
-//            );
-//            System.out.println("Auth token found: " + foundAuthToken);
-            System.out.println("Auth token found with timestamp of " + timestamp);
-            return timestamp;
+            long expiration = item.getLong("expiration");
+            System.out.println("Auth token found with expiration of " + expiration);
+            return expiration;
         }
         catch (Exception e) {
             System.err.println("Unable to get auth token for " + token);
@@ -122,8 +118,8 @@ public class AuthTokenDao implements IAuthTokenDao {
         // Make delete spec
         DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
                 .withPrimaryKey("token", token)
-                .withConditionExpression("token = :token")
-                .withValueMap(new ValueMap().withString(":token", token));
+                .withConditionExpression("token = :tok")
+                .withValueMap(new ValueMap().withString(":tok", token));
 
         try {
             // Update item
@@ -137,13 +133,22 @@ public class AuthTokenDao implements IAuthTokenDao {
         }
     }
 
+    private long calcExpirationFromNow() {
+        long currTime = getCurrTimeInMs();
+        long expiration = currTime + TOKEN_TIME_TO_LIVE;
+        return expiration;
+    }
 
     /**
-     * Convert a long representing a time stamp to its string representation.
+     * Returns the current time in milliseconds.
      */
-    private static String longTimestampToString(long timestamp) {
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(timestamp);
-        return calendar.getTime().toString();
+    private static long getCurrTimeInMs() {
+        GregorianCalendar currCalendar = new GregorianCalendar();
+        return currCalendar.getTimeInMillis();
+    }
+
+    private static String getCurrTimeInString() {
+        GregorianCalendar currCalendar = new GregorianCalendar();
+        return currCalendar.getTime().toString();
     }
 }

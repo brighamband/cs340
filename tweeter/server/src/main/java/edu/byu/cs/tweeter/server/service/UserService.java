@@ -92,7 +92,6 @@ public class UserService extends Service {
 
     // Have S3Dao upload image to S3
      String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
-//    String imageUrl = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
 
     System.out.println("About to create in UserDao");
 
