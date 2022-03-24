@@ -48,7 +48,14 @@ public class IsFollowerTask extends AuthenticatedTask {
         IsFollowerRequest request = new IsFollowerRequest(getAuthToken(), follower, followee);
         IsFollowerResponse response = getServerFacade().isFollower(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
         isFollower = response.getIsFollower();
+        sendSuccessMessage();
     }
 
     @Override

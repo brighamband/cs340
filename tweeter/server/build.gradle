@@ -17,6 +17,9 @@ dependencies {
     // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.182'
 
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-dynamodb
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.12.182'
+
     // Testing related dependencies
 
     // requires test/resources/mockito-extensions/org.mockito.plugins.MockMaker to have content "mock-maker-inline"

@@ -14,6 +14,11 @@ public class AuthTokenDao implements IAuthTokenDao {
     }
 
     @Override
+    public AuthToken update(String alias) {
+        return null;
+    }
+
+    @Override
     public void remove(String alias) {
 
     }

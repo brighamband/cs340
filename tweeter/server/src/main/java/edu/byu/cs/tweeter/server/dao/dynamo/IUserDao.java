@@ -12,5 +12,6 @@ public interface IUserDao {
 
     User create(String firstName, String lastName, String alias, String imageUrl); // Register
     User login(String username, String password); // Login
-    User get(String alias);  // GetUser
+    User getUser(String alias);  // GetUser
+    String getHashedPassword(String alias); // For Login
 }

@@ -27,16 +27,33 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest request) {
+        // Validate request
         if (request.getUsername() == null){
             throw new RuntimeException("[BadRequest] Request missing a username");
         } else if (request.getPassword() == null) {
             throw new RuntimeException("[BadRequest] Request missing a password");
         }
 
-        // TODO: Generates dummy data. Replace with a real implementation.
-        User user = getDummyAuthenticatedUser();
-        AuthToken authToken = getDummyAuthToken();
-        return new LoginResponse(user, authToken);
+        // Have UserDao check if User exists with that username
+        User existingUser = daoFactory.getUserDao().getUser(request.getUsername());
+        if (existingUser == null) {
+            return new LoginResponse("No users exist with that username");
+        }
+
+        // Check password
+        String dbHashedPassword = daoFactory.getUserDao().getHashedPassword(request.getUsername());
+//        String unhashedPassword = unHash(dbHashedPassword);
+        // FIXME - Passwords need hashed
+        String unhashedPassword = dbHashedPassword;
+        if (!request.getPassword().equals(unhashedPassword)) {  // If passwords don't match
+            return new LoginResponse("Invalid password for " + request.getUsername());
+        }
+
+        // Have AuthTokenDao update the AuthToken for the user
+        AuthToken updatedAuthToken = daoFactory.getAuthTokenDao().update(request.getUsername());
+
+        // Return response
+        return new LoginResponse(existingUser, updatedAuthToken);
     }
 
     public RegisterResponse register(RegisterRequest request) {
@@ -45,30 +62,42 @@ public class UserService {
             throw new RuntimeException("[BadRequest] Request missing a username");
         } else if (request.getPassword() == null) {
             throw new RuntimeException("[BadRequest] Request missing a password");
+        } else if (request.getFirstName() == null) {
+            throw new RuntimeException("[BadRequest] Request missing a first name");
+        } else if (request.getLastName() == null) {
+            throw new RuntimeException("[BadRequest] Request missing a last name");
+        }else if (request.getImage() == null) {
+            throw new RuntimeException("[BadRequest] Request missing an image");
         }
 
         // Have UserDao check to see if a user already exists with that username
+        User existingUser = daoFactory.getUserDao().getUser(request.getUsername());
+        if (existingUser != null) {
+            return new RegisterResponse("A user already exists with that username");
+        }
+
+        System.out.println("Starting image upload");
 
         // Have S3Dao upload image to S3
-        // FIXME -- HARD-CODED FOR NOW
-        String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
+//        String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
+        String imageUrl = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
+
+        System.out.println("About to create in UserDao");
+
         // Have UserDao to create (register) a new user
         User newUser = daoFactory.getUserDao().create(
                 request.getFirstName(), request.getLastName(),
                 request.getUsername(), imageUrl);
+        if (newUser == null) {
+            return new RegisterResponse("Failed to register new user");
+        }
 
         // Get an auth token from the AuthTokenDao
         AuthToken newAuthToken = daoFactory.getAuthTokenDao()
                 .create(newUser.getAlias(), request.getPassword());
+
         // Return RegisterResponse
         return new RegisterResponse(newUser, newAuthToken);
-
-        // TODO: Generates dummy data. Replace with a real implementation.
-//        User user = getDummyAuthenticatedUser();
-//        AuthToken authToken = getDummyAuthToken();
-//        return new RegisterResponse(user, authToken);
-
-        // FIXME - IS CACHING NEEDED?
     }
 
     public Response logout() {
@@ -79,13 +108,19 @@ public class UserService {
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
+        // Validate request
         if (request.getAlias() == null) {
             throw new RuntimeException("[BadRequest] Request missing an alias");
         }
 
-        String alias = request.getAlias();
-        // TODO: Generates dummy data. Replace with a real implementation.
-        return new GetUserResponse(getDummyUserByAlias(alias));
+        // Have UserDao get user by their alias
+        User userFound = daoFactory.getUserDao().getUser(request.getAlias());
+        if (userFound == null) {
+            return new GetUserResponse("No users exist with that alias");
+        }
+
+        // Return response
+        return new GetUserResponse(userFound);
     }
 
     /**

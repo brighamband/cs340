@@ -28,8 +28,15 @@ public class LoginTask extends AuthenticateTask {
         LoginRequest request = new LoginRequest(getUsername(), getPassword());
         LoginResponse response = getServerFacade().login(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
         setUser(response.getUser());
         setAuthToken(response.getAuthToken());
+        sendSuccessMessage();
     }
 
     @Override

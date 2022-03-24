@@ -35,6 +35,14 @@ public class UnfollowTask extends AuthenticatedTask {
     protected void runTask() throws IOException, TweeterRemoteException {
         UnfollowRequest request = new UnfollowRequest(getAuthToken(), followee);
         Response response = getServerFacade().unfollow(request, URL_PATH);
+
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
+        sendSuccessMessage();
     }
 
     @Override
