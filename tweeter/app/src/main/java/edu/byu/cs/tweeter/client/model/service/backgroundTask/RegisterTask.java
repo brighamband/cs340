@@ -44,8 +44,15 @@ public class RegisterTask extends AuthenticateTask {
         RegisterRequest request = new RegisterRequest(firstName, lastName, getUsername(), getPassword(), image);
         RegisterResponse response = getServerFacade().register(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
         setUser(response.getUser());
         setAuthToken(response.getAuthToken());
+        sendSuccessMessage();
     }
 
     @Override

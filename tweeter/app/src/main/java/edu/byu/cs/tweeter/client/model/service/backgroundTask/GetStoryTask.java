@@ -33,6 +33,12 @@ public class GetStoryTask extends PagedTask<Status> {
         GetStoryRequest request = new GetStoryRequest(getAuthToken(), getTargetUser().getAlias(), getLimit(), getLastItem());
         GetStoryResponse response = getServerFacade().getStory(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return null;
+        }
+
         return new Pair<>(response.getStory(), response.getHasMorePages());
     }
 

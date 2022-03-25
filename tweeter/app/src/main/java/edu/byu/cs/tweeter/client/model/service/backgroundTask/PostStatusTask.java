@@ -36,6 +36,14 @@ public class PostStatusTask extends AuthenticatedTask {
     protected void runTask() throws IOException, TweeterRemoteException {
         PostStatusRequest request = new PostStatusRequest(getAuthToken(), status);
         Response response = getServerFacade().postStatus(request, URL_PATH);
+
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
+        sendSuccessMessage();
     }
 
     @Override

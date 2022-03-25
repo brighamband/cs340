@@ -1,125 +1,228 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
-import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
-import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
-import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.dynamo.FollowDao;
+import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
+import edu.byu.cs.tweeter.util.Pair;
 
 /**
  * Contains the business logic for getting the users a user is following.
  */
-public class FollowService {
+public class FollowService extends Service {
 
-    /**
-     * Returns the users that the user specified in the request is following. Uses information in
-     * the request object to limit the number of followees returned and to return the next set of
-     * followees after any that were returned in a previous request. Uses the {@link FollowDAO} to
-     * get the followees.
-     *
-     * @param request contains the data required to fulfill the request.
-     * @return the followees.
-     */
-    public GetFollowingResponse getFollowees(GetFollowingRequest request) {
-        if (request.getFollowerAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a follower alias");
-        } else if (request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request missing a positive limit");
-        }
-        return getFollowingDAO().getFollowees(request);
+  public FollowService(IDaoFactory daoFactory) {
+    super(daoFactory);
+  }
+
+  /**
+   * Empty constructor just for mock tests.
+   */
+  public FollowService() {
+  }
+
+  /**
+   * Returns the users that the user specified in the request is following. Uses
+   * information in
+   * the request object to limit the number of followees returned and to return
+   * the next set of
+   * followees after any that were returned in a previous request. Uses the
+   * {@link FollowDao} to
+   * get the followees.
+   *
+   * @param request contains the data required to fulfill the request.
+   * @return the followees.
+   */
+  public GetFollowingResponse getFollowees(GetFollowingRequest request) {
+    // Validate request
+    if (request.getFollowerAlias() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a follower alias");
+    } else if (request.getLimit() <= 0) {
+      throw new RuntimeException("[BadRequest] Request missing a positive limit");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    /**
-     * Returns an instance of {@link FollowDAO}. Allows mocking of the FollowDAO class
-     * for testing purposes. All usages of FollowDAO should get their FollowDAO
-     * instance from this method to allow for mocking of the instance.
-     *
-     * @return the instance.
-     */
-    FollowDAO getFollowingDAO() {
-        return new FollowDAO();
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      return new GetFollowingResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    public GetFollowersResponse getFollowers(GetFollowersRequest request) {
-        if (request.getFolloweeAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a followee alias");
-        } else if (request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request missing a positive limit");
-        }
-        return getFollowersDAO().getFollowers(request);
+    // Have FollowDao get followees data
+    Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowees(request);
+    List<String> followeeAliases = result.getFirst();
+    boolean hasMorePages = result.getSecond();
+
+    // Make list of followees to return
+    List<User> followees = new ArrayList<>();
+    for (String alias : followeeAliases) {
+      User followee = daoFactory.getUserDao().getUser(alias);
+      if (followee == null) {
+        throw new RuntimeException("[ServerError] Couldn't find user after their alias was listed as followee");
+      }
+      followees.add(followee);
     }
 
-    FollowDAO getFollowersDAO() {
-        return new FollowDAO();
+    // Handle failure
+    if (followees == null && hasMorePages) {
+      throw new RuntimeException("[ServerException] GetFollowees calculation not working properly");
     }
 
-    public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
-        if (request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a user");
-        }
-        return getFollowingCountDAO().getFolloweeCount(request);
+    // Return response
+    return new GetFollowingResponse(followees, hasMorePages);
+  }
+
+  public GetFollowersResponse getFollowers(GetFollowersRequest request) {
+    // Validate request
+    if (request.getFolloweeAlias() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a followee alias");
+    } else if (request.getLimit() <= 0) {
+      throw new RuntimeException("[BadRequest] Request missing a positive limit");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    FollowDAO getFollowingCountDAO() {
-        return new FollowDAO();
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      return new GetFollowersResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
-        if (request.getUser() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a user");
-        }
-        return getFollowersCountDAO().getFollowersCount(request);
+    // Have FollowDao get followers data
+    Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowers(request);
+    List<String> followerAliases = result.getFirst();
+    Boolean hasMorePages = result.getSecond();
+
+    // Make list of followers to return
+    List<User> followers = new ArrayList<>();
+    for (String alias : followerAliases) {
+      User follower = daoFactory.getUserDao().getUser(alias);
+      if (follower == null) {
+        throw new RuntimeException("[ServerError] Couldn't find user after their alias was listed as follower");
+      }
+      followers.add(follower);
     }
 
-    FollowDAO getFollowersCountDAO() {
-        return new FollowDAO();
+    // Handle failure
+    if (followers == null && hasMorePages == null) {
+      throw new RuntimeException("[ServerException] GetFollowers calculation not working properly");
     }
 
-    public IsFollowerResponse isFollower(IsFollowerRequest request) {
-        if (request.getFollower() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a follower");
-        } else if (request.getFollowee() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a followee");
-        }
+    // Return response
+    return new GetFollowersResponse(followers, hasMorePages);
+  }
 
-        return isFollowerDAO().isFollower(request);
+  public IsFollowerResponse isFollower(IsFollowerRequest request) {
+    // Validate request
+    if (request.getFollower() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a follower");
+    } else if (request.getFollowee() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a followee");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    FollowDAO isFollowerDAO() {
-        return new FollowDAO();
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      return new IsFollowerResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    public Response follow(FollowRequest request) {
-        if (request.getFollowee() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a followee");
-        }
+    // Have FollowDao check if the followee is being followed by the follower
+    Boolean isFollower = daoFactory.getFollowDao().isFollower(
+        request.getFollower().getAlias(),
+        request.getFollowee().getAlias());
 
-        return followDAO().follow(request);
+    // Handle failure
+    if (isFollower == null) {
+      throw new RuntimeException("[ServerError] Unable to check isFollower");
     }
 
-    FollowDAO followDAO() {
-        return new FollowDAO();
+    // Return response
+    return new IsFollowerResponse(isFollower);
+  }
+
+  public Response follow(FollowRequest request) {
+    // Validate request
+    if (request.getFollowee() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a followee");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    public Response unfollow(UnfollowRequest request) {
-        if (request.getFollowee() == null) {
-            throw new RuntimeException("[BadRequest] Request missing a followee");
-        }
-
-        return unfollowDAO().unfollow(request);
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    FollowDAO unfollowDAO() {
-        return new FollowDAO();
+    // Create follows relationship
+    String followerAlias = daoFactory.getAuthTokenDao().getCurrUserAlias(request.getAuthToken().getToken());
+    String followeeAlias = request.getFollowee().getAlias();
+    boolean successful = daoFactory.getFollowDao().create(followerAlias, request.getFollowee().getAlias());
+
+    // Handle failure
+    if (!successful) {
+      throw new RuntimeException("[ServerError] Unable to follow");
     }
 
+    // Increment the follower user's following count
+    int followerCurrFollowingCount = daoFactory.getUserDao().getFollowingCount(followerAlias);
+    daoFactory.getUserDao().setFollowingCount(followerAlias, followerCurrFollowingCount + 1);
+
+    // Increment the followee user's followers count
+    int followeeCurrFollowersCount = daoFactory.getUserDao().getFollowersCount(followeeAlias);
+    daoFactory.getUserDao().setFollowersCount(followeeAlias, followeeCurrFollowersCount + 1);
+
+    // Return response
+    return new Response(true);
+  }
+
+  public Response unfollow(UnfollowRequest request) {
+    // Validate request
+    if (request.getFollowee() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a followee");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
+    }
+
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
+    }
+
+    // Delete follows relationship (unfollow)
+    String followerAlias = daoFactory.getAuthTokenDao().getCurrUserAlias(request.getAuthToken().getToken());
+    String followeeAlias = request.getFollowee().getAlias();
+    boolean successful = daoFactory.getFollowDao().remove(followerAlias, followeeAlias);
+
+    // Handle failure
+    if (!successful) {
+      throw new RuntimeException("[ServerError] Unable to unfollow");
+    }
+
+    // Decrement the follower user's following count
+    int followerCurrFollowingCount = daoFactory.getUserDao().getFollowingCount(followerAlias);
+    daoFactory.getUserDao().setFollowingCount(followerAlias, followerCurrFollowingCount - 1);
+
+    // Decrement the followee user's followers count
+    int followeeCurrFollowersCount = daoFactory.getUserDao().getFollowersCount(followeeAlias);
+    daoFactory.getUserDao().setFollowersCount(followeeAlias, followeeCurrFollowersCount - 1);
+
+    // Return response
+    return new Response(true);
+  }
 }

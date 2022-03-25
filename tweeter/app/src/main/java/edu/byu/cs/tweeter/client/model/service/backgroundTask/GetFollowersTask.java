@@ -35,6 +35,12 @@ public class GetFollowersTask extends PagedTask<User> {
         GetFollowersRequest request = new GetFollowersRequest(getAuthToken(), targetUserAlias, getLimit(), lastFollowerAlias);
         GetFollowersResponse response = getServerFacade().getFollowers(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return null;
+        }
+
         return new Pair<>(response.getFollowers(), response.getHasMorePages());
     }
 

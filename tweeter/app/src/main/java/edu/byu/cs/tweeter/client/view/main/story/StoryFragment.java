@@ -169,34 +169,40 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             // @mentions and urls clickable
             SpannableString spannableString = new SpannableString(status.getPost());
 
-            for (String mention : status.getMentions()) {
-                ClickableSpan span = new ClickableSpan() {
-                    @Override
-                    public void onClick(@NonNull View widget) {
-                        TextView clickedMention = (TextView) widget;
-                        Spanned s = (Spanned) clickedMention.getText();
-                        int start = s.getSpanStart(this);
-                        int end = s.getSpanEnd(this);
+            List<String> mentions = status.getMentions();
+            if (mentions != null) {
+                for (String mention : status.getMentions()) {
+                    ClickableSpan span = new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull View widget) {
+                            TextView clickedMention = (TextView) widget;
+                            Spanned s = (Spanned) clickedMention.getText();
+                            int start = s.getSpanStart(this);
+                            int end = s.getSpanEnd(this);
 
-                        String urlOrAliasLink = s.subSequence(start, end).toString();
-                        storyPresenter.onUserMentionClick(urlOrAliasLink);
-                    }
+                            String urlOrAliasLink = s.subSequence(start, end).toString();
+                            storyPresenter.onUserMentionClick(urlOrAliasLink);
+                        }
 
-                    @Override
-                    public void updateDrawState(@NotNull TextPaint ds) {
-                        super.updateDrawState(ds);
-                        ds.setColor(getResources().getColor(R.color.colorAccent));
-                        ds.setUnderlineText(false);
-                    }
-                };
+                        @Override
+                        public void updateDrawState(@NotNull TextPaint ds) {
+                            super.updateDrawState(ds);
+                            ds.setColor(getResources().getColor(R.color.colorAccent));
+                            ds.setUnderlineText(false);
+                        }
+                    };
 
-                int startIndex = status.getPost().indexOf(mention);
-                spannableString.setSpan(span, startIndex, (startIndex + mention.length()), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    int startIndex = status.getPost().indexOf(mention);
+                    spannableString.setSpan(span, startIndex, (startIndex + mention.length()), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
             }
 
-            for (String url : status.getUrls()) {
-                int startIndex = status.getPost().indexOf(url);
-                spannableString.setSpan(new URLSpan(url), startIndex, (startIndex + url.length()), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            List<String> urls = status.getUrls();
+            if (urls != null) {
+                for (String url : status.getUrls()) {
+                    int startIndex = status.getPost().indexOf(url);
+                    spannableString.setSpan(new URLSpan(url), startIndex, (startIndex + url.length()), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
             }
 
             post.setText(spannableString);
@@ -321,11 +327,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
          * loading footer view) at the bottom of the list.
          */
         private void addLoadingFooter() {
-            addItem(new Status("Dummy Post", new User("firstName", "lastName", "@coolAlias"), "2020-10-31 00:00:00", new ArrayList<String>() {{
-                add("https://youtube.com");
-            }}, new ArrayList<String>() {{
-                add("@Dude1");
-            }}));
+            addItem(new Status("Dummy Post", new User("firstName", "lastName", "@coolAlias"), "2020-10-31 00:00:00"));
         }
 
         /**

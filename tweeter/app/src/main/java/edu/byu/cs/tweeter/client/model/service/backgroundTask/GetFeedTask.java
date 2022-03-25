@@ -33,6 +33,12 @@ public class GetFeedTask extends PagedTask<Status> {
         GetFeedRequest request = new GetFeedRequest(getAuthToken(), getTargetUser().getAlias(), getLimit(), getLastItem());
         GetFeedResponse response = getServerFacade().getFeed(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return null;
+        }
+
         return new Pair<>(response.getFeed(), response.getHasMorePages());
     }
 

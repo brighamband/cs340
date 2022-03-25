@@ -30,7 +30,14 @@ public class GetFollowingCountTask extends GetCountTask {
         GetFollowingCountRequest request = new GetFollowingCountRequest(getAuthToken(), getTargetUser());
         GetFollowingCountResponse response = getServerFacade().getFollowingCount(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
         setCount(response.getCount());
+        sendSuccessMessage();
     }
 
     @Override

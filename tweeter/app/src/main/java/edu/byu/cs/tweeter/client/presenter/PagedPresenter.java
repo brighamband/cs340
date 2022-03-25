@@ -97,7 +97,7 @@ public abstract class PagedPresenter<T> extends SimplePresenter {
     public void handleFailure(String message) {
       setLoading(false);
       view.displayLoading(false);
-      view.displayToastMessage(getMsgPrefix() + message);
+      view.displayToastMessage(getMsgPrefix() + ": " + message);
     }
 
     @Override

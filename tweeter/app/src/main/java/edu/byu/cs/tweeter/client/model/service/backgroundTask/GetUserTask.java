@@ -44,7 +44,14 @@ public class GetUserTask extends AuthenticatedTask {
         GetUserRequest request = new GetUserRequest(getAuthToken(), alias);
         GetUserResponse response = getServerFacade().getUser(request, URL_PATH);
 
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
         user = response.getUser();
+        sendSuccessMessage();
     }
 
     @Override

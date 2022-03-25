@@ -79,8 +79,7 @@ public class MainPresenter extends SimplePresenter {
   public void postStatus(String post) {
     view.displayToastMessage("Posting Status...");
     try {
-      Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post),
-          parseMentions(post));
+      Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime());
       getStatusService().postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus, new PostStatusObserver());
     } catch (Exception ex) {
       view.displayToastMessage("Failed to post status because of exception: " + ex.getMessage());

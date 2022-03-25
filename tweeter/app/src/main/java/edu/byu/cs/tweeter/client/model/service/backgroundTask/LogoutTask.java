@@ -28,6 +28,14 @@ public class LogoutTask extends AuthenticatedTask {
     protected void runTask() throws IOException, TweeterRemoteException {
         LogoutRequest request = new LogoutRequest(getAuthToken());
         Response response = getServerFacade().logout(request, URL_PATH);
+
+        // Failure
+        if (!response.isSuccess()) {
+            sendFailedMessage(response.getMessage());
+            return;
+        }
+
+        sendSuccessMessage();
     }
 
     @Override
