@@ -131,26 +131,6 @@ public class AuthTokenDao implements IAuthTokenDao {
         }
     }
 
-    @Override
-    public void remove(String token) {
-        // Make delete spec
-        DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
-                .withPrimaryKey("token", token)
-                .withConditionExpression("token = :tok")
-                .withValueMap(new ValueMap().withString(":tok", token));
-
-        try {
-            // Update item
-            System.out.println("Removing auth token for " + token);
-            authTokenTable.deleteItem(deleteItemSpec);
-            System.out.println("DeleteItem succeeded:");
-        }
-        catch (Exception e) {
-            System.err.println("Unable to renew auth token for " + token);
-            System.err.println(e.getMessage());
-        }
-    }
-
     private long calcExpiration(long currTimestamp) {
         long expiration = currTimestamp + TOKEN_TIME_TO_LIVE;
         return expiration;

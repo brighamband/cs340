@@ -7,5 +7,4 @@ public interface IAuthTokenDao {
     String getCurrUserAlias(String token);
     long getExpiration(String token);
     void renewToken(String token);
-    void remove(String token);
 }

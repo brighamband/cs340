@@ -45,18 +45,17 @@ public class StatusService extends Service {
 
     // Have StoryDao create a new status in Story table (postStatus)
     boolean successful = daoFactory.getStoryDao().create(authorAlias, timestamp, post);
-    if (!successful) {  // Handle failure case #1
+    if (!successful) { // Handle failure case #1
       throw new RuntimeException("[ServerError] Unable to add status to Story table");
     }
 
     // Have FollowDao get user's followers
     List<String> followerAliases = daoFactory.getFollowDao().getFollowers(
-            new GetFollowersRequest(request.getAuthToken(), authorAlias, MAX_NUM_FOLLOWERS, null)
-    ).getFirst();
+        new GetFollowersRequest(request.getAuthToken(), authorAlias, MAX_NUM_FOLLOWERS, null)).getFirst();
     // Have FeedDao create that same new status in each feed of user's followers
     for (String viewerAlias : followerAliases) {
       successful = daoFactory.getFeedDao().create(viewerAlias, timestamp, post, authorAlias);
-      if (!successful) {  // Handle failure case #2
+      if (!successful) { // Handle failure case #2
         throw new RuntimeException("[ServerError] Unable to add status to Feed table");
       }
     }
@@ -84,9 +83,8 @@ public class StatusService extends Service {
     // Set up response data
     String authorAlias = request.getTargetUserAlias();
     User user = daoFactory.getUserDao().getUser(authorAlias);
-//    long lastTimestamp = daoFactory.getStoryDao().getTimestamp(authorAlias, request.getLastStatus().getPost());
-    // FIXME -- It's either this above or figure how to convert req timestamp string to long
 
+    // Convert request timestamp string to a long
     Long lastTimestamp = null;
     if (request.getLastStatus() != null) {
       lastTimestamp = TimeUtils.stringTimeToLong(request.getLastStatus().getDate());
@@ -100,20 +98,6 @@ public class StatusService extends Service {
     List<Status> story = result.getFirst();
     boolean hasMorePages = result.getSecond();
 
-    // Make list of statuses to return
-//    List<Status> story = new ArrayList<>();
-//    for (String alias : followerAliases) {
-//      User follower = daoFactory.getUserDao().getUser(alias);
-//      if (follower == null) {
-//        throw new RuntimeException("[ServerError] Couldn't find user after their alias was listed as follower");
-//      }
-//      story.add(follower);
-//    }
-
-//    String datetime = TimeUtils.longTimeToString(timestamp);
-    // FIXME -- Trying leaving urls and mentions null to start
-
-
     // Handle failure
     if (story == null && hasMorePages) {
       throw new RuntimeException("[ServerException] GetStory calculation not working properly");
@@ -121,16 +105,6 @@ public class StatusService extends Service {
 
     // Return response
     return new GetStoryResponse(story, hasMorePages);
-
-
-    // Handle failure
-    // FIXME
-
-//    // Return response
-//    // TODO: Generates dummy data. Replace with a real implementation.
-//    Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(),
-//            request.getLimit());
-//    return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
   }
 
   public GetFeedResponse getFeed(GetFeedRequest request) {

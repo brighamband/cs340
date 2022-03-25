@@ -142,8 +142,8 @@ public class FollowService extends Service {
 
     // Have FollowDao check if the followee is being followed by the follower
     Boolean isFollower = daoFactory.getFollowDao().isFollower(
-            request.getFollower().getAlias(),
-            request.getFollowee().getAlias());
+        request.getFollower().getAlias(),
+        request.getFollowee().getAlias());
 
     // Handle failure
     if (isFollower == null) {

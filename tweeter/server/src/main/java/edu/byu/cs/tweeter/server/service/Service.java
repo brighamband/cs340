@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.server.service;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.server.TimeUtils;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 
@@ -21,6 +22,7 @@ public class Service {
         // Get auth token timestamp from database
         long expiration = daoFactory.getAuthTokenDao().getExpiration(token);
         if (expiration == -1) {    // Failure case #1 - not found
+            System.out.println("Auth token wasn't found");
             return false;
         }
 
@@ -28,12 +30,13 @@ public class Service {
         long currTimestamp = TimeUtils.getCurrTimeAsLong();
         // If expired
         if (currTimestamp >= expiration) {
-//            daoFactory.getAuthTokenDao().remove(token);   // Perhaps you may want to remove old ones eventually
+            System.out.println("Auth token is expired");
             return false;
         }
 
         // Else (if valid, renew)
         daoFactory.getAuthTokenDao().renewToken(token);
+        System.out.println("Auth token is expired");
         return true;
     }
 }

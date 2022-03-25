@@ -12,20 +12,6 @@ public class TimeUtils {
     public static long getCurrTimeAsLong() {
         Date currDate = getCurrDate();
         return millisToSec(currDate.getTime());
-//        GregorianCalendar currCalendar = new GregorianCalendar();
-//        currCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        return currCalendar.getTimeInMillis();
-    }
-
-    /**
-     * Returns the current time as a string.
-     */
-    public static String getCurrTimeAsString() {
-        Date currDate = getCurrDate();
-        return currDate.toString();
-//        GregorianCalendar currCalendar = new GregorianCalendar();
-//        currCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        return currCalendar.getTime().toString();
     }
 
     public static long stringTimeToLong(String datetime) {
@@ -44,10 +30,6 @@ public class TimeUtils {
         Date date = new Date(timestamp);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         return date.toString();
-//        GregorianCalendar calendar = new GregorianCalendar();
-//        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        calendar.setTimeInMillis(timestamp);
-//        return calendar.getTime().toString();
     }
 
     private static Date getCurrDate() {
