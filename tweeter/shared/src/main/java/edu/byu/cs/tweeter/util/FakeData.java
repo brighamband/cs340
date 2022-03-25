@@ -103,15 +103,13 @@ public class FakeData {
             for (int j = 0; j < fakeUsers.size(); ++j) {
                 User sender = fakeUsers.get(j);
                 User mention = ((j < fakeUsers.size() - 1) ? fakeUsers.get(j + 1) : fakeUsers.get(0));
-                List<String> mentions = Arrays.asList(mention.getAlias());
                 String url = "https://byu.edu";
-                List<String> urls = Arrays.asList(url);
                 String post = "Post " + i + " " + j +
                         "\nMy friend " + mention.getAlias() + " likes this website" +
                         "\n" + url;
                 calendar.add(Calendar.MINUTE, 1);
                 String datetime = calendar.getTime().toString();
-                Status status = new Status(post, sender, datetime, urls, mentions);
+                Status status = new Status(post, sender, datetime);
                 allStatuses.add(status);
             }
         }

@@ -11,7 +11,6 @@ import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
-import java.util.GregorianCalendar;
 import java.util.UUID;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -21,8 +20,7 @@ public class AuthTokenDao implements IAuthTokenDao {
 
     Table authTokenTable;
 
-    //    public final long TOKEN_TIME_TO_LIVE = 3600000;  // 1 hour in ms
-    public final long TOKEN_TIME_TO_LIVE = 60000;    // 60s
+    public final long TOKEN_TIME_TO_LIVE = 60;    // 60 seconds
 
     public AuthTokenDao() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().withRegion("us-east-2").build();
@@ -36,7 +34,8 @@ public class AuthTokenDao implements IAuthTokenDao {
     public AuthToken create(String alias) {
         // Make new token and expiration from current time
         String token = UUID.randomUUID().toString();
-        long expiration = calcExpirationFromNow();
+        long currTimestamp = TimeUtils.getCurrTimeAsLong();
+        long expiration = calcExpiration(currTimestamp);
 
         try {
             // Add item to db
@@ -50,7 +49,7 @@ public class AuthTokenDao implements IAuthTokenDao {
             System.out.println("Successfully added token.");
 
             // Convert current time to datetime string
-            String datetime = TimeUtils.getCurrTimeInString();
+            String datetime = TimeUtils.longTimeToString(currTimestamp);
 
             // Return new auth token
             AuthToken newAuthToken = new AuthToken(token, datetime);
@@ -111,8 +110,7 @@ public class AuthTokenDao implements IAuthTokenDao {
     @Override
     public void renewToken(String token) {
         // Make new timestamp for current time
-        GregorianCalendar calendar = new GregorianCalendar();
-        long expiration = calcExpirationFromNow();
+        long expiration = calcExpiration(TimeUtils.getCurrTimeAsLong());
 
         // Make update spec
         UpdateItemSpec updateItemSpec = new UpdateItemSpec()
@@ -153,9 +151,8 @@ public class AuthTokenDao implements IAuthTokenDao {
         }
     }
 
-    private long calcExpirationFromNow() {
-        long currTime = TimeUtils.getCurrTimeInMs();
-        long expiration = currTime + TOKEN_TIME_TO_LIVE;
+    private long calcExpiration(long currTimestamp) {
+        long expiration = currTimestamp + TOKEN_TIME_TO_LIVE;
         return expiration;
     }
 }

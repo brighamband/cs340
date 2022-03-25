@@ -77,9 +77,7 @@ public class StoryDao implements IStoryDao {
                 Status statusToAdd = new Status(
                         item.getString("post"),
                         user,
-                        TimeUtils.longTimeToString(item.getLong("timestamp")),
-                        null,
-                        null
+                        TimeUtils.longTimeToString(item.getLong("timestamp"))
                 );
                 story.add(statusToAdd);
                 System.out.println(item);

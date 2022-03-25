@@ -6,10 +6,6 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 
-import java.util.List;
-
-import edu.byu.cs.tweeter.model.domain.Status;
-
 public class FeedDao implements IFeedDao {
 
     Table feedTable;

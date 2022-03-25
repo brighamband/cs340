@@ -1,6 +1,5 @@
 package edu.byu.cs.tweeter.server.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -10,11 +9,10 @@ import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 import edu.byu.cs.tweeter.server.TimeUtils;
+import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
@@ -42,7 +40,7 @@ public class StatusService extends Service {
 
     // New status info
     String authorAlias = request.getStatus().getUser().getAlias();
-    long timestamp = TimeUtils.getCurrTimeInMs();
+    long timestamp = TimeUtils.getCurrTimeAsLong();
     String post = request.getStatus().getPost();
 
     // Have StoryDao create a new status in Story table (postStatus)
@@ -86,8 +84,16 @@ public class StatusService extends Service {
     // Set up response data
     String authorAlias = request.getTargetUserAlias();
     User user = daoFactory.getUserDao().getUser(authorAlias);
-    long lastTimestamp = daoFactory.getStoryDao().getTimestamp(authorAlias, request.getLastStatus().getPost());
+//    long lastTimestamp = daoFactory.getStoryDao().getTimestamp(authorAlias, request.getLastStatus().getPost());
     // FIXME -- It's either this above or figure how to convert req timestamp string to long
+
+    Long lastTimestamp = null;
+    if (request.getLastStatus() != null) {
+      lastTimestamp = TimeUtils.stringTimeToLong(request.getLastStatus().getDate());
+      if (lastTimestamp == -1) {
+        throw new RuntimeException("[ServerError] Unable to parse lastTimestamp");
+      }
+    }
 
     // Have StoryDao get story data
     Pair<List<Status>, Boolean> result = daoFactory.getStoryDao().getStory(user, request.getLimit(), lastTimestamp);
@@ -109,9 +115,9 @@ public class StatusService extends Service {
 
 
     // Handle failure
-//    if (followers == null && hasMorePages) {
-//      throw new RuntimeException("[ServerException] GetFollowers calculation not working properly");
-//    }
+    if (story == null && hasMorePages) {
+      throw new RuntimeException("[ServerException] GetStory calculation not working properly");
+    }
 
     // Return response
     return new GetStoryResponse(story, hasMorePages);

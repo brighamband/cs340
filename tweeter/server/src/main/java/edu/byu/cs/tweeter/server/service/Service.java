@@ -1,7 +1,6 @@
 package edu.byu.cs.tweeter.server.service;
 
-import java.util.GregorianCalendar;
-
+import edu.byu.cs.tweeter.server.TimeUtils;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 
 public class Service {
@@ -26,9 +25,9 @@ public class Service {
         }
 
         // Check expiration
-        long currentTimestamp = new GregorianCalendar().getTimeInMillis();
+        long currTimestamp = TimeUtils.getCurrTimeAsLong();
         // If expired
-        if (currentTimestamp >= expiration) {
+        if (currTimestamp >= expiration) {
 //            daoFactory.getAuthTokenDao().remove(token);   // Perhaps you may want to remove old ones eventually
             return false;
         }
