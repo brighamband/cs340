@@ -64,9 +64,12 @@ public class FollowService extends Service {
       return new GetFollowingResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    // Have FollowDao get list of followees
+    // Have FollowDao get followees data
     Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowees(request);
     List<String> followeeAliases = result.getFirst();
+    boolean hasMorePages = result.getSecond();
+
+    // Make list of followees to return
     List<User> followees = new ArrayList<>();
     for (String alias : followeeAliases) {
       User followee = daoFactory.getUserDao().getUser(alias);
@@ -75,8 +78,6 @@ public class FollowService extends Service {
       }
       followees.add(followee);
     }
-
-    boolean hasMorePages = result.getSecond();
 
     // Handle failure
     if (followees == null && hasMorePages) {
@@ -103,9 +104,12 @@ public class FollowService extends Service {
       return new GetFollowersResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    // Have FollowDao get list of followees
+    // Have FollowDao get followers data
     Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowers(request);
     List<String> followerAliases = result.getFirst();
+    boolean hasMorePages = result.getSecond();
+
+    // Make list of followers to return
     List<User> followers = new ArrayList<>();
     for (String alias : followerAliases) {
       User follower = daoFactory.getUserDao().getUser(alias);
@@ -114,8 +118,6 @@ public class FollowService extends Service {
       }
       followers.add(follower);
     }
-
-    boolean hasMorePages = result.getSecond();
 
     // Handle failure
     if (followers == null && hasMorePages) {

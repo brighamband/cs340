@@ -4,7 +4,20 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.server.TimeUtils;
+import edu.byu.cs.tweeter.util.Pair;
 
 public class StoryDao implements IStoryDao {
 
@@ -38,16 +51,52 @@ public class StoryDao implements IStoryDao {
         }
     }
 
+    @Override
+    public Pair<List<Status>, Boolean> getStory(User user, int limit, Long lastTimestamp) {
+        String authorAlias = user.getAlias();
 
-//    public Status createPost(String authorAlias, String post) {
-//        long timestamp = TimeUtils.getCurrTimeInMs();
-//
-//
-//        // Make status
-//        Status newStatus = new Status(post, )
-//    }
-//
-//    public List<Status> getStory() {
-//
-//    }
+        List<Status> story = new ArrayList<>();
+        boolean hasMorePages = false;
+
+        System.out.println("Results for query of getting story of " + authorAlias);
+
+        // Set up query
+        QuerySpec querySpec = new QuerySpec()
+                .withHashKey("authorAlias", authorAlias)
+                .withScanIndexForward(true) // Sort ascending
+                .withMaxResultSize(limit);
+        // Have query start from lastTimestamp if there was one, otherwise go from beginning
+        if (lastTimestamp != null) {
+            querySpec.withExclusiveStartKey("authorAlias", authorAlias, "timestamp", lastTimestamp);
+        }
+
+        try {
+            ItemCollection<QueryOutcome> items = storyTable.query(querySpec);
+
+            for (Item item : items) {
+                Status statusToAdd = new Status(
+                        item.getString("post"),
+                        user,
+                        TimeUtils.longTimeToString(item.getLong("timestamp")),
+                        null,
+                        null
+                );
+                story.add(statusToAdd);
+                System.out.println(item);
+            }
+
+            // Check to see if there's more data to be retrieved
+            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            if (lastKeyMap != null) {
+                hasMorePages = true;
+            }
+
+        } catch (Exception e) {
+            System.err.println("Unable to query/get story of " + authorAlias);
+            System.err.println(e.getMessage());
+            return new Pair<>(null, true);  // Error state
+        }
+
+        return new Pair<>(story, hasMorePages);
+    }
 }

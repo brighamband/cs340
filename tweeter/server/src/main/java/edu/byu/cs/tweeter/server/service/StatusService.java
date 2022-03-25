@@ -1,13 +1,16 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
@@ -80,16 +83,48 @@ public class StatusService extends Service {
       return new GetStoryResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
+    // Set up response data
+    String authorAlias = request.getTargetUserAlias();
+    User user = daoFactory.getUserDao().getUser(authorAlias);
+    long lastTimestamp = daoFactory.getStoryDao().getTimestamp(authorAlias, request.getLastStatus().getPost());
+    // FIXME -- It's either this above or figure how to convert req timestamp string to long
+
+    // Have StoryDao get story data
+    Pair<List<Status>, Boolean> result = daoFactory.getStoryDao().getStory(user, request.getLimit(), lastTimestamp);
+    List<Status> story = result.getFirst();
+    boolean hasMorePages = result.getSecond();
+
+    // Make list of statuses to return
+//    List<Status> story = new ArrayList<>();
+//    for (String alias : followerAliases) {
+//      User follower = daoFactory.getUserDao().getUser(alias);
+//      if (follower == null) {
+//        throw new RuntimeException("[ServerError] Couldn't find user after their alias was listed as follower");
+//      }
+//      story.add(follower);
+//    }
+
+//    String datetime = TimeUtils.longTimeToString(timestamp);
+    // FIXME -- Trying leaving urls and mentions null to start
+
+
+    // Handle failure
+//    if (followers == null && hasMorePages) {
+//      throw new RuntimeException("[ServerException] GetFollowers calculation not working properly");
+//    }
+
+    // Return response
+    return new GetStoryResponse(story, hasMorePages);
 
 
     // Handle failure
     // FIXME
 
-    // Return response
-    // TODO: Generates dummy data. Replace with a real implementation.
-    Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(),
-            request.getLimit());
-    return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
+//    // Return response
+//    // TODO: Generates dummy data. Replace with a real implementation.
+//    Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(),
+//            request.getLimit());
+//    return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
   }
 
   public GetFeedResponse getFeed(GetFeedRequest request) {
