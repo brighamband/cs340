@@ -30,7 +30,7 @@ public class StatusService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Have StoryDao to post a new status
@@ -56,7 +56,7 @@ public class StatusService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new GetFeedResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Handle failure
@@ -82,7 +82,7 @@ public class StatusService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new GetStoryResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Handle failure

@@ -45,7 +45,7 @@ public class UserService extends Service {
 
     // Have UserDao check if User exists with that username
     User existingUser = daoFactory.getUserDao().getUser(request.getUsername());
-    if (existingUser == null) {   // Handle failure case #1 - missing user
+    if (existingUser == null) { // Handle failure case #1 - missing user
       return new LoginResponse("No users exist with that username");
     }
 
@@ -91,7 +91,7 @@ public class UserService extends Service {
     String hashedPassword = hashPassword(request.getPassword());
 
     // Have S3Dao upload image to S3
-     String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
+    String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
 
     System.out.println("About to create in UserDao");
 
@@ -116,9 +116,9 @@ public class UserService extends Service {
       throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
 
-    // Have AuthTokenDao remove auth token
-    String tokenToRemove = request.getAuthToken().getToken();
-    daoFactory.getAuthTokenDao().remove(tokenToRemove);
+    // Have AuthTokenDao remove auth token -- could add later
+    // String tokenToRemove = request.getAuthToken().getToken();
+    // daoFactory.getAuthTokenDao().remove(tokenToRemove);
 
     // Return response
     return new Response(true);
@@ -135,7 +135,7 @@ public class UserService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new GetUserResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Have UserDao get user by their alias
@@ -160,7 +160,7 @@ public class UserService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new GetFollowingCountResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Get following count
@@ -186,7 +186,7 @@ public class UserService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new GetFollowersCountResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Get followers count

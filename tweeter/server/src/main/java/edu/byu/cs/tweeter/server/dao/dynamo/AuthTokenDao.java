@@ -92,13 +92,13 @@ public class AuthTokenDao implements IAuthTokenDao {
     public void renewToken(String token) {
         // Make new timestamp for current time
         GregorianCalendar calendar = new GregorianCalendar();
-        long timestamp = calendar.getTimeInMillis();
+        long expiration = calcExpirationFromNow();
 
         // Make update spec
         UpdateItemSpec updateItemSpec = new UpdateItemSpec()
                 .withPrimaryKey("token", token)
-                .withUpdateExpression("set timestamp = :ts")
-                .withValueMap(new ValueMap().withLong(":ts", timestamp))
+                .withUpdateExpression("set expiration = :exp")
+                .withValueMap(new ValueMap().withLong(":exp", expiration))
                 .withReturnValues(ReturnValue.UPDATED_NEW);
 
         try {

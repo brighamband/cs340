@@ -28,7 +28,8 @@ public class FollowService extends Service {
   /**
    * Empty constructor just for mock tests.
    */
-  public FollowService() {}
+  public FollowService() {
+  }
 
   /**
    * Returns the users that the user specified in the request is following. Uses
@@ -55,7 +56,7 @@ public class FollowService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new GetFollowingResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Handle failure
@@ -63,7 +64,7 @@ public class FollowService extends Service {
 
     // Return response
     return null;
-//    return daoFactory.getFollowDao().getFollowees(request);
+    // return daoFactory.getFollowDao().getFollowees(request);
   }
 
   public GetFollowersResponse getFollowers(GetFollowersRequest request) {
@@ -79,7 +80,7 @@ public class FollowService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new GetFollowersResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Handle failure
@@ -87,7 +88,7 @@ public class FollowService extends Service {
 
     // Return response
     return null;
-//    return factory.getFollowDao().getFollowers(request);
+    // return factory.getFollowDao().getFollowers(request);
   }
 
   public IsFollowerResponse isFollower(IsFollowerRequest request) {
@@ -103,15 +104,17 @@ public class FollowService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new IsFollowerResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
+
+    // Have FollowDao check if the follower
 
     // Handle failure
     // FIXME
 
     // Return response
     return null;
-//    return factory.getFollowDao().isFollower(request);
+    // return factory.getFollowDao().isFollower(request);
   }
 
   public Response follow(FollowRequest request) {
@@ -125,7 +128,7 @@ public class FollowService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Handle failure
@@ -133,7 +136,7 @@ public class FollowService extends Service {
 
     // Return response
     return null;
-//    return factory.getFollowDao().follow(request);
+    // return factory.getFollowDao().follow(request);
   }
 
   public Response unfollow(UnfollowRequest request) {
@@ -147,7 +150,7 @@ public class FollowService extends Service {
     // Validate auth token
     boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
     if (!isValidAuthToken) {
-      throw new RuntimeException("[BadRequest] Auth token has expired");
+      return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
     // Handle failure
@@ -155,6 +158,6 @@ public class FollowService extends Service {
 
     // Return response
     return null;
-//    return factory.getFollowDao().unfollow(request);
+    // return factory.getFollowDao().unfollow(request);
   }
 }
