@@ -6,6 +6,10 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -122,6 +126,28 @@ public class UserDao implements IUserDao {
     }
 
     @Override
+    public boolean setFollowingCount(String alias, int followingCount) {
+        System.out.println("Setting following count for " + alias + " to be " + followingCount);
+        UpdateItemSpec updateItemSpec = new UpdateItemSpec()
+                .withPrimaryKey("alias", alias)
+                .withUpdateExpression("set followingCount = :fc")
+                .withValueMap(new ValueMap().withInt(":fc", followingCount))
+                .withReturnValues(ReturnValue.UPDATED_NEW);
+
+        try {
+            System.out.println("Updating the following count");
+            UpdateItemOutcome outcome = userTable.updateItem(updateItemSpec);
+            System.out.println("UpdateItem for following count succeeded:\n" + outcome.getItem().toJSONPretty());
+            return true;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to set following count for " + alias + " to be " + followingCount);
+            System.err.println(e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
     public int getFollowersCount(String alias) {
         try {
             System.out.println("Finding followers count for " + alias);
@@ -138,6 +164,28 @@ public class UserDao implements IUserDao {
             System.err.println("Unable to get followers count for " + alias);
             System.err.println(e.getMessage());
             return -1;
+        }
+    }
+
+    @Override
+    public boolean setFollowersCount(String alias, int followersCount) {
+        System.out.println("Setting followers count for " + alias + " to be " + followersCount);
+        UpdateItemSpec updateItemSpec = new UpdateItemSpec()
+                .withPrimaryKey("alias", alias)
+                .withUpdateExpression("set followersCount = :fc")
+                .withValueMap(new ValueMap().withInt(":fc", followersCount))
+                .withReturnValues(ReturnValue.UPDATED_NEW);
+
+        try {
+            System.out.println("Updating the followers count");
+            UpdateItemOutcome outcome = userTable.updateItem(updateItemSpec);
+            System.out.println("UpdateItem for followers count succeeded:\n" + outcome.getItem().toJSONPretty());
+            return true;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to set followers count for " + alias + " to be " + followersCount);
+            System.err.println(e.getMessage());
+            return false;
         }
     }
 }

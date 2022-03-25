@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurr.CountDownLatch;
 
 import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -23,159 +23,156 @@ import edu.byu.cs.tweeter.util.FakeData;
  */
 public class StatusServiceTest {
 
-    private FakeData fakeData;
-    private User currentUser;
-    private AuthToken currentAuthToken;
+  private FakeData fakeData;
+  private User currUser;
+  private AuthToken currAuthToken;
 
-    private StatusService statusService;
-    private StatusServiceObserver observer;
+  private StatusService statusService;
+  private StatusServiceObserver observer;
 
-    private CountDownLatch countDownLatch;
+  private CountDownLatch countDownLatch;
 
-    @Before
-    public void setup() {
-        fakeData = new FakeData();
-        currentUser = new User("FirstName", "LastName", null);
-        currentAuthToken = new AuthToken();
+  @Before
+  public void setup() {
+    fakeData = new FakeData();
+    currUser = new User("FirstName", "LastName", null);
+    currAuthToken = new AuthToken();
 
-        statusService = new StatusService();
+    statusService = new StatusService();
 
-        observer = new StatusServiceObserver();
+    observer = new StatusServiceObserver();
 
-        resetCountDownLatch();
+    resetCountDownLatch();
+  }
+
+  private class StatusServiceObserver implements PagedObserver<Status> {
+
+    private boolean success;
+    private String message;
+    private List<Status> story;
+    private boolean hasMorePages;
+    private Exception exception;
+
+    @Override
+    public void handleSuccess(List<Status> story, boolean hasMorePages) {
+      this.success = true;
+      this.message = null;
+      this.story = story;
+      this.hasMorePages = hasMorePages;
+      this.exception = null;
+
+      countDownLatch.countDown();
     }
 
-    private class StatusServiceObserver implements PagedObserver<Status> {
+    @Override
+    public void handleFailure(String message) {
+      this.success = false;
+      this.message = message;
+      this.story = null;
+      this.hasMorePages = false;
+      this.exception = null;
 
-        private boolean success;
-        private String message;
-        private List<Status> story;
-        private boolean hasMorePages;
-        private Exception exception;
-
-        @Override
-        public void handleSuccess(List<Status> story, boolean hasMorePages) {
-            this.success = true;
-            this.message = null;
-            this.story = story;
-            this.hasMorePages = hasMorePages;
-            this.exception = null;
-
-            countDownLatch.countDown();
-        }
-
-        @Override
-        public void handleFailure(String message) {
-            this.success = false;
-            this.message = message;
-            this.story = null;
-            this.hasMorePages = false;
-            this.exception = null;
-
-            countDownLatch.countDown();
-        }
-
-        @Override
-        public void handleException(Exception exception) {
-            this.success = false;
-            this.message = null;
-            this.story = null;
-            this.hasMorePages = false;
-            this.exception = exception;
-
-            countDownLatch.countDown();
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public List<Status> getStory() {
-            return story;
-        }
-
-        public boolean getHasMorePages() {
-            return hasMorePages;
-        }
-
-        public Exception getException() {
-            return exception;
-        }
+      countDownLatch.countDown();
     }
 
-    private void resetCountDownLatch() {
-        countDownLatch = new CountDownLatch(1);
+    @Override
+    public void handleException(Exception exception) {
+      this.success = false;
+      this.message = null;
+      this.story = null;
+      this.hasMorePages = false;
+      this.exception = exception;
+
+      countDownLatch.countDown();
     }
 
-    private void awaitCountDownLatch() throws InterruptedException {
-        countDownLatch.await();
-        resetCountDownLatch();
+    public boolean isSuccess() {
+      return success;
     }
 
-    @Test
-    public void testGetStory_positivePageSize() throws InterruptedException {
-        statusService.getStory(
-                currentAuthToken,
-                currentUser,
-                5,
-                null,
-                observer
-        );
-        awaitCountDownLatch();
-
-        List<Status> expectedStory = new FakeData().getFakeStatuses().subList(0, 5);
-        assertTrue(observer.isSuccess());
-        assertNull(observer.getMessage());
-        assertEquals(expectedStory.size(), observer.getStory().size());
-        for (int i = 0; i < expectedStory.size(); i++) {
-            Status expected = expectedStory.get(i);
-            Status actual = observer.getStory().get(i);
-            assertEquals(expected.getPost(), actual.getPost());
-            assertEquals(expected.getUser(), actual.getUser());
-            assertEquals(expected.getUrls(), actual.getUrls());
-            assertEquals(expected.getMentions(), actual.getMentions());
-        }
-        assertTrue(observer.getHasMorePages());
-        assertNull(observer.getException());
+    public String getMessage() {
+      return message;
     }
 
-    @Test
-    public void testGetStory_pageSizeZero() throws InterruptedException {
-        statusService.getStory(
-                currentAuthToken,
-                currentUser,
-                0,
-                null,
-                observer
-        );
-        awaitCountDownLatch();
-
-        assertTrue(observer.isSuccess());
-        assertNull(observer.getMessage());
-        assertNull(observer.getStory());
-        assertFalse(observer.getHasMorePages());
-        assertNull(observer.getException());
+    public List<Status> getStory() {
+      return story;
     }
 
-    @Test
-    public void testGetStory_invalidRequest() throws InterruptedException {
-        statusService.getStory(
-                null,
-                null,
-                0,
-                null,
-                observer
-        );
-        awaitCountDownLatch();
-
-        assertFalse(observer.isSuccess());
-        assertNull(observer.getMessage());
-        assertNull(observer.getStory());
-        assertFalse(observer.getHasMorePages());
-        assertNotNull(observer.getException());
+    public boolean getHasMorePages() {
+      return hasMorePages;
     }
+
+    public Exception getException() {
+      return exception;
+    }
+  }
+
+  private void resetCountDownLatch() {
+    countDownLatch = new CountDownLatch(1);
+  }
+
+  private void awaitCountDownLatch() throws InterruptedException {
+    countDownLatch.await();
+    resetCountDownLatch();
+  }
+
+  @Test
+  public void testGetStory_positivePageSize() throws InterruptedException {
+    statusService.getStory(
+        currAuthToken,
+        currUser,
+        5,
+        null,
+        observer);
+    awaitCountDownLatch();
+
+    List<Status> expectedStory = new FakeData().getFakeStatuses().subList(0, 5);
+    assertTrue(observer.isSuccess());
+    assertNull(observer.getMessage());
+    assertEquals(expectedStory.size(), observer.getStory().size());
+    for (int i = 0; i < expectedStory.size(); i++) {
+      Status expected = expectedStory.get(i);
+      Status actual = observer.getStory().get(i);
+      assertEquals(expected.getPost(), actual.getPost());
+      assertEquals(expected.getUser(), actual.getUser());
+      assertEquals(expected.getUrls(), actual.getUrls());
+      assertEquals(expected.getMentions(), actual.getMentions());
+    }
+    assertTrue(observer.getHasMorePages());
+    assertNull(observer.getException());
+  }
+
+  @Test
+  public void testGetStory_pageSizeZero() throws InterruptedException {
+    statusService.getStory(
+        currAuthToken,
+        currUser,
+        0,
+        null,
+        observer);
+    awaitCountDownLatch();
+
+    assertTrue(observer.isSuccess());
+    assertNull(observer.getMessage());
+    assertNull(observer.getStory());
+    assertFalse(observer.getHasMorePages());
+    assertNull(observer.getException());
+  }
+
+  @Test
+  public void testGetStory_invalidRequest() throws InterruptedException {
+    statusService.getStory(
+        null,
+        null,
+        0,
+        null,
+        observer);
+    awaitCountDownLatch();
+
+    assertFalse(observer.isSuccess());
+    assertNull(observer.getMessage());
+    assertNull(observer.getStory());
+    assertFalse(observer.getHasMorePages());
+    assertNotNull(observer.getException());
+  }
 }

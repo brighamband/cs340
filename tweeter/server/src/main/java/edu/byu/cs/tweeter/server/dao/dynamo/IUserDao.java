@@ -7,5 +7,7 @@ public interface IUserDao {
     User getUser(String alias);  // GetUser
     String getHashedPassword(String alias); // For Login
     int getFollowingCount(String alias);
+    boolean setFollowingCount(String alias, int followingCount);
     int getFollowersCount(String alias);
+    boolean setFollowersCount(String alias, int followersCount);
 }

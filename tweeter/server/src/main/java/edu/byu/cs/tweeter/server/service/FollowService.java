@@ -107,14 +107,18 @@ public class FollowService extends Service {
       return new IsFollowerResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    // Have FollowDao check if the follower
+    // Have FollowDao check if the followee is being followed by the follower
+    Boolean isFollower = daoFactory.getFollowDao().isFollower(
+            request.getFollower().getAlias(),
+            request.getFollowee().getAlias());
 
     // Handle failure
-    // FIXME
+    if (isFollower == null) {
+      throw new RuntimeException("[ServerError] Unable to check isFollower");
+    }
 
     // Return response
-    return null;
-    // return factory.getFollowDao().isFollower(request);
+    return new IsFollowerResponse(isFollower);
   }
 
   public Response follow(FollowRequest request) {
@@ -131,12 +135,26 @@ public class FollowService extends Service {
       return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
+    // Create follows relationship
+    String followerAlias = daoFactory.getAuthTokenDao().getCurrUserAlias(request.getAuthToken().getToken());
+    String followeeAlias = request.getFollowee().getAlias();
+    boolean successful = daoFactory.getFollowDao().create(followerAlias, request.getFollowee().getAlias());
+
     // Handle failure
-    // FIXME
+    if (!successful) {
+      throw new RuntimeException("[ServerError] Unable to follow");
+    }
+
+    // Increment the follower user's following count
+    int followerCurrFollowingCount = daoFactory.getUserDao().getFollowingCount(followerAlias);
+    daoFactory.getUserDao().setFollowingCount(followerAlias, followerCurrFollowingCount + 1);
+
+    // Increment the followee user's followers count
+    int followeeCurrFollowersCount = daoFactory.getUserDao().getFollowersCount(followeeAlias);
+    daoFactory.getUserDao().setFollowersCount(followeeAlias, followeeCurrFollowersCount + 1);
 
     // Return response
-    return null;
-    // return factory.getFollowDao().follow(request);
+    return new Response(true);
   }
 
   public Response unfollow(UnfollowRequest request) {
@@ -153,11 +171,25 @@ public class FollowService extends Service {
       return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
+    // Delete follows relationship (unfollow)
+    String followerAlias = daoFactory.getAuthTokenDao().getCurrUserAlias(request.getAuthToken().getToken());
+    String followeeAlias = request.getFollowee().getAlias();
+    boolean successful = daoFactory.getFollowDao().remove(followerAlias, followeeAlias);
+
     // Handle failure
-    // FIXME
+    if (!successful) {
+      throw new RuntimeException("[ServerError] Unable to unfollow");
+    }
+
+    // Decrement the follower user's following count
+    int followerCurrFollowingCount = daoFactory.getUserDao().getFollowingCount(followerAlias);
+    daoFactory.getUserDao().setFollowingCount(followerAlias, followerCurrFollowingCount - 1);
+
+    // Decrement the followee user's followers count
+    int followeeCurrFollowersCount = daoFactory.getUserDao().getFollowersCount(followeeAlias);
+    daoFactory.getUserDao().setFollowersCount(followeeAlias, followeeCurrFollowersCount - 1);
 
     // Return response
-    return null;
-    // return factory.getFollowDao().unfollow(request);
+    return new Response(true);
   }
 }

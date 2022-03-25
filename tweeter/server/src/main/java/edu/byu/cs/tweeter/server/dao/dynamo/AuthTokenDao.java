@@ -64,6 +64,26 @@ public class AuthTokenDao implements IAuthTokenDao {
         }
     }
 
+    public String getCurrUserAlias(String token) {
+        try {
+            // Get item
+            System.out.println("Getting user who has auth token of " + token);
+            Item item = authTokenTable.getItem("token", token);
+
+            System.out.println("Item: " + item);
+            if (item == null) return null;
+
+            String alias = item.getString("alias");
+            System.out.println("Alias of user with that token is " + alias);
+            return alias;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to get auth token for " + token);
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
     @Override
     public long getExpiration(String token) {
         try {

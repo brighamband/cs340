@@ -1,5 +1,15 @@
 package edu.byu.cs.tweeter.server.dao.dynamo;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,6 +34,83 @@ import edu.byu.cs.tweeter.util.FakeData;
  * A DAO for accessing 'following' data from the database.
  */
 public class FollowDao implements IFollowDao {
+
+    Table followTable;
+
+    public FollowDao() {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().withRegion("us-east-2").build();
+
+        DynamoDB dynamoDB = new DynamoDB(client);
+
+        followTable = dynamoDB.getTable("Follow");
+    }
+
+    /**
+     * Create item in table representing a follows relationship.
+     */
+    public boolean create(String followerAlias, String followeeAlias) {
+        try {
+            System.out.println("Adding a new follows relationship...");
+            Item itemToPut = new Item().withPrimaryKey(
+                    "followerAlias", followerAlias,
+                    "followeeAlias", followeeAlias);
+            PutItemOutcome outcome = followTable.putItem(itemToPut);
+
+            System.out.println("PutItem for Follow Table succeeded:\n" + outcome.getPutItemResult());
+            return true;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to add item with followerAlias of: " + followerAlias);
+            System.err.println(e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Remove item in table that once represented a follows relationship (now unfollows).
+     * @return
+     */
+    public boolean remove(String followerAlias, String followeeAlias) {
+
+        DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
+                .withPrimaryKey("followerAlias", followerAlias,
+                        "followeeAlias", followeeAlias)
+                .withConditionExpression("followerAlias = :val")
+                .withValueMap(new ValueMap().withString(":val", followerAlias));
+
+        try {
+            System.out.println("Attempting to delete from Follow table");
+            followTable.deleteItem(deleteItemSpec);
+            System.out.println("DeleteItem for Follow table succeeded");
+            return true;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to delete item with followerAlias of: " + followerAlias);
+            System.err.println(e.getMessage());
+            return false;
+        }
+    }
+
+    public Boolean isFollower(String followerAlias, String followeeAlias) {
+        try {
+            System.out.println("Checking if " + followerAlias + " is a follower of " + followeeAlias);
+            Item item = followTable.getItem("followerAlias", followerAlias,
+                    "followeeAlias", followeeAlias);
+            if (item == null) {     // If not found
+                return false;
+            }
+            System.out.println("True, " + followerAlias + " is a follower of " + followeeAlias);
+            return true;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to check if " + followerAlias + " is a follower of " + followeeAlias);
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
+
+
 
     /**
      * Gets the users from the database that the user specified in the request is following. Uses
@@ -110,16 +197,11 @@ public class FollowDao implements IFollowDao {
         return new FakeData();
     }
 
-    public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        User followee = request.getUser();
-        assert followee != null;
-        return new GetFollowersCountResponse(getDummyFollowers().size());
-    }
-
     List<User> getDummyFollowers() {
         return getFakeData().getFakeUsers();
     }
+
+
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
