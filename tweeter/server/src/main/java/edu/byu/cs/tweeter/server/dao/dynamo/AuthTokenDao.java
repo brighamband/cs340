@@ -50,7 +50,7 @@ public class AuthTokenDao implements IAuthTokenDao {
             System.out.println("Successfully added token.");
 
             // Convert current time to datetime string
-            String datetime = getCurrTimeInString();
+            String datetime = TimeUtils.getCurrTimeInString();
 
             // Return new auth token
             AuthToken newAuthToken = new AuthToken(token, datetime);
@@ -154,21 +154,8 @@ public class AuthTokenDao implements IAuthTokenDao {
     }
 
     private long calcExpirationFromNow() {
-        long currTime = getCurrTimeInMs();
+        long currTime = TimeUtils.getCurrTimeInMs();
         long expiration = currTime + TOKEN_TIME_TO_LIVE;
         return expiration;
-    }
-
-    /**
-     * Returns the current time in milliseconds.
-     */
-    private static long getCurrTimeInMs() {
-        GregorianCalendar currCalendar = new GregorianCalendar();
-        return currCalendar.getTimeInMillis();
-    }
-
-    private static String getCurrTimeInString() {
-        GregorianCalendar currCalendar = new GregorianCalendar();
-        return currCalendar.getTime().toString();
     }
 }

@@ -1,5 +1,9 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
@@ -15,6 +19,7 @@ import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.dynamo.FollowDao;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
+import edu.byu.cs.tweeter.util.Pair;
 
 /**
  * Contains the business logic for getting the users a user is following.
@@ -59,12 +64,27 @@ public class FollowService extends Service {
       return new GetFollowingResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
+    // Have FollowDao get list of followees
+    Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowees(request);
+    List<String> followeeAliases = result.getFirst();
+    List<User> followees = new ArrayList<>();
+    for (String alias : followeeAliases) {
+      User followee = daoFactory.getUserDao().getUser(alias);
+      if (followee == null) {
+        throw new RuntimeException("[ServerError] Couldn't find user after their alias was listed as followee");
+      }
+      followees.add(followee);
+    }
+
+    boolean hasMorePages = result.getSecond();
+
     // Handle failure
-    // FIXME
+    if (followees == null && hasMorePages) {
+      throw new RuntimeException("[ServerException] GetFollowees calculation not working properly");
+    }
 
     // Return response
-    return null;
-    // return daoFactory.getFollowDao().getFollowees(request);
+    return new GetFollowingResponse(followees, hasMorePages);
   }
 
   public GetFollowersResponse getFollowers(GetFollowersRequest request) {
@@ -83,12 +103,27 @@ public class FollowService extends Service {
       return new GetFollowersResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
+    // Have FollowDao get list of followees
+    Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowers(request);
+    List<String> followerAliases = result.getFirst();
+    List<User> followers = new ArrayList<>();
+    for (String alias : followerAliases) {
+      User follower = daoFactory.getUserDao().getUser(alias);
+      if (follower == null) {
+        throw new RuntimeException("[ServerError] Couldn't find user after their alias was listed as follower");
+      }
+      followers.add(follower);
+    }
+
+    boolean hasMorePages = result.getSecond();
+
     // Handle failure
-    // FIXME
+    if (followers == null && hasMorePages) {
+      throw new RuntimeException("[ServerException] GetFollowers calculation not working properly");
+    }
 
     // Return response
-    return null;
-    // return factory.getFollowDao().getFollowers(request);
+    return new GetFollowersResponse(followers, hasMorePages);
   }
 
   public IsFollowerResponse isFollower(IsFollowerRequest request) {

@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.server.dao.dynamo;
 
+import java.util.GregorianCalendar;
+
 public class DynamoDaoFactory implements IDaoFactory {
     @Override
     public IUserDao getUserDao() {

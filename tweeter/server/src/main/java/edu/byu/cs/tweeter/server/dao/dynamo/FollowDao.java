@@ -4,14 +4,19 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.User;
@@ -29,6 +34,7 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.util.Pair;
 
 /**
  * A DAO for accessing 'following' data from the database.
@@ -51,7 +57,8 @@ public class FollowDao implements IFollowDao {
     public boolean create(String followerAlias, String followeeAlias) {
         try {
             System.out.println("Adding a new follows relationship...");
-            Item itemToPut = new Item().withPrimaryKey(
+            Item itemToPut = new Item()
+                    .withPrimaryKey(
                     "followerAlias", followerAlias,
                     "followeeAlias", followeeAlias);
             PutItemOutcome outcome = followTable.putItem(itemToPut);
@@ -109,43 +116,96 @@ public class FollowDao implements IFollowDao {
         }
     }
 
+    public Pair<List<String>, Boolean> getFollowees(GetFollowingRequest request) {
+        String followerAlias = request.getFollowerAlias();
+        int limit = request.getLimit();
+        String lastFolloweeAlias = request.getLastFolloweeAlias();
 
-
-
-    /**
-     * Gets the users from the database that the user specified in the request is following. Uses
-     * information in the request object to limit the number of followees returned and to return the
-     * next set of followees after any that were returned in a previous request. The current
-     * implementation returns generated data and doesn't actually access a database.
-     *
-     * @param request contains information about the user whose followees are to be returned and any
-     *                other information required to satisfy the request.
-     * @return the followees.
-     */
-    public GetFollowingResponse getFollowees(GetFollowingRequest request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
-        assert request.getLimit() > 0;
-        assert request.getFollowerAlias() != null;
-
-        List<User> allFollowees = getDummyFollowees();
-        List<User> responseFollowees = new ArrayList<>(request.getLimit());
-
+        List<String> followeeAliases = new ArrayList<>();
         boolean hasMorePages = false;
 
-        if(request.getLimit() > 0) {
-            if (allFollowees != null) {
-                int followeesIndex = getFolloweesStartingIndex(request.getLastFolloweeAlias(), allFollowees);
+        System.out.println("Results for query of users being followed by " + followerAlias + " (paginated):");
 
-                for(int limitCounter = 0; followeesIndex < allFollowees.size() && limitCounter < request.getLimit(); followeesIndex++, limitCounter++) {
-                    responseFollowees.add(allFollowees.get(followeesIndex));
-                }
-
-                hasMorePages = followeesIndex < allFollowees.size();
-            }
+        // Set up query
+        QuerySpec querySpec = new QuerySpec()
+                .withHashKey("followerAlias", followerAlias)
+                .withScanIndexForward(true) // Sort ascending
+                .withMaxResultSize(limit);
+        // Have query start from lastFollowee if there was one, otherwise go from beginning
+        if (lastFolloweeAlias != null) {
+            querySpec.withExclusiveStartKey("followerAlias", followerAlias, "followeeAlias", lastFolloweeAlias);
         }
 
-        return new GetFollowingResponse(responseFollowees, hasMorePages);
+        try {
+            ItemCollection<QueryOutcome>  items = followTable.query(querySpec);
+
+            for (Item item : items) {
+                followeeAliases.add(item.getString("followeeAlias"));
+                System.out.println(item);
+            }
+
+            // Check to see if there's more data to be retrieved
+            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            if (lastKeyMap != null) {
+                hasMorePages = true;
+            }
+
+        } catch (Exception e) {
+            System.err.println("Unable to query users being followed by " + followerAlias);
+            System.err.println(e.getMessage());
+            return new Pair<>(null, true);  // Error state
+        }
+
+        return new Pair<>(followeeAliases, hasMorePages);
     }
+
+    public Pair<List<String>, Boolean> getFollowers(GetFollowersRequest request) {
+        String followeeAlias = request.getFolloweeAlias();
+        int limit = request.getLimit();
+        String lastFollowerAlias = request.getLastFollowerAlias();
+
+        List<String> followeeAliases = new ArrayList<>();
+        boolean hasMorePages = false;
+
+        System.out.println("Results for query of users following " + followeeAlias + " (paginated):");
+
+        // Set up query
+        QuerySpec querySpec = new QuerySpec()
+                .withHashKey("followeeAlias", followeeAlias)
+                .withScanIndexForward(true) // Sort ascending
+                .withMaxResultSize(limit);
+        // Have query start from lastFollowee if there was one, otherwise go from beginning
+        if (lastFollowerAlias != null) {
+            // FIXME -- The order here might be flipped between hashKey and sortKey
+            querySpec.withExclusiveStartKey("followerAlias", lastFollowerAlias, "followeeAlias", followeeAlias);
+        }
+
+        try {
+            ItemCollection<QueryOutcome>  items = followTable.getIndex("FollowIndex").query(querySpec);
+
+            for (Item item : items) {
+                followeeAliases.add(item.getString("followerAlias"));
+                System.out.println(item);
+            }
+
+            // Check to see if there's more data to be retrieved
+            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            if (lastKeyMap != null) {
+                hasMorePages = true;
+            }
+
+        } catch (Exception e) {
+            System.err.println("Unable to query users following " + followeeAlias);
+            System.err.println(e.getMessage());
+            return new Pair<>(null, true);  // Error state
+        }
+
+        return new Pair<>(followeeAliases, hasMorePages);
+    }
+
+
+
+
 
     /**
      * Determines the index for the first followee in the specified 'allFollowees' list that should
@@ -178,16 +238,6 @@ public class FollowDao implements IFollowDao {
     }
 
     /**
-     * Returns the list of dummy followee data. This is written as a separate method to allow
-     * mocking of the followees.
-     *
-     * @return the followees.
-     */
-    List<User> getDummyFollowees() {
-        return getFakeData().getFakeUsers();
-    }
-
-    /**
      * Returns the {@link FakeData} object used to generate dummy followees.
      * This is written as a separate method to allow mocking of the {@link FakeData}.
      *
@@ -201,32 +251,30 @@ public class FollowDao implements IFollowDao {
         return getFakeData().getFakeUsers();
     }
 
-
-
-    public GetFollowersResponse getFollowers(GetFollowersRequest request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
-        assert request.getLimit() > 0;
-        assert request.getFolloweeAlias() != null;
-
-        List<User> allFollowers = getDummyFollowers();
-        List<User> responseFollowers = new ArrayList<>(request.getLimit());
-
-        boolean hasMorePages = false;
-
-        if(request.getLimit() > 0) {
-            if (allFollowers != null) {
-                int followersIndex = getFollowersStartingIndex(request.getLastFollowerAlias(), allFollowers);
-
-                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
-                    responseFollowers.add(allFollowers.get(followersIndex));
-                }
-
-                hasMorePages = followersIndex < allFollowers.size();
-            }
-        }
-
-        return new GetFollowersResponse(responseFollowers, hasMorePages);
-    }
+//    public GetFollowersResponse getFollowers(GetFollowersRequest request) {
+//        // TODO: Generates dummy data. Replace with a real implementation.
+//        assert request.getLimit() > 0;
+//        assert request.getFolloweeAlias() != null;
+//
+//        List<User> allFollowers = getDummyFollowers();
+//        List<User> responseFollowers = new ArrayList<>(request.getLimit());
+//
+//        boolean hasMorePages = false;
+//
+//        if(request.getLimit() > 0) {
+//            if (allFollowers != null) {
+//                int followersIndex = getFollowersStartingIndex(request.getLastFollowerAlias(), allFollowers);
+//
+//                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
+//                    responseFollowers.add(allFollowers.get(followersIndex));
+//                }
+//
+//                hasMorePages = followersIndex < allFollowers.size();
+//            }
+//        }
+//
+//        return new GetFollowersResponse(responseFollowers, hasMorePages);
+//    }
 
     private int getFollowersStartingIndex(String lastFollowerAlias, List<User> allFollowers) {
 
@@ -246,32 +294,5 @@ public class FollowDao implements IFollowDao {
         }
 
         return followersIndex;
-    }
-
-    public IsFollowerResponse isFollower(IsFollowerRequest request) {
-        User follower = request.getFollower();
-        assert follower != null;
-        User followee = request.getFollowee();
-        assert followee != null;
-
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        boolean isFollower = new Random().nextInt() > 0;
-        return new IsFollowerResponse(isFollower);
-    }
-
-    public Response follow(FollowRequest request) {
-        User followee = request.getFollowee();
-        assert followee != null;
-
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        return new Response(true);
-    }
-
-    public Response unfollow(UnfollowRequest request) {
-        User followee = request.getFollowee();
-        assert followee != null;
-
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        return new Response(true);
     }
 }

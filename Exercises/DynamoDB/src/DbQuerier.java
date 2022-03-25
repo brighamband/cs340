@@ -14,18 +14,18 @@ public class DbQuerier {
 
         DynamoDB dynamoDB = new DynamoDB(client);
 
-        Table table = dynamoDB.getTable("Follows");
+        Table table = dynamoDB.getTable("Follow");
 
         // Query the “follows” table without pagination
         queryAllUsersFollowedByUser(table, "@follower");
 
-        // Query the “FollowsIndex” index without pagination
+        // Query the “FollowIndex” index without pagination
         queryAllUsersFollowingUser(table, "@followee");
 
         // Query the “follows” table with pagination
         queryUsersFollowedByUserPaginated(table, "@follower", PAGE_SIZE);
 
-        // Query the “FollowsIndex” index with pagination
+        // Query the “FollowIndex” index with pagination
         queryUsersFollowingUserPaginated(table, "@followee", PAGE_SIZE);
     }
 
@@ -60,7 +60,7 @@ public class DbQuerier {
     }
 
     /**
-     * Queries the “FollowsIndex” index to return all the users following a user, reverse sorted by “followerAlias”.
+     * Queries the “FollowIndex” index to return all the users following a user, reverse sorted by “followerAlias”.
      * Results are not paginated.
      */
     private static void queryAllUsersFollowingUser(Table table, String followeeAlias) {
@@ -74,7 +74,7 @@ public class DbQuerier {
 
         try {
             System.out.println("Results for query of users following " + followeeAlias + ":");
-            items = table.getIndex("FollowsIndex").query(querySpec);
+            items = table.getIndex("FollowIndex").query(querySpec);
 
             for (Item item : items) {
                 System.out.println(item);
@@ -155,7 +155,7 @@ public class DbQuerier {
             }
 
             try {
-                items = table.getIndex("FollowsIndex").query(querySpec);
+                items = table.getIndex("FollowIndex").query(querySpec);
 
                 System.out.println("Page #" + pageNumber);
                 for (Item item : items) {

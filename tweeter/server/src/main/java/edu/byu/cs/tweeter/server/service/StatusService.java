@@ -43,6 +43,34 @@ public class StatusService extends Service {
     return new Response(true);
   }
 
+  public GetStoryResponse getStory(GetStoryRequest request) {
+    // Validate request
+    if (request.getTargetUserAlias() == null) {
+      throw new RuntimeException("[BadRequest] Request missing a target user alias");
+    } else if (request.getLimit() <= 0) {
+      throw new RuntimeException("[BadRequest] Request missing a positive limit");
+    } else if (request.getAuthToken() == null) {
+      throw new RuntimeException("[BadRequest] Request missing an auth token");
+    }
+
+    // Validate auth token
+    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
+    if (!isValidAuthToken) {
+      return new GetStoryResponse("Auth token has expired. Log back in again to keep using Tweeter.");
+    }
+
+
+
+    // Handle failure
+    // FIXME
+
+    // Return response
+    // TODO: Generates dummy data. Replace with a real implementation.
+    Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(),
+            request.getLimit());
+    return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
+  }
+
   public GetFeedResponse getFeed(GetFeedRequest request) {
     // Validate request
     if (request.getTargetUserAlias() == null) {
@@ -67,32 +95,6 @@ public class StatusService extends Service {
     Pair<List<Status>, Boolean> dummyFeedPages = getFakeData().getPageOfStatus(request.getLastStatus(),
         request.getLimit());
     return new GetFeedResponse(dummyFeedPages.getFirst(), dummyFeedPages.getSecond());
-  }
-
-  public GetStoryResponse getStory(GetStoryRequest request) {
-    // Validate request
-    if (request.getTargetUserAlias() == null) {
-      throw new RuntimeException("[BadRequest] Request missing a target user alias");
-    } else if (request.getLimit() <= 0) {
-      throw new RuntimeException("[BadRequest] Request missing a positive limit");
-    } else if (request.getAuthToken() == null) {
-      throw new RuntimeException("[BadRequest] Request missing an auth token");
-    }
-
-    // Validate auth token
-    boolean isValidAuthToken = validateAuthToken(request.getAuthToken().getToken());
-    if (!isValidAuthToken) {
-      return new GetStoryResponse("Auth token has expired. Log back in again to keep using Tweeter.");
-    }
-
-    // Handle failure
-    // FIXME
-
-    // Return response
-    // TODO: Generates dummy data. Replace with a real implementation.
-    Pair<List<Status>, Boolean> dummyStoryPages = getFakeData().getPageOfStatus(request.getLastStatus(),
-        request.getLimit());
-    return new GetStoryResponse(dummyStoryPages.getFirst(), dummyStoryPages.getSecond());
   }
 
   FakeData getFakeData() {
