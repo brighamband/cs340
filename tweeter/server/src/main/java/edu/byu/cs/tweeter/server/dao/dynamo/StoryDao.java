@@ -63,7 +63,7 @@ public class StoryDao implements IStoryDao {
         // Set up query
         QuerySpec querySpec = new QuerySpec()
                 .withHashKey("authorAlias", authorAlias)
-                .withScanIndexForward(true) // Sort ascending
+                .withScanIndexForward(false) // Sort most recent posts first
                 .withMaxResultSize(limit);
         // Have query start from lastTimestamp if there was one, otherwise go from beginning
         if (lastTimestamp != null) {
@@ -92,7 +92,7 @@ public class StoryDao implements IStoryDao {
         } catch (Exception e) {
             System.err.println("Unable to query/get story of " + authorAlias);
             System.err.println(e.getMessage());
-            return new Pair<>(null, true);  // Error state
+            return new Pair<>(null, null);  // Error state
         }
 
         return new Pair<>(story, hasMorePages);

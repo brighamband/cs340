@@ -2,7 +2,9 @@ package edu.byu.cs.tweeter.server;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class TimeUtils {
@@ -15,10 +17,16 @@ public class TimeUtils {
     }
 
     public static long stringTimeToLong(String datetime) {
+        System.out.println("datetime " + datetime);
         try {
-            Date date = DateFormat.getDateInstance().parse(datetime);
-            return date.getTime();
+            DateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+            Date date = inputFormat.parse(datetime);
+
+            System.out.println("timestamp in ms " + date.getTime());
+            System.out.println("timestamp in sec " + millisToSec(date.getTime()));
+            return millisToSec(date.getTime());
         } catch (ParseException e) {
+            System.out.println(e.getMessage());
             return -1;
         }
     }
@@ -27,7 +35,8 @@ public class TimeUtils {
      * Converts a given time represented in long as a string.
      */
     public static String longTimeToString(long timestamp) {
-        Date date = new Date(timestamp);
+        long millisTimestamp = secToMillis(timestamp);
+        Date date = new Date(millisTimestamp);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         return date.toString();
     }
@@ -43,5 +52,9 @@ public class TimeUtils {
      */
     private static long millisToSec(long millis) {
         return millis / 1000;
+    }
+
+    private static long secToMillis(long sec) {
+        return sec * 1000;
     }
 }

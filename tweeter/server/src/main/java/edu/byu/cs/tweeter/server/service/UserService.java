@@ -82,12 +82,12 @@ public class UserService extends Service {
       return new RegisterResponse("A user already exists with that username");
     }
 
-    System.out.println("Starting image upload");
-
     // Hash password
+    System.out.println("Starting password hashing");
     String hashedPassword = hashPassword(request.getPassword());
 
     // Have S3Dao upload image to S3
+    System.out.println("Starting image upload");
     String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
 
     System.out.println("About to create in UserDao");
@@ -112,10 +112,6 @@ public class UserService extends Service {
     if (request.getAuthToken() == null) {
       throw new RuntimeException("[BadRequest] Request missing an auth token");
     }
-
-    // Have AuthTokenDao remove auth token -- could add later
-    // String tokenToRemove = request.getAuthToken().getToken();
-    // daoFactory.getAuthTokenDao().remove(tokenToRemove);
 
     // Return response
     return new Response(true);

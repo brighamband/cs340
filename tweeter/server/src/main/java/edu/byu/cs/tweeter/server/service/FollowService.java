@@ -103,7 +103,7 @@ public class FollowService extends Service {
     // Have FollowDao get followers data
     Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowers(request);
     List<String> followerAliases = result.getFirst();
-    boolean hasMorePages = result.getSecond();
+    Boolean hasMorePages = result.getSecond();
 
     // Make list of followers to return
     List<User> followers = new ArrayList<>();
@@ -116,7 +116,7 @@ public class FollowService extends Service {
     }
 
     // Handle failure
-    if (followers == null && hasMorePages) {
+    if (followers == null && hasMorePages == null) {
       throw new RuntimeException("[ServerException] GetFollowers calculation not working properly");
     }
 

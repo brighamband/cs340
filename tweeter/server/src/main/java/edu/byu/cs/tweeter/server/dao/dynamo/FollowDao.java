@@ -138,7 +138,7 @@ public class FollowDao implements IFollowDao {
         } catch (Exception e) {
             System.err.println("Unable to query users being followed by " + followerAlias);
             System.err.println(e.getMessage());
-            return new Pair<>(null, true);  // Error state
+            return new Pair<>(null, null);  // Error state
         }
 
         return new Pair<>(followeeAliases, hasMorePages);
@@ -181,7 +181,7 @@ public class FollowDao implements IFollowDao {
         } catch (Exception e) {
             System.err.println("Unable to query users following " + followeeAlias);
             System.err.println(e.getMessage());
-            return new Pair<>(null, true);  // Error state
+            return new Pair<>(null, null);  // Error state
         }
 
         return new Pair<>(followeeAliases, hasMorePages);

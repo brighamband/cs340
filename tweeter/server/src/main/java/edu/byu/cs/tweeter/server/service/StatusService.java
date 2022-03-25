@@ -96,10 +96,10 @@ public class StatusService extends Service {
     // Have StoryDao get story data
     Pair<List<Status>, Boolean> result = daoFactory.getStoryDao().getStory(user, request.getLimit(), lastTimestamp);
     List<Status> story = result.getFirst();
-    boolean hasMorePages = result.getSecond();
+    Boolean hasMorePages = result.getSecond();
 
     // Handle failure
-    if (story == null && hasMorePages) {
+    if (story == null && hasMorePages == null) {
       throw new RuntimeException("[ServerException] GetStory calculation not working properly");
     }
 
@@ -123,17 +123,36 @@ public class StatusService extends Service {
       return new GetFeedResponse("Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
+    // Set up response data
+    String authorAlias = request.getTargetUserAlias();
+    User user = daoFactory.getUserDao().getUser(authorAlias);
+
+    // Convert request timestamp string to a long
+    Long lastTimestamp = null;
+    if (request.getLastStatus() != null) {
+      lastTimestamp = TimeUtils.stringTimeToLong(request.getLastStatus().getDate());
+      if (lastTimestamp == -1) {
+        throw new RuntimeException("[ServerError] Unable to parse lastTimestamp");
+      }
+    }
+
+    // Have FeedDao get feed data
+    Pair<List<Status>, Boolean> result = daoFactory.getFeedDao().getFeed(user.getAlias(), request.getLimit(), lastTimestamp);
+    List<Status> feed = result.getFirst();
+    Boolean hasMorePages = result.getSecond();
+
+    // Fill in missing user data for each status
+    for (Status status : feed) {
+      User completeUser = daoFactory.getUserDao().getUser(status.getUser().getAlias());
+      status.setUser(completeUser);
+    }
+
     // Handle failure
-    // FIXME
+    if (feed == null && hasMorePages == null) {
+      throw new RuntimeException("[ServerException] GetStory calculation not working properly");
+    }
 
     // Return response
-    // TODO: Generates dummy data. Replace with a real implementation.
-    Pair<List<Status>, Boolean> dummyFeedPages = getFakeData().getPageOfStatus(request.getLastStatus(),
-        request.getLimit());
-    return new GetFeedResponse(dummyFeedPages.getFirst(), dummyFeedPages.getSecond());
-  }
-
-  FakeData getFakeData() {
-    return new FakeData();
+    return new GetFeedResponse(feed, hasMorePages);
   }
 }
