@@ -176,7 +176,6 @@ public class FollowDao implements IFollowDao {
                 .withMaxResultSize(limit);
         // Have query start from lastFollowee if there was one, otherwise go from beginning
         if (lastFollowerAlias != null) {
-            // FIXME -- The order here might be flipped between hashKey and sortKey
             querySpec.withExclusiveStartKey("followerAlias", lastFollowerAlias, "followeeAlias", followeeAlias);
         }
 
@@ -201,98 +200,5 @@ public class FollowDao implements IFollowDao {
         }
 
         return new Pair<>(followeeAliases, hasMorePages);
-    }
-
-
-
-
-
-    /**
-     * Determines the index for the first followee in the specified 'allFollowees' list that should
-     * be returned in the current request. This will be the index of the next followee after the
-     * specified 'lastFollowee'.
-     *
-     * @param lastFolloweeAlias the alias of the last followee that was returned in the previous
-     *                          request or null if there was no previous request.
-     * @param allFollowees the generated list of followees from which we are returning paged results.
-     * @return the index of the first followee to be returned.
-     */
-    private int getFolloweesStartingIndex(String lastFolloweeAlias, List<User> allFollowees) {
-
-        int followeesIndex = 0;
-
-        if(lastFolloweeAlias != null) {
-            // This is a paged request for something after the first page. Find the first item
-            // we should return
-            for (int i = 0; i < allFollowees.size(); i++) {
-                if(lastFolloweeAlias.equals(allFollowees.get(i).getAlias())) {
-                    // We found the index of the last item returned last time. Increment to get
-                    // to the first one we should return
-                    followeesIndex = i + 1;
-                    break;
-                }
-            }
-        }
-
-        return followeesIndex;
-    }
-
-    /**
-     * Returns the {@link FakeData} object used to generate dummy followees.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return new FakeData();
-    }
-
-    List<User> getDummyFollowers() {
-        return getFakeData().getFakeUsers();
-    }
-
-//    public GetFollowersResponse getFollowers(GetFollowersRequest request) {
-//        // TODO: Generates dummy data. Replace with a real implementation.
-//        assert request.getLimit() > 0;
-//        assert request.getFolloweeAlias() != null;
-//
-//        List<User> allFollowers = getDummyFollowers();
-//        List<User> responseFollowers = new ArrayList<>(request.getLimit());
-//
-//        boolean hasMorePages = false;
-//
-//        if(request.getLimit() > 0) {
-//            if (allFollowers != null) {
-//                int followersIndex = getFollowersStartingIndex(request.getLastFollowerAlias(), allFollowers);
-//
-//                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
-//                    responseFollowers.add(allFollowers.get(followersIndex));
-//                }
-//
-//                hasMorePages = followersIndex < allFollowers.size();
-//            }
-//        }
-//
-//        return new GetFollowersResponse(responseFollowers, hasMorePages);
-//    }
-
-    private int getFollowersStartingIndex(String lastFollowerAlias, List<User> allFollowers) {
-
-        int followersIndex = 0;
-
-        if(lastFollowerAlias != null) {
-            // This is a paged request for something after the first page. Find the first item
-            // we should return
-            for (int i = 0; i < allFollowers.size(); i++) {
-                if(lastFollowerAlias.equals(allFollowers.get(i).getAlias())) {
-                    // We found the index of the last item returned last time. Increment to get
-                    // to the first one we should return
-                    followersIndex = i + 1;
-                    break;
-                }
-            }
-        }
-
-        return followersIndex;
     }
 }

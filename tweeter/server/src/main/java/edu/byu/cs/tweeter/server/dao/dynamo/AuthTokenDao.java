@@ -11,11 +11,11 @@ import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.server.TimeUtils;
 
 public class AuthTokenDao implements IAuthTokenDao {
 

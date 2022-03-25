@@ -5,5 +5,6 @@ import java.util.List;
 import edu.byu.cs.tweeter.model.domain.Status;
 
 public interface IFeedDao {
-    List<Status> get(String username, int limit, Status lastStatus);
+    boolean create(String viewerAlias, long timestamp, String post, String authorAlias);
+//    List<Status> get(String username, int limit, Status lastStatus);
 }
