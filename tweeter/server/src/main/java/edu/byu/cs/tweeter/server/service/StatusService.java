@@ -13,7 +13,6 @@ import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.TimeUtils;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
-import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class StatusService extends Service {
@@ -141,15 +140,15 @@ public class StatusService extends Service {
     List<Status> feed = result.getFirst();
     Boolean hasMorePages = result.getSecond();
 
+    // Handle failure
+    if (feed == null && hasMorePages == null) {
+      throw new RuntimeException("[ServerException] GetStory calculation not working properly");
+    }
+
     // Fill in missing user data for each status
     for (Status status : feed) {
       User completeUser = daoFactory.getUserDao().getUser(status.getUser().getAlias());
       status.setUser(completeUser);
-    }
-
-    // Handle failure
-    if (feed == null && hasMorePages == null) {
-      throw new RuntimeException("[ServerException] GetStory calculation not working properly");
     }
 
     // Return response

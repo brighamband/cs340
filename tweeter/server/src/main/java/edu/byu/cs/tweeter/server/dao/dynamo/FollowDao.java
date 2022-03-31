@@ -40,29 +40,32 @@ public class FollowDao implements IFollowDao {
      * Create item in table representing a follows relationship.
      */
     public boolean create(String followerAlias, String followeeAlias) {
+        final String msg = " with followerAlias of " + followerAlias;
+
         try {
-            System.out.println("Adding a new follows relationship...");
             Item itemToPut = new Item()
                     .withPrimaryKey(
-                    "followerAlias", followerAlias,
-                    "followeeAlias", followeeAlias);
-            PutItemOutcome outcome = followTable.putItem(itemToPut);
+                            "followerAlias", followerAlias,
+                            "followeeAlias", followeeAlias);
+            followTable.putItem(itemToPut);
 
-            System.out.println("PutItem for Follow Table succeeded:\n" + outcome.getPutItemResult());
+            // System.out.println("Successfully put item in Follow Table " + msg);
             return true;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to add item with followerAlias of: " + followerAlias);
+        } catch (Exception e) {
+            System.err.println("Unable to add item " + msg);
             System.err.println(e.getMessage());
             return false;
         }
     }
 
     /**
-     * Remove item in table that once represented a follows relationship (now unfollows).
+     * Remove item in table that once represented a follows relationship (now
+     * unfollows).
+     * 
      * @return
      */
     public boolean remove(String followerAlias, String followeeAlias) {
+        final String msg = "with followerAlias of " + followerAlias + " and followeeAlias of " + followeeAlias;
 
         DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
                 .withPrimaryKey("followerAlias", followerAlias,
@@ -71,37 +74,36 @@ public class FollowDao implements IFollowDao {
                 .withValueMap(new ValueMap().withString(":val", followerAlias));
 
         try {
-            System.out.println("Attempting to delete from Follow table");
             followTable.deleteItem(deleteItemSpec);
-            System.out.println("DeleteItem for Follow table succeeded");
+            System.out.println("Deleted item " + msg);
             return true;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to delete item with followerAlias of: " + followerAlias);
+        } catch (Exception e) {
+            System.err.println("Unable to delete item " + msg);
             System.err.println(e.getMessage());
             return false;
         }
     }
 
     public Boolean isFollower(String followerAlias, String followeeAlias) {
+        final String msg = followerAlias + " is a follower of " + followeeAlias;
+
         try {
-            System.out.println("Checking if " + followerAlias + " is a follower of " + followeeAlias);
             Item item = followTable.getItem("followerAlias", followerAlias,
                     "followeeAlias", followeeAlias);
-            if (item == null) {     // If not found
+            if (item == null) { // If not found
                 return false;
             }
-            System.out.println("True, " + followerAlias + " is a follower of " + followeeAlias);
+            // System.out.println("True, " + msg);
             return true;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to check if " + followerAlias + " is a follower of " + followeeAlias);
+        } catch (Exception e) {
+            System.err.println("Unable to check if " + msg);
             System.err.println(e.getMessage());
             return null;
         }
     }
 
     public Pair<List<String>, Boolean> getFollowees(GetFollowingRequest request) {
+
         String followerAlias = request.getFollowerAlias();
         int limit = request.getLimit();
         String lastFolloweeAlias = request.getLastFolloweeAlias();
@@ -109,36 +111,39 @@ public class FollowDao implements IFollowDao {
         List<String> followeeAliases = new ArrayList<>();
         boolean hasMorePages = false;
 
-        System.out.println("Results for query of users being followed by " + followerAlias + " (paginated):");
+        final String msg = "query of users being followed by " + followerAlias;
 
         // Set up query
         QuerySpec querySpec = new QuerySpec()
                 .withHashKey("followerAlias", followerAlias)
                 .withScanIndexForward(true) // Sort ascending
                 .withMaxResultSize(limit);
-        // Have query start from lastFollowee if there was one, otherwise go from beginning
+        // Have query start from lastFollowee if there was one, otherwise go from
+        // beginning
         if (lastFolloweeAlias != null) {
             querySpec.withExclusiveStartKey("followerAlias", followerAlias, "followeeAlias", lastFolloweeAlias);
         }
 
         try {
-            ItemCollection<QueryOutcome>  items = followTable.query(querySpec);
+            ItemCollection<QueryOutcome> items = followTable.query(querySpec);
 
             for (Item item : items) {
                 followeeAliases.add(item.getString("followeeAlias"));
-                System.out.println(item);
             }
 
             // Check to see if there's more data to be retrieved
-            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult()
+                    .getLastEvaluatedKey();
             if (lastKeyMap != null) {
                 hasMorePages = true;
             }
 
+            System.out.println("Successfully made " + msg);
+
         } catch (Exception e) {
-            System.err.println("Unable to query users being followed by " + followerAlias);
+            System.err.println("Unable to make " + msg);
             System.err.println(e.getMessage());
-            return new Pair<>(null, null);  // Error state
+            return new Pair<>(null, null); // Error state
         }
 
         return new Pair<>(followeeAliases, hasMorePages);
@@ -152,36 +157,39 @@ public class FollowDao implements IFollowDao {
         List<String> followeeAliases = new ArrayList<>();
         boolean hasMorePages = false;
 
-        System.out.println("Results for query of users following " + followeeAlias + " (paginated):");
+        final String msg = "query of users following " + followeeAlias;
 
         // Set up query
         QuerySpec querySpec = new QuerySpec()
                 .withHashKey("followeeAlias", followeeAlias)
                 .withScanIndexForward(true) // Sort ascending
                 .withMaxResultSize(limit);
-        // Have query start from lastFollowee if there was one, otherwise go from beginning
+        // Have query start from lastFollowee if there was one, otherwise go from
+        // beginning
         if (lastFollowerAlias != null) {
             querySpec.withExclusiveStartKey("followerAlias", lastFollowerAlias, "followeeAlias", followeeAlias);
         }
 
         try {
-            ItemCollection<QueryOutcome>  items = followTable.getIndex("FollowIndex").query(querySpec);
+            ItemCollection<QueryOutcome> items = followTable.getIndex("FollowIndex").query(querySpec);
 
             for (Item item : items) {
                 followeeAliases.add(item.getString("followerAlias"));
-                System.out.println(item);
             }
 
             // Check to see if there's more data to be retrieved
-            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult()
+                    .getLastEvaluatedKey();
             if (lastKeyMap != null) {
                 hasMorePages = true;
             }
 
+            System.out.println("Successfully made " + msg);
+
         } catch (Exception e) {
-            System.err.println("Unable to query users following " + followeeAlias);
+            System.err.println("Unable to make " + msg);
             System.err.println(e.getMessage());
-            return new Pair<>(null, null);  // Error state
+            return new Pair<>(null, null); // Error state
         }
 
         return new Pair<>(followeeAliases, hasMorePages);

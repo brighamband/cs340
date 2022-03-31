@@ -5,7 +5,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
@@ -26,9 +25,9 @@ public class UserDao implements IUserDao {
 
     @Override
     public User create(String firstName, String lastName, String alias, String hashedPassword, String imageUrl) {
+        final String msg = "user with alias of: " + alias;
 
         try {
-            System.out.println("Adding a new user...");
             Item itemToPut = new Item()
                     .withPrimaryKey("alias", alias)
                     .withString("firstName", firstName)
@@ -39,14 +38,11 @@ public class UserDao implements IUserDao {
                     .withNumber("followersCount", 0);
             userTable.putItem(itemToPut);
 
-            System.out.println("Successfully added user.");
-
             User newUser = new User(firstName, lastName, alias, imageUrl);
-            System.out.println("User: " + newUser);
+            // System.out.println("Successfully added " + msg);
             return newUser;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to add user with alias of: " + alias);
+        } catch (Exception e) {
+            System.err.println("Unable to add " + msg);
             System.err.println(e.getMessage());
             return null;
         }
@@ -54,24 +50,22 @@ public class UserDao implements IUserDao {
 
     @Override
     public User getUser(String alias) {
+        final String msg = "user with alias of " + alias;
+
         try {
-            System.out.println("Getting user with alias of " + alias);
             Item item = userTable.getItem("alias", alias);
+            if (item == null)
+                return null;
 
-            System.out.println("Item: " + item);
-            if (item == null) return null;
             User foundUser = new User(
-                item.getString("firstName"),
-                item.getString("lastName"),
-                item.getString("alias"),
-                item.getString("imageUrl")
-            );
-            System.out.println("User found: " + foundUser);
-
+                    item.getString("firstName"),
+                    item.getString("lastName"),
+                    item.getString("alias"),
+                    item.getString("imageUrl"));
+            // System.out.println("Successfully found " + msg);
             return foundUser;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to get user with alias of: " + alias);
+        } catch (Exception e) {
+            System.err.println("Unable to find " + msg);
             System.err.println(e.getMessage());
             return null;
         }
@@ -79,46 +73,49 @@ public class UserDao implements IUserDao {
 
     @Override
     public String getHashedPassword(String alias) {
-        try {
-            System.out.println("Finding hashed password for " + alias);
-            Item item = userTable.getItem("alias", alias);
+        final String msg = "hashed password for " + alias;
 
-            System.out.println("Item: " + item);
-            if (item == null) return null;
+        try {
+            Item item = userTable.getItem("alias", alias);
+            if (item == null)
+                return null;
+
             String hashedPassword = item.getString("hashedPassword");
-            System.out.println("Hashed password for " + alias  + ": " + hashedPassword);
+            // System.out.println("Successfully found " + msg);
 
             return hashedPassword;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to get hashed password for " + alias);
+        } catch (Exception e) {
+            System.err.println("Unable to get " + msg);
             System.err.println(e.getMessage());
             return null;
         }
     }
 
     /**
-     * Gets the count of users from the database that the user specified is following. The
-     * current implementation uses generated data and doesn't actually access a database.
+     * Gets the count of users from the database that the user specified is
+     * following. The
+     * current implementation uses generated data and doesn't actually access a
+     * database.
      *
-     * @param alias the alias of the User whose count of how many following is desired.
+     * @param alias the alias of the User whose count of how many following is
+     *              desired.
      * @return said count.
      */
     @Override
     public int getFollowingCount(String alias) {
-        try {
-            System.out.println("Finding following count for " + alias);
-            Item item = userTable.getItem("alias", alias);
+        final String msg = "following count for " + alias;
 
-            System.out.println("Item: " + item);
-            if (item == null) return -1;
+        try {
+            Item item = userTable.getItem("alias", alias);
+            if (item == null)
+                return -1;
+
             int followingCount = item.getInt("followingCount");
-            System.out.println("Following count for " + alias  + ": " + followingCount);
+            // System.out.println("Successfully got " + msg);
 
             return followingCount;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to get following count for " + alias);
+        } catch (Exception e) {
+            System.err.println("Unable to get " + msg);
             System.err.println(e.getMessage());
             return -1;
         }
@@ -126,7 +123,8 @@ public class UserDao implements IUserDao {
 
     @Override
     public boolean setFollowingCount(String alias, int followingCount) {
-        System.out.println("Setting following count for " + alias + " to be " + followingCount);
+        final String msg = "following count for " + alias + " to be " + followingCount;
+
         UpdateItemSpec updateItemSpec = new UpdateItemSpec()
                 .withPrimaryKey("alias", alias)
                 .withUpdateExpression("set followingCount = :fc")
@@ -134,13 +132,11 @@ public class UserDao implements IUserDao {
                 .withReturnValues(ReturnValue.UPDATED_NEW);
 
         try {
-            System.out.println("Updating the following count");
-            UpdateItemOutcome outcome = userTable.updateItem(updateItemSpec);
-            System.out.println("UpdateItem for following count succeeded:\n" + outcome.getItem().toJSONPretty());
+            userTable.updateItem(updateItemSpec);
+            // System.out.println("Successfully set " + msg);
             return true;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to set following count for " + alias + " to be " + followingCount);
+        } catch (Exception e) {
+            System.err.println("Unable to set " + msg);
             System.err.println(e.getMessage());
             return false;
         }
@@ -148,19 +144,19 @@ public class UserDao implements IUserDao {
 
     @Override
     public int getFollowersCount(String alias) {
-        try {
-            System.out.println("Finding followers count for " + alias);
-            Item item = userTable.getItem("alias", alias);
+        final String msg = "followers count for " + alias;
 
-            System.out.println("Item: " + item);
-            if (item == null) return -1;
+        try {
+            Item item = userTable.getItem("alias", alias);
+            if (item == null)
+                return -1;
+
             int followersCount = item.getInt("followersCount");
-            System.out.println("Followers count for " + alias  + ": " + followersCount);
+            // System.out.println("Successfully got " + msg);
 
             return followersCount;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to get followers count for " + alias);
+        } catch (Exception e) {
+            System.err.println("Unable to get " + msg);
             System.err.println(e.getMessage());
             return -1;
         }
@@ -168,7 +164,8 @@ public class UserDao implements IUserDao {
 
     @Override
     public boolean setFollowersCount(String alias, int followersCount) {
-        System.out.println("Setting followers count for " + alias + " to be " + followersCount);
+        final String msg = "followers count for " + alias + " to be " + followersCount;
+
         UpdateItemSpec updateItemSpec = new UpdateItemSpec()
                 .withPrimaryKey("alias", alias)
                 .withUpdateExpression("set followersCount = :fc")
@@ -176,13 +173,11 @@ public class UserDao implements IUserDao {
                 .withReturnValues(ReturnValue.UPDATED_NEW);
 
         try {
-            System.out.println("Updating the followers count");
-            UpdateItemOutcome outcome = userTable.updateItem(updateItemSpec);
-            System.out.println("UpdateItem for followers count succeeded:\n" + outcome.getItem().toJSONPretty());
+            userTable.updateItem(updateItemSpec);
+            // System.out.println("Successfully set " + msg);
             return true;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to set followers count for " + alias + " to be " + followersCount);
+        } catch (Exception e) {
+            System.err.println("Unable to set " + msg);
             System.err.println(e.getMessage());
             return false;
         }

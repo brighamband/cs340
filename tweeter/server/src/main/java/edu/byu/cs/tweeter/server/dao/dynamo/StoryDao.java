@@ -33,19 +33,19 @@ public class StoryDao implements IStoryDao {
 
     @Override
     public boolean create(String authorAlias, long timestamp, String post) {
+        final String msg = "status to story table";
+
         try {
-            System.out.println("Adding a new status to story table...");
             Item itemToPut = new Item()
                     .withPrimaryKey("authorAlias", authorAlias, "timestamp", timestamp)
                     .withString("post", post);
             storyTable.putItem(itemToPut);
 
-            System.out.println("Successfully added status to story table.");
+            // System.out.println("Successfully added " + msg);
 
             return true;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to add status to story table");
+        } catch (Exception e) {
+            System.err.println("Unable to add " + msg);
             System.err.println(e.getMessage());
             return false;
         }
@@ -58,14 +58,15 @@ public class StoryDao implements IStoryDao {
         List<Status> story = new ArrayList<>();
         boolean hasMorePages = false;
 
-        System.out.println("Results for query of getting story of " + authorAlias);
+        final String msg = "query of getting story of " + authorAlias;
 
         // Set up query
         QuerySpec querySpec = new QuerySpec()
                 .withHashKey("authorAlias", authorAlias)
                 .withScanIndexForward(false) // Sort most recent posts first
                 .withMaxResultSize(limit);
-        // Have query start from lastTimestamp if there was one, otherwise go from beginning
+        // Have query start from lastTimestamp if there was one, otherwise go from
+        // beginning
         if (lastTimestamp != null) {
             querySpec.withExclusiveStartKey("authorAlias", authorAlias, "timestamp", lastTimestamp);
         }
@@ -77,22 +78,23 @@ public class StoryDao implements IStoryDao {
                 Status statusToAdd = new Status(
                         item.getString("post"),
                         user,
-                        TimeUtils.longTimeToString(item.getLong("timestamp"))
-                );
+                        TimeUtils.longTimeToString(item.getLong("timestamp")));
                 story.add(statusToAdd);
-                System.out.println(item);
             }
 
             // Check to see if there's more data to be retrieved
-            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult()
+                    .getLastEvaluatedKey();
             if (lastKeyMap != null) {
                 hasMorePages = true;
             }
 
+            System.out.println("Successfully made " + msg);
+
         } catch (Exception e) {
-            System.err.println("Unable to query/get story of " + authorAlias);
+            System.err.println("Unable to make " + msg);
             System.err.println(e.getMessage());
-            return new Pair<>(null, null);  // Error state
+            return new Pair<>(null, null); // Error state
         }
 
         return new Pair<>(story, hasMorePages);

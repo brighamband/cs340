@@ -33,20 +33,20 @@ public class FeedDao implements IFeedDao {
 
     @Override
     public boolean create(String viewerAlias, long timestamp, String post, String authorAlias) {
+        final String msg = "status to feed table";
+
         try {
-            System.out.println("Adding a new status to feed table...");
             Item itemToPut = new Item()
                     .withPrimaryKey("viewerAlias", viewerAlias, "timestamp", timestamp)
                     .withString("post", post)
                     .withString("authorAlias", authorAlias);
             feedTable.putItem(itemToPut);
 
-            System.out.println("Successfully added status to feed table.");
+            // System.out.println("Successfully added " + msg);
 
             return true;
-        }
-        catch (Exception e) {
-            System.err.println("Unable to add status to feed table");
+        } catch (Exception e) {
+            System.err.println("Unable to add " + msg);
             System.err.println(e.getMessage());
             return false;
         }
@@ -57,14 +57,15 @@ public class FeedDao implements IFeedDao {
         List<Status> feed = new ArrayList<>();
         boolean hasMorePages = false;
 
-        System.out.println("Results for query of getting feed of " + viewerAlias);
+        final String msg = "query of getting feed of " + viewerAlias;
 
         // Set up query
         QuerySpec querySpec = new QuerySpec()
                 .withHashKey("viewerAlias", viewerAlias)
                 .withScanIndexForward(false) // Sort most recent posts first
                 .withMaxResultSize(limit);
-        // Have query start from lastTimestamp if there was one, otherwise go from beginning
+        // Have query start from lastTimestamp if there was one, otherwise go from
+        // beginning
         if (lastTimestamp != null) {
             querySpec.withExclusiveStartKey("viewerAlias", viewerAlias, "timestamp", lastTimestamp);
         }
@@ -75,28 +76,28 @@ public class FeedDao implements IFeedDao {
             for (Item item : items) {
                 Status statusToAdd = new Status(
                         item.getString("post"),
-                        new User(   // The null data will get filled in later
+                        new User( // The null data will get filled in later
                                 null,
                                 null,
                                 item.getString("authorAlias"),
-                                null
-                        ),
-                        TimeUtils.longTimeToString(item.getLong("timestamp"))
-                );
+                                null),
+                        TimeUtils.longTimeToString(item.getLong("timestamp")));
                 feed.add(statusToAdd);
-                System.out.println(item);
             }
 
             // Check to see if there's more data to be retrieved
-            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            Map<String, AttributeValue> lastKeyMap = items.getLastLowLevelResult().getQueryResult()
+                    .getLastEvaluatedKey();
             if (lastKeyMap != null) {
                 hasMorePages = true;
             }
 
+            System.out.println("Successfully made " + msg);
+
         } catch (Exception e) {
-            System.err.println("Unable to query/get feed of " + viewerAlias);
+            System.err.println("Unable to make " + msg);
             System.err.println(e.getMessage());
-            return new Pair<>(null, null);  // Error state
+            return new Pair<>(null, null); // Error state
         }
 
         return new Pair<>(feed, hasMorePages);
