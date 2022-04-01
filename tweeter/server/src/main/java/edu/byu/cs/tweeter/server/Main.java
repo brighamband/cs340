@@ -47,11 +47,11 @@ public class Main {
 //        RegisterResponse registerResponse = new RegisterHandler().handleRequest(registerRequest, null);
 
             /**
-             * Create 10,001 users and have them follow @user0
+             * Create 10,000 users and have them follow @user0
              */
 
-            int START = 3001;
-            int END = 6000;
+            int START = 1;
+            int END = 10000;
 
             // Make 10K users (user1-user10000)
             for (int i = START; i <= END; i++) {
