@@ -5,18 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9f156203-71cd-4160-8a03-cfb9dcc81358" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/PostUpdateFeedMessages.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/UpdateFeeds.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/shared/src/main/java/edu/byu/cs/tweeter/model/net/request/PostUpdateFeedMsg.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/shared/src/main/java/edu/byu/cs/tweeter/model/net/request/UpdateFeedsMsg.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/AuthTokenDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/AuthTokenDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FeedDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FeedDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FollowDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FollowDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IFeedDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IFeedDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/StatusService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/StatusService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../tweeter/wake-lambdas.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../tweeter/update-lambdas.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/update-lambdas.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

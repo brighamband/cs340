@@ -12,6 +12,5 @@
 # aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name PostStatusHandler
 # aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name GetFeedHandler
 # aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name GetStoryHandler
-
 aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name PostUpdateFeedMessages
 aws lambda update-function-code --zip-file fileb://server/build/libs/server-all.jar --function-name UpdateFeeds
