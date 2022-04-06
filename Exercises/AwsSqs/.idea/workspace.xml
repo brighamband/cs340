@@ -5,50 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9f156203-71cd-4160-8a03-cfb9dcc81358" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/AuthTokenDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/DynamoDaoFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FeedDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IAuthTokenDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IDaoFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IFeedDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IUserDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/UserDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/s3/IS3Dao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/s3/IS3Factory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/s3/S3Dao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/s3/S3Factory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AwsS3/src/main/java/S3Copy.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AwsS3/src/main/java/S3Copy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/AuthTokenDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/DynamoDaoFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/FeedDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/FollowDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FollowDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/IAuthTokenDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/IDaoFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/IFeedDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/IFollowDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IFollowDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/IStoryDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IStoryDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/IUserDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/S3Dao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/StoryDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/StoryDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/UserDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/FollowHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/FollowHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFeedHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFeedHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowersCountHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowersCountHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowersHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowersHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowingCountHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowingCountHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowingHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetFollowingHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetStoryHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetStoryHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetUserHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/GetUserHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/IsFollowerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/IsFollowerHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/LoginHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/LoginHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/LogoutHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/LogoutHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/PostStatusHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/PostStatusHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/RegisterHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/RegisterHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/UnfollowHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/UnfollowHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/FollowService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/FollowService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/PostUpdateFeedMessages.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/lambda/UpdateFeeds.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../tweeter/shared/src/main/java/edu/byu/cs/tweeter/model/net/request/PostUpdateFeedMsg.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../tweeter/shared/src/main/java/edu/byu/cs/tweeter/model/net/request/UpdateFeedsMsg.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tweeter/server/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/AuthTokenDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/AuthTokenDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FeedDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FeedDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FollowDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/FollowDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IFeedDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/dao/dynamo/IFeedDao.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/StatusService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/StatusService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/main/java/edu/byu/cs/tweeter/server/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/server/src/test/java/edu/byu/cs/tweeter/server/service/FollowServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/server/src/test/java/edu/byu/cs/tweeter/server/service/FollowServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tweeter/update-lambdas.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/update-lambdas.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +50,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../AwsS3" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="project.structure.side.proportion" value="0.35402298" />
     <property name="settings.editor.selected.configurable" value="reference.settings.project.maven.repository.indices" />
   </component>
   <component name="RecentsManager">

@@ -2,23 +2,10 @@ package edu.byu.cs.tweeter.server;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
-import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.model.net.request.FollowRequest;
-import edu.byu.cs.tweeter.model.net.request.LoginRequest;
-import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
-import edu.byu.cs.tweeter.model.net.response.LoginResponse;
-import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
-import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.dynamo.FollowDao;
 import edu.byu.cs.tweeter.server.dao.dynamo.UserDao;
-import edu.byu.cs.tweeter.server.lambda.FollowHandler;
-import edu.byu.cs.tweeter.server.lambda.LoginHandler;
-import edu.byu.cs.tweeter.server.lambda.RegisterHandler;
 
 public class Main {
     public static void main(String[] args) throws IOException {

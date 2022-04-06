@@ -5,7 +5,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
-import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
@@ -138,7 +137,7 @@ public class FollowDao implements IFollowDao {
                 hasMorePages = true;
             }
 
-            System.out.println("Successfully made " + msg);
+            // System.out.println("Successfully made " + msg);
 
         } catch (Exception e) {
             System.err.println("Unable to make " + msg);
@@ -184,7 +183,7 @@ public class FollowDao implements IFollowDao {
                 hasMorePages = true;
             }
 
-            System.out.println("Successfully made " + msg);
+            // System.out.println("Successfully made " + msg);
 
         } catch (Exception e) {
             System.err.println("Unable to make " + msg);

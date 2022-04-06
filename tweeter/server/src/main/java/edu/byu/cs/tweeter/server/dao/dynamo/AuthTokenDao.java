@@ -18,7 +18,7 @@ public class AuthTokenDao implements IAuthTokenDao {
 
     Table authTokenTable;
 
-    public final long TOKEN_TIME_TO_LIVE = 60; // 60 seconds
+    public final long TOKEN_TIME_TO_LIVE = 300; // 5 min
 
     public AuthTokenDao() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().withRegion("us-east-2").build();

@@ -89,7 +89,7 @@ public class StoryDao implements IStoryDao {
                 hasMorePages = true;
             }
 
-            System.out.println("Successfully made " + msg);
+            // System.out.println("Successfully made " + msg);
 
         } catch (Exception e) {
             System.err.println("Unable to make " + msg);
