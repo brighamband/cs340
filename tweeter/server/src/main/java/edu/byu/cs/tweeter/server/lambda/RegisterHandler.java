@@ -15,7 +15,6 @@ public class RegisterHandler implements RequestHandler<RegisterRequest, Register
 
     @Override
     public RegisterResponse handleRequest(RegisterRequest request, Context context) {
-        System.out.println("just entered reg handler");
         IDaoFactory daoFactory = new DynamoDaoFactory();
         IS3Factory s3Factory = new S3Factory();
         UserService userService = new UserService(daoFactory, s3Factory);

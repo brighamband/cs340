@@ -1,5 +1,13 @@
 package edu.byu.cs.tweeter.server.service;
 
+import com.amazonaws.services.lambda.runtime.events.SQSEvent;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageResult;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -8,17 +16,23 @@ import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
+import edu.byu.cs.tweeter.model.net.request.PostUpdateFeedMsg;
+import edu.byu.cs.tweeter.model.net.request.UpdateFeedsMsg;
 import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.TimeUtils;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
-import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class StatusService extends Service {
 
   private final int MAX_NUM_FOLLOWERS = 1000000;
+
+  private final int MAX_TO_ADD_TO_UPDATE_QUEUE = 500;
+
+  private final String SQS_POST_UPDATE_FEED_MESSAGES_URL = "https://sqs.us-east-2.amazonaws.com/547858414064/PostStatusQueue";
+  private final String SQS_UPDATE_FEEDS_URL = "https://sqs.us-east-2.amazonaws.com/547858414064/UpdateFeedQueue";
 
   public StatusService(IDaoFactory daoFactory) {
     super(daoFactory);
@@ -43,25 +57,105 @@ public class StatusService extends Service {
     long timestamp = TimeUtils.getCurrTimeAsLong();
     String post = request.getStatus().getPost();
 
-    // Have StoryDao create a new status in Story table (postStatus)
+    // 1.  Have StoryDao create a new status in Story table (postStatus)
+
     boolean successful = daoFactory.getStoryDao().create(authorAlias, timestamp, post);
     if (!successful) { // Handle failure case #1
       throw new RuntimeException("[ServerError] Unable to add status to Story table");
     }
 
-    // Have FollowDao get user's followers
-    List<String> followerAliases = daoFactory.getFollowDao().getFollowers(
-        new GetFollowersRequest(request.getAuthToken(), authorAlias, MAX_NUM_FOLLOWERS, null)).getFirst();
-    // Have FeedDao create that same new status in each feed of user's followers
-    for (String viewerAlias : followerAliases) {
-      successful = daoFactory.getFeedDao().create(viewerAlias, timestamp, post, authorAlias);
-      if (!successful) { // Handle failure case #2
-        throw new RuntimeException("[ServerError] Unable to add status to Feed table");
-      }
-    }
+    // 2.  Send 1st message to PostStatusQueue so it triggers PostsUpdateFeedMessages lambda
+    //       (gets user followers, makes string with n followers and the new status)
+
+    AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+
+    // Make object to hold request data
+    PostUpdateFeedMsg postUpdateFeedMsg = new PostUpdateFeedMsg(authorAlias, timestamp, post);
+    // Serialize data as JSON
+    String msgBody = new Gson().toJson(postUpdateFeedMsg);
+
+    SendMessageRequest msgRequest = new SendMessageRequest()
+            .withQueueUrl(SQS_POST_UPDATE_FEED_MESSAGES_URL)
+            .withMessageBody(msgBody);
+
+    sqs.sendMessage(msgRequest);
 
     // Return Response
     return new Response(true);
+  }
+
+  public void postUpdateFeedMessages(SQSEvent event) {
+    System.out.println("At postUpdateFeedMessages");
+    if (event.getRecords() == null) {
+      System.out.println("Empty or invalid message was sent");
+      return;
+    }
+
+    for (SQSEvent.SQSMessage msg : event.getRecords()) {
+      String body = msg.getBody();
+      System.out.println("Body: " + body);
+
+      // Parse data
+      PostUpdateFeedMsg incomingMsg = new Gson().fromJson(body, PostUpdateFeedMsg.class);
+
+      // Get all the followers of the author
+      Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowers(
+              new GetFollowersRequest(null, incomingMsg.getAuthorAlias(), MAX_NUM_FOLLOWERS, null)
+      );
+      if (result.getFirst() == null || result.getSecond()) return;
+
+      List<String> followerAliases = result.getFirst();
+
+      // 3.  Send 2nd message to UpdateFeedQueue so it triggers UpdateFeeds (updates n user feeds at a time with the new status)
+
+      AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+
+      List<List<String>> followerAliasBatches = chopped(followerAliases, MAX_TO_ADD_TO_UPDATE_QUEUE);
+      for (List<String> followerAliasBatch: followerAliasBatches) {
+        // Make object to hold request data
+        UpdateFeedsMsg updateFeedsMsg = new UpdateFeedsMsg(
+                incomingMsg.getAuthorAlias(), incomingMsg.getTimestamp(), incomingMsg.getPost(), followerAliasBatch);
+        // Serialize data as JSON
+        String msgBody = new Gson().toJson(updateFeedsMsg);
+
+        SendMessageRequest outgoingMsg = new SendMessageRequest()
+                .withQueueUrl(SQS_UPDATE_FEEDS_URL)
+                .withMessageBody(msgBody);
+
+        sqs.sendMessage(outgoingMsg);
+        System.out.println("Sent msgBody:" + msgBody);
+      }
+    }
+  }
+
+  // Chops a list into non-view sub-lists of length L
+  static <T> List<List<T>> chopped(List<T> list, final int L) {
+    List<List<T>> parts = new ArrayList<List<T>>();
+    final int N = list.size();
+    for (int i = 0; i < N; i += L) {
+      parts.add(new ArrayList<T>(
+              list.subList(i, Math.min(N, i + L)))
+      );
+    }
+    return parts;
+  }
+
+  public void updateFeeds(SQSEvent event) {
+    System.out.println("At updateFeeds");
+    if (event.getRecords() == null) {
+      System.out.println("Empty or invalid message was sent");
+      return;
+    }
+
+    for (SQSEvent.SQSMessage msg : event.getRecords()) {
+      String body = msg.getBody();
+      System.out.println("Body: " + body);
+
+      UpdateFeedsMsg updateFeedsMsg = new Gson().fromJson(body, UpdateFeedsMsg.class);
+
+      // Send to DAO to batch create feed entries
+      daoFactory.getFeedDao().batchCreate(updateFeedsMsg);
+    }
   }
 
   public GetStoryResponse getStory(GetStoryRequest request) {
@@ -141,15 +235,15 @@ public class StatusService extends Service {
     List<Status> feed = result.getFirst();
     Boolean hasMorePages = result.getSecond();
 
+    // Handle failure
+    if (feed == null && hasMorePages == null) {
+      throw new RuntimeException("[ServerException] GetStory calculation not working properly");
+    }
+
     // Fill in missing user data for each status
     for (Status status : feed) {
       User completeUser = daoFactory.getUserDao().getUser(status.getUser().getAlias());
       status.setUser(completeUser);
-    }
-
-    // Handle failure
-    if (feed == null && hasMorePages == null) {
-      throw new RuntimeException("[ServerException] GetStory calculation not working properly");
     }
 
     // Return response

@@ -83,14 +83,10 @@ public class UserService extends Service {
     }
 
     // Hash password
-    System.out.println("Starting password hashing");
     String hashedPassword = hashPassword(request.getPassword());
 
     // Have S3Dao upload image to S3
-    System.out.println("Starting image upload");
     String imageUrl = s3Factory.getS3Dao().uploadImage(request.getUsername(), request.getImage());
-
-    System.out.println("About to create in UserDao");
 
     // Have UserDao to create (register) a new user
     User newUser = daoFactory.getUserDao().create(

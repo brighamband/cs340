@@ -8,7 +8,15 @@ import java.io.ByteArrayInputStream;
 import java.util.Base64;
 
 public class S3Dao implements IS3Dao {
+
+    private static String DEFAULT_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
+    private static String BUCKET_NAME = "tweeter-cs340-profile-pics";
+
     public String uploadImage(String username, String imageString) {
+        if (imageString.equals("DEFAULT")) {
+            return DEFAULT_IMAGE_URL;
+        }
+
         // Create AmazonS3 object for doing S3 operations
         AmazonS3 s3 = AmazonS3ClientBuilder
                 .standard()
@@ -16,15 +24,9 @@ public class S3Dao implements IS3Dao {
                 .build();
 
         try {
-            System.out.println("Getting bucket name");
-            // Get name of S3 bucket
-            String bucketName = "tweeter-cs340-profile-pics";
-            System.out.println("bucket name is " + bucketName);
-
             // Set up keyName (USERNAME.png)
             String keyName = username + ".png";
 
-            System.out.println("Kn " + keyName);
             // Set up input stream
             byte[] array = Base64.getDecoder().decode(imageString);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(array);
@@ -34,13 +36,12 @@ public class S3Dao implements IS3Dao {
             metadata.setContentType("image/png");
             metadata.setContentLength(array.length);
 
-            System.out.println("Putting in bucket");
             // Perform put
-            s3.putObject(bucketName, keyName, inputStream, metadata);
-            System.out.println("Successfully put in bucket");
+            s3.putObject(BUCKET_NAME, keyName, inputStream, metadata);
+            // System.out.println("Successfully put " + keyName + " in bucket");
 
             // Grab the url of the stored image
-            return s3.getUrl(bucketName, keyName).toString();
+            return s3.getUrl(BUCKET_NAME, keyName).toString();
 
         } catch (Exception ex) {
             System.out.println("Threw exception..");

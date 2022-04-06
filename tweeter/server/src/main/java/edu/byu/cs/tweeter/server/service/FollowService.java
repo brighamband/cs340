@@ -168,9 +168,19 @@ public class FollowService extends Service {
       return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    // Create follows relationship
     String followerAlias = daoFactory.getAuthTokenDao().getCurrUserAlias(request.getAuthToken().getToken());
     String followeeAlias = request.getFollowee().getAlias();
+
+    // Make sure they aren't already following them
+    Boolean isFollower = daoFactory.getFollowDao().isFollower(followerAlias, followeeAlias);
+    if (isFollower == null) {
+      throw new RuntimeException("[ServerError] Unable to check isFollower");
+    }
+    if (isFollower) {
+      return new Response(false, followerAlias + " is already following " + followeeAlias);
+    }
+
+    // Create follows relationship
     boolean successful = daoFactory.getFollowDao().create(followerAlias, request.getFollowee().getAlias());
 
     // Handle failure
@@ -204,9 +214,19 @@ public class FollowService extends Service {
       return new Response(false, "Auth token has expired. Log back in again to keep using Tweeter.");
     }
 
-    // Delete follows relationship (unfollow)
     String followerAlias = daoFactory.getAuthTokenDao().getCurrUserAlias(request.getAuthToken().getToken());
     String followeeAlias = request.getFollowee().getAlias();
+
+    // Make sure they currently are following them
+    Boolean isFollower = daoFactory.getFollowDao().isFollower(followerAlias, followeeAlias);
+    if (isFollower == null) {
+      throw new RuntimeException("[ServerError] Unable to check isFollower");
+    }
+    if (!isFollower) {
+      return new Response(false, followerAlias + " isn't currently following " + followeeAlias);
+    }
+
+    // Delete follows relationship (unfollow)
     boolean successful = daoFactory.getFollowDao().remove(followerAlias, followeeAlias);
 
     // Handle failure
