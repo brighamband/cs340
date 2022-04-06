@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
@@ -29,10 +30,12 @@ public class StatusService extends Service {
 
   private final int MAX_NUM_FOLLOWERS = 1000000;
 
-  private final int MAX_TO_ADD_TO_UPDATE_QUEUE = 500;
+  boolean DO_M4A_WAY_OF_UPDATING_FEEDS = true; // Toggle this boolean to adjust if you want to do the M4A or M4B way
 
   private final String SQS_POST_UPDATE_FEED_MESSAGES_URL = "https://sqs.us-east-2.amazonaws.com/547858414064/PostStatusQueue";
   private final String SQS_UPDATE_FEEDS_URL = "https://sqs.us-east-2.amazonaws.com/547858414064/UpdateFeedQueue";
+
+  private final int MAX_TO_ADD_TO_UPDATE_QUEUE = 500;
 
   public StatusService(IDaoFactory daoFactory) {
     super(daoFactory);
@@ -57,16 +60,45 @@ public class StatusService extends Service {
     long timestamp = TimeUtils.getCurrTimeAsLong();
     String post = request.getStatus().getPost();
 
-    // 1.  Have StoryDao create a new status in Story table (postStatus)
-
+    // Step 1 of the posting status process
+    // -- Have StoryDao create a new status in Story table (postStatus)
     boolean successful = daoFactory.getStoryDao().create(authorAlias, timestamp, post);
     if (!successful) { // Handle failure case #1
       throw new RuntimeException("[ServerError] Unable to add status to Story table");
     }
 
-    // 2.  Send 1st message to PostStatusQueue so it triggers PostsUpdateFeedMessages lambda
-    //       (gets user followers, makes string with n followers and the new status)
+    if (DO_M4A_WAY_OF_UPDATING_FEEDS) {  // M4A way
+      slowlyButSimplyUpdateFollowerFeeds(request.getAuthToken(), authorAlias, timestamp, post);
+    } else {  // M4B way
+      sendMsgToQueueToInvokeFirstLambda(authorAlias, timestamp, post);
+    }
 
+    // Return Response
+    return new Response(true);
+  }
+
+  /**
+   * Step 2 of the M4A (slower yet simpler way with no queuing and added lambdas) posting status process
+   * -- Get all the user's followers, make a new item (representing the new status) in the FeedTable for each follower
+   */
+  private void slowlyButSimplyUpdateFollowerFeeds(AuthToken authToken, String authorAlias, long timestamp, String post) {
+    // Have FollowDao get user's followers
+    List<String> followerAliases = daoFactory.getFollowDao().getFollowers(
+            new GetFollowersRequest(authToken, authorAlias, MAX_NUM_FOLLOWERS, null)).getFirst();
+    // Have FeedDao create that same new status in each feed of user's followers
+    for (String viewerAlias : followerAliases) {
+      boolean successful = daoFactory.getFeedDao().create(viewerAlias, authorAlias, timestamp, post);
+      if (!successful) { // Handle failure case #2
+        throw new RuntimeException("[ServerError] Unable to add status to Feed table");
+      }
+    }
+  }
+
+  /**
+   * Step 2 of M4B posting status process
+   * -- Sends message of the user's story to PostStatusQueue so it triggers PostsUpdateFeedMessages lambda
+   */
+  private void sendMsgToQueueToInvokeFirstLambda(String authorAlias, long timestamp, String post) {
     AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
 
     // Make object to hold request data
@@ -79,11 +111,13 @@ public class StatusService extends Service {
             .withMessageBody(msgBody);
 
     sqs.sendMessage(msgRequest);
-
-    // Return Response
-    return new Response(true);
   }
 
+  /**
+   * Step 3 of M4B posting status process
+   * -- Receives message of user's story, gets their followers.
+   * -- It then sends the new feed status messages to UpdateFeedQueue so it triggers UpdateFeeds lambda.
+   */
   public void postUpdateFeedMessages(SQSEvent event) {
     System.out.println("At postUpdateFeedMessages");
     if (event.getRecords() == null) {
@@ -129,7 +163,7 @@ public class StatusService extends Service {
   }
 
   // Chops a list into non-view sub-lists of length L
-  static <T> List<List<T>> chopped(List<T> list, final int L) {
+  private static <T> List<List<T>> chopped(List<T> list, final int L) {
     List<List<T>> parts = new ArrayList<List<T>>();
     final int N = list.size();
     for (int i = 0; i < N; i += L) {
@@ -140,6 +174,10 @@ public class StatusService extends Service {
     return parts;
   }
 
+  /**
+   * Step 4 of the M4B posting status process
+   * -- Receives a message with a batch of feeds to update, then batch writes up to 25 at a time
+   */
   public void updateFeeds(SQSEvent event) {
     System.out.println("At updateFeeds");
     if (event.getRecords() == null) {
