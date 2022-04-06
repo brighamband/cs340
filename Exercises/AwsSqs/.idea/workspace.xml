@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9f156203-71cd-4160-8a03-cfb9dcc81358" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../tweeter/wake-lambdas.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../tweeter/update-lambdas.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../../tweeter/update-lambdas.sh" afterDir="false" />
-    </list>
+    <list default="true" id="9f156203-71cd-4160-8a03-cfb9dcc81358" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
