@@ -102,7 +102,7 @@ public class StatusService extends Service {
       Pair<List<String>, Boolean> result = daoFactory.getFollowDao().getFollowers(
               new GetFollowersRequest(null, incomingMsg.getAuthorAlias(), MAX_NUM_FOLLOWERS, null)
       );
-      if (!result.getSecond()) return;
+      if (result.getFirst() == null || result.getSecond()) return;
 
       List<String> followerAliases = result.getFirst();
 
@@ -123,6 +123,7 @@ public class StatusService extends Service {
                 .withMessageBody(msgBody);
 
         sqs.sendMessage(outgoingMsg);
+        System.out.println("Sent msgBody:" + msgBody);
       }
     }
   }
@@ -140,6 +141,7 @@ public class StatusService extends Service {
   }
 
   public void updateFeeds(SQSEvent event) {
+    System.out.println("At updateFeeds");
     if (event.getRecords() == null) {
       System.out.println("Empty or invalid message was sent");
       return;
@@ -147,6 +149,7 @@ public class StatusService extends Service {
 
     for (SQSEvent.SQSMessage msg : event.getRecords()) {
       String body = msg.getBody();
+      System.out.println("Body: " + body);
 
       UpdateFeedsMsg updateFeedsMsg = new Gson().fromJson(body, UpdateFeedsMsg.class);
 

@@ -1,14 +1,57 @@
 package edu.byu.cs.tweeter.server;
 
+import com.amazonaws.services.lambda.runtime.events.SQSEvent;
+
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
+import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.server.dao.dynamo.DynamoDaoFactory;
 import edu.byu.cs.tweeter.server.dao.dynamo.FollowDao;
+import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 import edu.byu.cs.tweeter.server.dao.dynamo.UserDao;
+import edu.byu.cs.tweeter.server.lambda.RegisterHandler;
+import edu.byu.cs.tweeter.server.service.StatusService;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        System.out.println("Starting");
+
+        IDaoFactory factory = new DynamoDaoFactory();
+        StatusService service = new StatusService(factory);
+
+        SQSEvent event = new SQSEvent();
+        List<SQSEvent.SQSMessage> records = new ArrayList<>();
+        SQSEvent.SQSMessage message = new SQSEvent.SQSMessage();
+        message.setBody("{\"authorAlias\":\"@brighamband\",\"timestamp\":1649214925,\"post\":\"2\"}");;
+        records.add(message);
+        event.setRecords(records);
+
+        service.postUpdateFeedMessages(event);
+//        makePrimaryUser();
+//        makeBunchOfFollowersForUser();
+
+        System.out.println("All done!");
+    }
+
+    private static void makePrimaryUser() {
+        // Make user0 -- the one with all the followers
+        RegisterRequest registerRequest = new RegisterRequest(
+                "User",
+                "0",
+                "@user0",
+                "password",
+                "DEFAULT"
+        );
+        RegisterResponse registerResponse = new RegisterHandler().handleRequest(registerRequest, null);
+    }
+
+    private static void makeBunchOfFollowersForUser() throws IOException {
         // Set up log file
         FileWriter fw = null;
         try {
@@ -18,20 +61,6 @@ public class Main {
 
             // Start process
             System.out.println("Starting...");
-
-            /**
-             * Create main user (@user0)
-             */
-
-            // Make user0 -- the one with all the followers
-//        RegisterRequest registerRequest = new RegisterRequest(
-//                "User",
-//                "0",
-//                "@user0",
-//                "password",
-//                "DEFAULT"
-//        );
-//        RegisterResponse registerResponse = new RegisterHandler().handleRequest(registerRequest, null);
 
             /**
              * Create 10,000 users and have them follow @user0
@@ -77,7 +106,7 @@ public class Main {
                 fw.write(resultMsg);
             }
 
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.err.println(e);
         } finally {
             if (fw != null) {
@@ -87,42 +116,5 @@ public class Main {
 
         System.out.println("All done!");
     }
-
-
-//            LoginRequest loginRequest = new LoginRequest(
-//                    follower.getAlias(),
-//                    followerPassword
-//            );
-//            LoginResponse loginResponse = new LoginHandler().handleRequest(loginRequest, null);
-//
-//            if (loginResponse.isSuccess()) {
-//                followerAuthToken = loginResponse.getAuthToken();
-//                System.out.println("Logged in " + loginResponse.getUser().getAlias());
-//            } else {            // Otherwise register
-//                RegisterRequest registerRequest = new RegisterRequest(
-//                        follower.getFirstName(),
-//                        follower.getLastName(),
-//                        follower.getAlias(),
-//                        followerPassword,
-//                        follower.getImageUrl());
-//                RegisterResponse registerResponse = new RegisterHandler().handleRequest(registerRequest, null);
-//                followerAuthToken = registerResponse.getAuthToken();
-//                System.out.println("Registered " + registerResponse.getUser().getAlias());
-//            }
-
-//            FollowRequest followRequest = new FollowRequest(
-//                    followerAuthToken,
-//                    new User(
-//                        "User",
-//                            "0",
-//                            "@user0",
-//                            "DEFAULT"
-//                    )
-//            );
-//            Response followResponse = new FollowHandler().handleRequest(followRequest, null);
-//            if (followResponse.isSuccess()) {
-//                System.out.println(follower.getAlias() + " now follows @user0");
-//            } else {
-//                System.out.println(follower.getAlias() + " was already following @user0");
-//            }
 }
+
