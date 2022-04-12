@@ -14,27 +14,28 @@ class TextEditor {
 
             Scanner scanner = new Scanner(System.in);
             String optionInput = scanner.next();
-            int option = validateNumberInput(optionInput);
+            int option = Utils.validateNumberInput(optionInput);
+            UndoRedoManager manager = new UndoRedoManager();
 
             if (option != -1) {
                 switch (option) {
                     case 1:
-                        insert();
+                        manager.execute(new Insert(_document));
                         break;
                     case 2:
-                        delete();
+                        manager.execute(new Delete(_document));
                         break;
                     case 3:
-                        replace();
+                        manager.execute(new Replace(_document));
                         break;
                     case 4:
                         _document.display();
                         break;
                     case 5:
-                        save();
+                        manager.execute(new Save(_document));
                         break;
                     case 6:
-                        open();
+                        manager.execute(new Open(_document));
                         break;
                     case 7:
                         _document.clear();
@@ -69,82 +70,5 @@ class TextEditor {
 
         System.out.println();
         System.out.print("Your selection: ");
-    }
-
-    private void insert() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Start index: ");
-        String insertionIndexInput = scanner.next();
-        int insertionIndex = validateNumberInput(insertionIndexInput);
-        if (insertionIndex != -1) {
-            System.out.print("Sequence to insert: ");
-            String sequenceInput = scanner.next();
-            _document.insert(insertionIndex, sequenceInput);
-        }
-    }
-
-    private void delete() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Start index: ");
-        String deletionIndexInput = scanner.next();
-        int deletionIndex = validateNumberInput(deletionIndexInput);
-        if (deletionIndex != -1) {
-            System.out.print("Number of characters to delete: ");
-            String deletionDistanceInput = scanner.next();
-            int deletionDistance = validateNumberInput(deletionDistanceInput);
-            if (deletionDistance != -1) {
-                if (_document.delete(deletionIndex, deletionDistance) == null) {
-                    System.out.println("Deletion unsuccessful");
-                }
-            }
-        }
-    }
-
-    private void replace() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Start index: ");
-        String replaceIndexInput = scanner.next();
-        int replaceIndex = validateNumberInput(replaceIndexInput);
-        if (replaceIndex != -1) {
-            System.out.print("Number of characters to replace: ");
-            String replaceDistanceInput = scanner.next();
-            int replaceDistance = validateNumberInput(replaceDistanceInput);
-            if (replaceDistance != -1) {
-                System.out.print("Replacement string: ");
-                String replacementString = scanner.next();
-                _document.delete(replaceIndex, replaceDistance);
-                _document.insert(replaceIndex, replacementString);
-            }
-        }
-    }
-
-    private void save() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Name of file: ");
-        String saveFileName = scanner.next();
-        _document.save(saveFileName);
-    }
-
-    private void open() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Name of file to open: ");
-        String openFileName = scanner.next();
-        _document.open(openFileName);
-    }
-
-    private int validateNumberInput(String input) {
-        int selection = -1;
-        try {
-            selection = Integer.parseInt(input);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input");
-        }
-
-        return selection;
     }
 }
