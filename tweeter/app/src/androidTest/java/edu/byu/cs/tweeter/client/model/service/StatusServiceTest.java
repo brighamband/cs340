@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurr.CountDownLatch;
+import java.util.concurrent.CountDownLatch;
 
 import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
