@@ -13,6 +13,10 @@ public class Cache {
         return instance;
     }
 
+    public static void setInstance(Cache instance) {
+        Cache.instance = instance;
+    }
+
     /**
      * The currently logged-in user.
      */

@@ -6,11 +6,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -19,7 +17,6 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.server.dao.dynamo.AuthTokenDao;
-import edu.byu.cs.tweeter.server.dao.dynamo.DynamoDaoFactory;
 import edu.byu.cs.tweeter.server.dao.dynamo.IAuthTokenDao;
 import edu.byu.cs.tweeter.server.dao.dynamo.IDaoFactory;
 import edu.byu.cs.tweeter.server.dao.dynamo.IFeedDao;
@@ -51,7 +48,7 @@ public class StatusServiceTest {
 
         AuthToken brigUnliAuthToken = new AuthToken("0bd0dcd3-a2e8-4978-96cf-bedfd00a3795");  // brighamband's auth token that won't expire
         brigUser = new User("Brigham", "Andersen", "@brighamband", "https://tweeter-cs340-profile-pics.s3.us-east-2.amazonaws.com/%40brighamband.png");
-        requestNoPagination = new GetStoryRequest(brigUnliAuthToken, "@brighamband", 20, null);
+        requestNoPagination = new GetStoryRequest(brigUnliAuthToken, brigUser.getAlias(), 20, null);
 
         jimmerUser = new User("Jimmer", "Fredette", "@jimmer", "https://tweeter-cs340-profile-pics.s3.us-east-2.amazonaws.com/%40jimmer.png");
         jimmerExpectedStatuses = new ArrayList<>();
@@ -122,8 +119,8 @@ public class StatusServiceTest {
         assertEquals(1, actualResponse.getStory().size());
         Status actualStory = actualResponse.getStory().get(0);
         assertEquals(brigUser, actualStory.getUser());
-        assertEquals(brigExpectedStatus.getPost() , actualStory.getPost());
-        assertEquals(brigExpectedStatus.getMentions() , actualStory.getMentions());
+        assertEquals(brigExpectedStatus.getPost(), actualStory.getPost());
+        assertEquals(brigExpectedStatus.getMentions(), actualStory.getMentions());
         assertEquals(brigExpectedStatus.getUrls(), actualStory.getUrls());
         assertEquals(brigExpectedStatus.getDate(), actualStory.getDate());
     }
@@ -135,11 +132,9 @@ public class StatusServiceTest {
         assertTrue(actualResponse.getHasMorePages());
         Status actualStory = actualResponse.getStory().get(0);
         assertEquals(jimmerUser, actualStory.getUser());
-        assertEquals(jimmerExpectedStatuses.get(1).getPost() , actualStory.getPost());
-        assertEquals(jimmerExpectedStatuses.get(1).getMentions() , actualStory.getMentions());
+        assertEquals(jimmerExpectedStatuses.get(1).getPost(), actualStory.getPost());
+        assertEquals(jimmerExpectedStatuses.get(1).getMentions(), actualStory.getMentions());
         assertEquals(jimmerExpectedStatuses.get(1).getUrls(), actualStory.getUrls());
         assertEquals(jimmerExpectedStatuses.get(1).getDate(), actualStory.getDate());
-//
     }
-    // Add pagination test
 }

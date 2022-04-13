@@ -9,17 +9,13 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
-import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.LoginRequest;
-import edu.byu.cs.tweeter.model.net.response.LoginResponse;
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.util.FakeData;
 
 /**
@@ -27,19 +23,24 @@ import edu.byu.cs.tweeter.util.FakeData;
  */
 public class StatusServiceTest {
 
+  private FakeData fakeData;
+  private User currUser;
+  private AuthToken currAuthToken;
+
   private StatusService statusService;
   private StatusServiceObserver observer;
 
   private CountDownLatch countDownLatch;
 
-  private ServerFacade serverFacade;
-
   @Before
   public void setup() {
-    statusService = new StatusService();
-    observer = new StatusServiceObserver();
+    fakeData = new FakeData();
+    currUser = new User("FirstName", "LastName", null);
+    currAuthToken = new AuthToken();
 
-    serverFacade = new ServerFacade();
+    statusService = new StatusService();
+
+    observer = new StatusServiceObserver();
 
     resetCountDownLatch();
   }
@@ -113,6 +114,49 @@ public class StatusServiceTest {
   private void awaitCountDownLatch() throws InterruptedException {
     countDownLatch.await();
     resetCountDownLatch();
+  }
+
+  @Test
+  public void testGetStory_positivePageSize() throws InterruptedException {
+    statusService.getStory(
+        currAuthToken,
+        currUser,
+        5,
+        null,
+        observer);
+    awaitCountDownLatch();
+
+    List<Status> expectedStory = new FakeData().getFakeStatuses().subList(0, 5);
+    assertTrue(observer.isSuccess());
+    assertNull(observer.getMessage());
+    assertEquals(expectedStory.size(), observer.getStory().size());
+    for (int i = 0; i < expectedStory.size(); i++) {
+      Status expected = expectedStory.get(i);
+      Status actual = observer.getStory().get(i);
+      assertEquals(expected.getPost(), actual.getPost());
+      assertEquals(expected.getUser(), actual.getUser());
+      assertEquals(expected.getUrls(), actual.getUrls());
+      assertEquals(expected.getMentions(), actual.getMentions());
+    }
+    assertTrue(observer.getHasMorePages());
+    assertNull(observer.getException());
+  }
+
+  @Test
+  public void testGetStory_pageSizeZero() throws InterruptedException {
+    statusService.getStory(
+        currAuthToken,
+        currUser,
+        0,
+        null,
+        observer);
+    awaitCountDownLatch();
+
+    assertTrue(observer.isSuccess());
+    assertNull(observer.getMessage());
+    assertNull(observer.getStory());
+    assertFalse(observer.getHasMorePages());
+    assertNull(observer.getException());
   }
 
   @Test
