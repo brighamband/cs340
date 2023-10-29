@@ -19,7 +19,7 @@ public class MainPresenterUnitTest {
   private MainPresenter spyMainPresenter;
 
   AuthToken TEST_AUTH_TOKEN = new AuthToken("test-auth-token");
-  Status TEST_STATUS = new Status("This is my status", null, null, null, null);
+  Status TEST_STATUS = new Status("This is my status", null, null);
 
   @Before
   public void setup() {
